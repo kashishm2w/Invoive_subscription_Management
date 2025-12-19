@@ -1,0 +1,129 @@
+/* ===== BASIC RESET ===== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #F5F5F0;
+    color: #2f3e4e;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+/* ===== TOP BAR ===== */
+.top-bar {
+    background: #F5F5F0;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.top-bar__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.top-bar__item {
+    margin-right: 15px;
+}
+
+.top-bar__username {
+    color: #80A1BA;
+    font-weight: bold;
+}
+
+/* ===== HEADER ===== */
+.main-header {
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.header__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+}
+
+/* Logo */
+.header__logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #80A1BA;
+}
+
+/* ===== NAVIGATION ===== */
+.header__nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.nav__list {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav__link {
+    text-decoration: none;
+    color: #2f3e4e;
+    font-weight: 500;
+}
+
+.nav__link:hover {
+    color: #80A1BA;
+}
+
+/* ===== ACCOUNT ===== */
+.header__account {
+    position: relative;
+}
+
+.account__btn {
+    background: #80A1BA;
+    color: #ffffff;
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.account__btn:hover {
+    background: #6f90a9;
+}
+
+.account__menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    min-width: 160px;
+}
+
+.header__account:hover .account__menu {
+    display: block;
+}
+
+.account__link {
+    display: block;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #2f3e4e;
+}
+
+.account__link:hover {
+    background: #F5F5F0;
+    color: #80A1BA;
+}
