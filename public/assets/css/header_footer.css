@@ -1,0 +1,257 @@
+/* ================= RESET ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background-color: #F5F5F0;
+    color: #2f3e4e;
+}
+
+/* ================= MAIN CONTENT ================= */
+.main-content {
+    flex: 1; /* ensures footer stays at the bottom */
+}
+
+/* ================= COMMON ================= */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ================= TOP BAR ================= */
+.top-bar {
+    background-color: #F5F5F0;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.top-bar__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.top-bar__left {
+    display: flex;
+    gap: 15px;
+}
+
+.top-bar__item {
+    color: #2f3e4e;
+}
+
+.top-bar__right {
+    color: #2f3e4e;
+}
+
+.top-bar__username {
+    color: #80A1BA;
+}
+
+.top-bar__link {
+    text-decoration: none;
+    color: #2f3e4e;
+}
+
+.top-bar__link:hover {
+    color: #80A1BA;
+}
+
+/* ================= HEADER ================= */
+.main-header {
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.header__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 0;
+}
+
+/* ================= LOGO ================= */
+.header__logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #80A1BA;
+    white-space: nowrap;
+}
+
+/* ================= NAVIGATION ================= */
+.header__nav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.nav__list {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav__link {
+    text-decoration: none;
+    color: #2f3e4e;
+    font-weight: 500;
+    padding: 6px 8px;
+}
+
+.nav__link:hover {
+    color: #80A1BA;
+    border-bottom: 2px solid #80A1BA;
+}
+
+/* ================= ACCOUNT MENU ================= */
+.header__account {
+    position: relative;
+}
+
+.account__btn {
+    background-color: #80A1BA;
+    color: #ffffff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.account__btn:hover {
+    background-color: #6f90a9;
+}
+
+.account__menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 42px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    min-width: 160px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.header__account:hover .account__menu {
+    display: block;
+}
+
+.account__link {
+    display: block;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #2f3e4e;
+    font-size: 14px;
+}
+
+.account__link:hover {
+    background-color: #F5F5F0;
+    color: #80A1BA;
+}
+/* Show dropdown when active (clicked) */
+.account__menu.active {
+    display: block !important;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    background-color: #80A1BA;
+    color: #F5F5F0;
+    padding: 40px 0 20px 0;
+}
+
+.footer__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer__block h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    border-bottom: 2px solid #F5F5F0;
+    padding-bottom: 5px;
+}
+
+.footer__block p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer__link {
+    color: #F5F5F0;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer__link:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+.btn-footer {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 6px 12px;
+    background-color: #F5F5F0;
+    color: #80A1BA;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-footer:hover {
+    background-color: #e0e0dc;
+    color: #6f90a9;
+}
+
+/* ================= FOOTER BOTTOM ================= */
+.footer__bottom {
+    background-color: #6f90a9;
+    text-align: center;
+    padding: 15px 10px;
+    font-size: 13px;
+}
+
+.footer__bottom span {
+    font-weight: bold;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .footer__content {
+        grid-template-columns: 1fr 1fr;
+    }
+    .nav__list {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer__content {
+        grid-template-columns: 1fr;
+    }
+    .header__content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header__nav {
+        margin-top: 10px;
+    }
+}
