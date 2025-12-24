@@ -1,0 +1,129 @@
+/* ===========================
+   Dashboard Header
+=========================== */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 8px;
+}
+
+.dashboard-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* ===========================
+   Add Product Button
+=========================== */
+.btn-add-product {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 13px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.btn-add-product:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* ===========================
+   Product Table
+=========================== */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+}
+
+/* Table cells */
+.product-table th,
+.product-table td {
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 13px;
+    color: #34495e;
+}
+
+/* Table header */
+.product-table th {
+    background-color: #4CAF50;
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Table rows */
+.product-table tr {
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.2s ease;
+}
+
+.product-table tr:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect */
+.product-table tbody tr:hover {
+    background-color: #f7fcff;
+}
+
+/* Product poster */
+.product-poster {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* Action links (edit/delete/view) */
+.product-table a {
+    color: #4CAF50;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s ease;
+}
+
+.product-table a:hover {
+    color: #2E7D32;
+    text-decoration: underline;
+}
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 768px) {
+    .dashboard-header h1 {
+        font-size: 18px;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 6px 6px;
+        font-size: 12px;
+    }
+
+    .btn-add-product {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .product-poster {
+        width: 30px;
+        height: 30px;
+    }
+}

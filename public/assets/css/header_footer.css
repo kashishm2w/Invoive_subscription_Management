@@ -1,0 +1,282 @@
+/*  RESET  */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background-color: #F5F5F0;
+    color: #2f3e4e;
+}
+
+/*  COMMON  */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.main-content {
+    flex: 1;
+}
+
+/*  TOP BAR  */
+.top-bar {
+    background-color: #F5F5F0;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.top-bar_content {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.top-bar_left {
+    display: flex;
+    gap: 15px;
+}
+
+.top-bar_item {
+    color: #2f3e4e;
+}
+
+.top-bar_username {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+/*  HEADER  */
+.main-header {
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* PERFECT LEFT | CENTER | RIGHT */
+.header_content {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 15px 0;
+}
+
+/* LOGO */
+.header_logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+    white-space: nowrap;
+}
+
+/* NAVIGATION */
+.header_nav {
+    display: flex;
+    justify-content: center;
+}
+
+.nav_list {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav_link {
+    text-decoration: none;
+    color: #2f3e4e;
+    font-weight: 500;
+    padding: 6px 8px;
+}
+
+.nav_link:hover {
+    color: #2c3e50;
+    border-bottom: 2px solid #2c3e50;
+}
+
+/*  ACCOUNT  */
+.header_account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Menu button */
+.account_btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+}
+
+/* Menu icon */
+.account_btn img,
+.icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
+/*  SIDEBAR  */
+.account_menu {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background: #1f2937;
+    padding: 20px;
+    transition: right 0.35s ease;
+    z-index: 1001;
+}
+
+.account_menu.active {
+    right: 0;
+}
+
+.account_menu .account_link {
+    display: block;
+    color: #fff;
+    padding: 14px 10px;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.account_menu .account_link:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Overlay */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1000;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/*  AUTH BUTTONS  */
+.auth_btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid #2c3e50;
+    color: #2c3e50;
+    transition: all 0.2s ease;
+}
+
+.auth_btn:hover {
+    background: #2c3e50;
+    color: #fff;
+}
+
+.auth_btn.primary {
+    background: #2c3e50;
+    color: #fff;
+}
+
+.auth_btn.primary:hover {
+    background: #6f90a9;
+}
+
+/* ================= FOOTER ================= */
+.footer {
+    background-color: #2c3e50;
+    color: #F5F5F0;
+    padding: 25px 0 15px;
+    font-size: 14px;
+}
+
+/* Footer content layout */
+.footer__content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+/* Footer block */
+.footer__block h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(245,245,240,0.4);
+    padding-bottom: 4px;
+}
+
+.footer__block p {
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: 0.9;
+}
+
+/* Footer links */
+.footer__link {
+    color: #F5F5F0;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.footer__link:hover {
+    text-decoration: underline;
+}
+
+/* Button-style links (Contact Sales / Demo) */
+.btn-footer {
+    display: inline-block;
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+/* Footer bottom */
+.footer__bottom {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(245,245,240,0.2);
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .footer {
+        padding: 20px 0 12px;
+    }
+
+    .footer__content {
+        gap: 15px;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .nav_list {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header_content {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .header_nav {
+        justify-content: flex-start;
+    }
+}

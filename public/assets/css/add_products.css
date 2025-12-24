@@ -1,0 +1,115 @@
+/*  FORM CONTAINER  */
+.form-container {
+    width: 600px;
+    margin: 60px auto;
+    padding: 35px 40px;
+    background-color: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+/*  FORM TITLE  */
+.form-title {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #80A1BA;
+}
+
+/*  FORM GROUP  */
+.form-group {
+    margin-bottom: 18px;
+}
+
+/*  LABEL  */
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2f3e4e;
+}
+
+/*  INPUT & TEXTAREA  */
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #F5F5F0;
+    color: #2f3e4e;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #80A1BA;
+    background-color: #ffffff;
+}
+
+/*  TEXTAREA  */
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-group select {
+    width: 100%;
+    padding: 11px 14px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #F5F5F0;
+    color: #2f3e4e;
+    cursor: pointer;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: #80A1BA;
+    background-color: #ffffff;
+}
+
+/*  BUTTON  */
+.form-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #80A1BA;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.form-button:hover {
+    background-color: #6f90a9;
+}
+
+/*  ERROR LIST  */
+.error-list {
+    list-style: none;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    background-color: #F5F5F0;
+    border-left: 4px solid #80A1BA;
+    border-radius: 4px;
+}
+
+.error-list li {
+    font-size: 14px;
+    color: #2f3e4e;
+    margin-bottom: 6px;
+}
+
+/*  RESPONSIVE  */
+@media (max-width: 600px) {
+    .form-container {
+        margin: 30px 15px;
+        padding: 25px;
+    }
+}

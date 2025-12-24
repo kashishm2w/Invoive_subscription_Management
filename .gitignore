@@ -1,0 +1,6 @@
+
+# Environment files
+.env
+
+# Vendor (Composer)
+/vendor/
