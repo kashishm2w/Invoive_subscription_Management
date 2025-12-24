@@ -25,7 +25,6 @@ class Product extends Model
         return $result->num_rows ? $result->fetch_assoc() : null;
     }
 
-    // ⚠️ LOGIC WARNING: This is NOT real sales data
     public function getMonthlySales(): array
     {
         $sql = "
@@ -48,7 +47,6 @@ class Product extends Model
         return $data;
     }
 
-    // Add product ✅ FIXED
     public function add(array $data): bool
     {
         $stmt = $this->db->prepare(

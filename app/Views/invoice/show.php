@@ -66,7 +66,6 @@
     <!-- Payment Info -->
     <div class="invoice-payment">
         <h3>Payment Info:</h3>
-        <p><?= htmlspecialchars($invoice['payment_method'] ?? 'Credit Card') ?> - <?= htmlspecialchars($invoice['payment_details'] ?? '**** **** **** 0000') ?></p>
         <p><strong>Amount:</strong> &#8377;<?= number_format($grandTotal, 2) ?></p>
     </div>
 
@@ -96,10 +95,10 @@
 </div>
 <div class="invoice-actions">
     <a href="/invoice/download?id=<?= $invoice['id'] ?>" class="btn btn-download">
-        ⬇ Download PDF
+         Download PDF
     </a>
     <a href="/invoice/send-email?id=<?= $invoice['id'] ?>" class="btn btn-email">
-        ✉ Send Email
+         Send Email
     </a>
 </div>
 

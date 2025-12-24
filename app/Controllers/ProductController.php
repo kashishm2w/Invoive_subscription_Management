@@ -16,13 +16,13 @@ class ProductController
         Session::start(); // start session for checking user/admin
     }
     // ProductController.php
-   public function listProducts()
-{
-    $products = $this->productModel->getAll(); // fetch all products
-    $cart = Session::get('cart') ?? [];
-    $cartProductIds = array_keys($cart); // IDs of products already in cart
-    require APP_ROOT . '/app/Views/products/list.php'; // product list view
-}
+    public function listProducts()
+    {
+        $products = $this->productModel->getAll(); // fetch all products
+        $cart = Session::get('cart') ?? [];
+        $cartProductIds = array_keys($cart); // IDs of products already in cart
+        require APP_ROOT . '/app/Views/products/list.php'; // product list view
+    }
 
 
 
@@ -34,25 +34,25 @@ class ProductController
             exit;
         }
     }
-// Show Single Product (View Page)
-public function show()
-{
-    $id = $_GET['id'] ?? null;
+    // Show Single Product (View Page)
+    public function show()
+    {
+        $id = $_GET['id'] ?? null;
 
-    if (!$id) {
-        header("Location: /products");
-        exit;
+        if (!$id) {
+            header("Location: /products");
+            exit;
+        }
+
+        $product = $this->productModel->getById($id);
+
+        if (!$product) {
+            header("Location: /products");
+            exit;
+        }
+
+        require APP_ROOT . '/app/Views/products/show.php';
     }
-
-    $product = $this->productModel->getById($id);
-
-    if (!$product) {
-        header("Location: /products");
-        exit;
-    }
-
-    require APP_ROOT . '/app/Views/products/show.php';
-}
 
     // Add Product
     public function addProductForm()
@@ -66,10 +66,7 @@ public function show()
     public function addProduct()
     {
         $this->checkAdmin();
-//  echo "<pre>";
-//     print_r($_POST);
-//     print_r($_FILES);
-//     exit;
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = [];
 
@@ -79,8 +76,7 @@ public function show()
             $tax_percent = trim($_POST['tax_percent'] ?? 0);
             $quantity    = trim($_POST['quantity'] ?? 1);
             $poster      = $_FILES['poster'] ?? null;
-
-            // ====== Validation ======
+            // validation
             if ($name === '') $errors[] = "Product name is required.";
             if ($description === '') $errors[] = "Description is required.";
             if (!is_numeric($price) || $price <= 0) $errors[] = "Price must be a valid number.";
@@ -112,26 +108,23 @@ public function show()
             }
 
             // Save product
-         try {
-    $this->productModel->add([
-        'name'        => $name,
-        'description' => $description,
-        'price'       => $price,
-        'tax_percent' => $tax_percent,
-        'quantity'    => $quantity,
-        'poster'      => $poster_name
-    ]);
-} catch (\Exception $e) {
-    die("DB Error: " . $e->getMessage());
-}
+            try {
+                $this->productModel->add([
+                    'name'        => $name,
+                    'description' => $description,
+                    'price'       => $price,
+                    'tax_percent' => $tax_percent,
+                    'quantity'    => $quantity,
+                    'poster'      => $poster_name
+                ]);
+            } catch (\Exception $e) {
+                die("DB Error: " . $e->getMessage());
+            }
 
             header("Location: /products");
             exit;
         }
     }
-
-
-
 
     // Manage Products
     public function manageProducts()
@@ -176,7 +169,6 @@ public function show()
             exit;
         }
     }
-
 
     // Delete Product
     public function deleteProduct()
