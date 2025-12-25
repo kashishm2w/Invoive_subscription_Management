@@ -18,7 +18,7 @@ Session::start();
 require_once APP_ROOT . '/app/Core/Router.php';
 require_once APP_ROOT . '/app/Core/Database.php';
 require_once APP_ROOT . '/app/Models/User.php';
-require_once APP_ROOT . '/app/Models/Product.php';
+// require_once APP_ROOT . '/app/Models/Product.php';
 require_once APP_ROOT . '/app/Controllers/AuthController.php';
 require_once APP_ROOT . '/app/Controllers/DashboardController.php';
 

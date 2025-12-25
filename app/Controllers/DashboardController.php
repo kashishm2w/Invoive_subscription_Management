@@ -22,7 +22,7 @@ class DashboardController
         require APP_ROOT . '/app/Views/dashboard.php';
     }
 
-    // ===================== Admin Check =====================
+    //  Admin Check 
     private function checkAdmin() {
         if (!Session::has('user_id') || Session::get('role') !== 'admin') {
             header("Location: /dashboard"); // redirect non-admins
@@ -30,13 +30,13 @@ class DashboardController
         }
     }
 
-    // ===================== Add Product =====================
+    //  Add Product 
     public function addProductForm() {
         $this->checkAdmin();
         require APP_ROOT . '/app/Views/admin/add_product.php';
     }
 
-    // ===================== Add Product =====================
+    //  Add Product 
 public function addProduct() {
     $this->checkAdmin();
 
@@ -71,14 +71,14 @@ public function addProduct() {
 }
 
 
-    // ===================== Manage Products =====================
+    //  Manage Products 
     public function manageProducts() {
         $this->checkAdmin();
         $products = $this->productModel->getAll();
         require APP_ROOT . '/app/Views/admin/manage_products.php';
     }
 
-    // ===================== Edit Product =====================
+    //  Edit Product 
     public function editProductForm() {
         $this->checkAdmin();
         $id = $_GET['id'] ?? null;
@@ -91,7 +91,7 @@ public function addProduct() {
         require APP_ROOT . '/app/Views/admin/edit_product.php';
     }
 
-    // ===================== Update Product =====================
+    //  Update Product 
 public function updateProduct() {
     $this->checkAdmin();
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -113,7 +113,7 @@ public function updateProduct() {
 }
 
 
-    // ===================== Delete Product =====================
+    //  Delete Product 
     public function deleteProduct() {
         $this->checkAdmin();
         $id = $_GET['id'] ?? null;
@@ -124,7 +124,7 @@ public function updateProduct() {
         exit;
     }
 
-    // ===================== Track Invoices =====================
+    //  Track Invoices 
     public function trackInvoices() {
         $this->checkAdmin();
         // You can fetch invoices from your Invoice model here
