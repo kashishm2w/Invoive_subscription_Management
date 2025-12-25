@@ -19,7 +19,7 @@ class User extends Model
     public function register(string $name, string $email, string $hashedPassword): bool
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'admin')"
+            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')"
         );
         $stmt->bind_param("sss", $name, $email, $hashedPassword);
 

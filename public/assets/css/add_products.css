@@ -1,4 +1,3 @@
-/*  FORM CONTAINER  */
 .form-container {
     width: 600px;
     margin: 60px auto;
@@ -8,7 +7,6 @@
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-/*  FORM TITLE  */
 .form-title {
     text-align: center;
     margin-bottom: 25px;
@@ -17,12 +15,10 @@
     color: #80A1BA;
 }
 
-/*  FORM GROUP  */
 .form-group {
     margin-bottom: 18px;
 }
 
-/*  LABEL  */
 .form-group label {
     display: block;
     margin-bottom: 6px;
@@ -31,7 +27,6 @@
     color: #2f3e4e;
 }
 
-/*  INPUT & TEXTAREA  */
 .form-group input,
 .form-group textarea {
     width: 100%;
@@ -50,7 +45,6 @@
     background-color: #ffffff;
 }
 
-/*  TEXTAREA  */
 .form-group textarea {
     resize: vertical;
     min-height: 80px;
@@ -72,7 +66,6 @@
     background-color: #ffffff;
 }
 
-/*  BUTTON  */
 .form-button {
     width: 100%;
     padding: 12px;
@@ -90,7 +83,6 @@
     background-color: #6f90a9;
 }
 
-/*  ERROR LIST  */
 .error-list {
     list-style: none;
     padding: 12px 15px;
@@ -106,7 +98,6 @@
     margin-bottom: 6px;
 }
 
-/*  RESPONSIVE  */
 @media (max-width: 600px) {
     .form-container {
         margin: 30px 15px;

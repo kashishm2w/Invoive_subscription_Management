@@ -4,20 +4,20 @@
 <div class="dashboard-header">
     <h1>Daily Invoice Analytics (Current Month)</h1>
 </div>
-
+ 
 <div class="dashboard-analytics">
     <canvas id="invoiceChart" width="400" height="200"></canvas>
 </div>
-
+ 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('invoiceChart').getContext('2d');
-
+ 
 // PHP data
 const invoiceData = <?= json_encode($salesData ?? []) ?>;
 const labels = invoiceData.map(item => item.date);
 const data = invoiceData.map(item => item.total);
-
+ 
 const invoiceChart = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -41,3 +41,5 @@ const invoiceChart = new Chart(ctx, {
     }
 });
 </script>
+ 
+ 

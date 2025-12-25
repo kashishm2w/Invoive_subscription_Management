@@ -85,5 +85,90 @@ public function getDailyTotals(string $startDate, string $endDate): array
 
     return $data;
 }
+// public function getAll(): array
+// {
+//     $sql = "SELECT * FROM invoices ORDER BY created_at DESC";
+//     $result = $this->db->query($sql);
+
+//     $invoices = [];
+//     while ($row = $result->fetch_assoc()) {
+//         $invoices[] = $row;
+//     }
+
+//     return $invoices;
+// }
+public function countAll(): int
+{
+    $result = $this->db->query("SELECT COUNT(*) AS total FROM invoices");
+    return (int)$result->fetch_assoc()['total'];
+}
+
+// public function getPaginated(int $limit, int $offset): array
+// {
+//     $stmt = $this->db->prepare(
+//         "SELECT * FROM invoices ORDER BY created_at DESC LIMIT ? OFFSET ?"
+//     );
+//     $stmt->bind_param("ii", $limit, $offset);
+//     $stmt->execute();
+
+//     $result = $stmt->get_result();
+//     return $result->fetch_all(MYSQLI_ASSOC);
+// }
+public function getAllWithUsers(): array
+{
+    $sql = "
+        SELECT invoices.*, users.name AS user_name
+        FROM invoices
+        LEFT JOIN users ON invoices.created_by = users.id
+        ORDER BY invoices.created_at DESC
+    ";
+    $result = $this->db->query($sql);
+
+    $invoices = [];
+    while ($row = $result->fetch_assoc()) {
+        $invoices[] = $row;
+    }
+
+    return $invoices;
+}
+
+public function getPaginatedWithUsers(int $limit, int $offset): array
+{
+    $stmt = $this->db->prepare("
+        SELECT invoices.*, users.name AS user_name
+        FROM invoices
+        LEFT JOIN users ON invoices.created_by = users.id
+        ORDER BY invoices.created_at DESC
+        LIMIT ? OFFSET ?
+    ");
+    $stmt->bind_param("ii", $limit, $offset);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+public function myInvoices() {
+    $stmt =$this->db->prepare("
+
+    ");
+    $stmt->bind_param("ii", $limit, $offset);
+    $stmt->execute();
+
+}
+// Get all invoices of a user
+public function getByUser(int $userId): array
+{
+    $stmt = $this->db->prepare("
+        SELECT *
+        FROM invoices
+        WHERE created_by = ?
+        ORDER BY created_at DESC
+    ");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
 
 }

@@ -1,5 +1,5 @@
 <?php
-
+namespace App\Helpers;
 // Pagination class handles page calculation and link generation
 class Pagination
 {

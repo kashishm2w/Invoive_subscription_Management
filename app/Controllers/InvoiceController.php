@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Helpers\Session;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use Mpdf\Mpdf;
 
 class InvoiceController
 {
@@ -19,16 +20,27 @@ class InvoiceController
     }
 
     // Show Invoice (like cart view)
-    public function show()
-    {
-        $invoiceId = (int)($_GET['id'] ?? 0);
-        if (!$invoiceId) {
-            header("Location: /dashboard");
-            exit;
-        }
+public function show()
+{
+    if (!Session::has('user_id')) {
+        header("Location: /login");
+        exit;
+    }
 
-        $invoice = $this->invoiceModel->getById($invoiceId);
-        $items   = $this->itemModel->getByInvoice($invoiceId);
+    $invoiceId = (int)($_GET['id'] ?? 0);
+    if (!$invoiceId) {
+        header("Location: /dashboard");
+        exit;
+    }
+
+    $invoice = $this->invoiceModel->getById($invoiceId);
+
+    if (!$invoice || $invoice['created_by'] !== Session::get('user_id')) {
+        header("HTTP/1.1 403 Forbidden");
+        exit('Unauthorized access');
+    }
+
+    $items = $this->itemModel->getByInvoice($invoiceId);
 
         if (!$invoice) {
             header("Location: /dashboard");
@@ -73,21 +85,28 @@ class InvoiceController
         $totalAmount = $subtotal + $taxAmount;
         $taxRate = $subtotal > 0 ? ($taxAmount / $subtotal) * 100 : 0;
 
-        $invoiceId = $this->invoiceModel->create([
-            'created_by'     => Session::get('user_id'),
-            'client_id'      => Session::get('user_id'),
-            'invoice_number' => 'INV-' . date('Ymd-His'),
-            'invoice_date'   => date('Y-m-d'),
-            'due_date'       => date('Y-m-d', strtotime('+7 days')),
-            'subtotal'       => $subtotal,
-            'tax_type'       => 'GST',
-            'tax_rate'       => round($taxRate, 2),
-            'tax_amount'     => $taxAmount,
-            'discount'       => 0,
-            'total_amount'   => $totalAmount,
-            'status'         => 'Draft',
-            'notes'          => 'Generated from cart'
-        ]);
+      $allowedStatus = ['pending', 'unpaid', 'paid', 'overdue', 'cancelled'];
+$status = 'unpaid';
+if (!in_array($status, $allowedStatus)) {
+    $status = 'pending';
+}
+
+$invoiceId = $this->invoiceModel->create([
+    'created_by'     => Session::get('user_id'),
+    'client_id'      => Session::get('user_id'),
+    'invoice_number' => 'INV-' . date('Ymd-His'),
+    'invoice_date'   => date('Y-m-d'),
+    'due_date'       => date('Y-m-d', strtotime('+7 days')),
+    'subtotal'       => $subtotal,
+    'tax_type'       => 'GST',
+    'tax_rate'       => round($taxRate, 2),
+    'tax_amount'     => $taxAmount,
+    'discount'       => 0,
+    'total_amount'   => $totalAmount,
+    'status'         => $status,
+    'notes'          => 'Generated from cart'
+]);
+
 
         foreach ($cart as $item) {
             $this->itemModel->addItem($invoiceId, [
@@ -102,4 +121,52 @@ class InvoiceController
         header("Location: /invoice/show?id=" . $invoiceId);
         exit;
     }
+    public function myInvoices(){
+if(!Session::has('user_id')){
+    header("Location: /loign");
+    exit;
+}
+$invoices =$this ->invoiceModel->getByUser(Session::get('user_id'));
+    require APP_ROOT . '/app/Views/user/my_invoices.php';   
+ }
+
+
+public function pdf()
+{
+    if (!Session::has('user_id')) {
+        header("Location: /login");
+        exit;
+    }
+
+    $invoiceId = (int)($_GET['id'] ?? 0);
+    if (!$invoiceId) {
+        header("Location: /dashboard");
+        exit;
+    }
+
+    $invoice = $this->invoiceModel->getById($invoiceId);
+    $items   = $this->itemModel->getByInvoice($invoiceId);
+
+    if (!$invoice) {
+        header("Location: /dashboard");
+        exit;
+    }
+
+    $client  = [];   // fetch user if needed
+    $company = [];   // fetch company details
+
+    ob_start();
+    require APP_ROOT . '/app/Views/invoice/pdf.php';
+    $html = ob_get_clean();
+
+    $mpdf = new Mpdf([
+        'format' => 'A4',
+        'margin_top' => 15,
+        'margin_bottom' => 20,
+    ]);
+
+    $mpdf->WriteHTML($html);
+    $mpdf->Output('Invoice-'.$invoice['invoice_number'].'.pdf', 'D');
+}
+
 }

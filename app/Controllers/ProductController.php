@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Helpers\Session;
 use App\Models\Product;
+use App\Models\Invoice;
+use App\Helpers\Pagination; 
 
 class ProductController
 {
@@ -11,17 +13,15 @@ class ProductController
 
     public function __construct()
     {
-        // Initialize the Product model
         $this->productModel = new Product();
-        Session::start(); // start session for checking user/admin
+        Session::start(); 
     }
-    // ProductController.php
     public function listProducts()
     {
         $products = $this->productModel->getAll(); // fetch all products
         $cart = Session::get('cart') ?? [];
-        $cartProductIds = array_keys($cart); // IDs of products already in cart
-        require APP_ROOT . '/app/Views/products/list.php'; // product list view
+        $cartProductIds = array_keys($cart);
+        require APP_ROOT . '/app/Views/products/list.php'; 
     }
 
 
@@ -183,11 +183,32 @@ class ProductController
     }
 
     // Track Invoices
-    public function trackInvoices()
-    {
-        $this->checkAdmin();
-        // You can fetch invoices from your Invoice model here
-        $invoices = []; // replace with actual fetch
-        require APP_ROOT . '/app/Views/admin/track_invoices.php';
-    }
+public function trackInvoices()
+{
+    $this->checkAdmin();
+
+    $invoiceModel = new Invoice();
+
+    //  Current page from URL
+    $currentPage = (int)($_GET['page'] ?? 1);
+
+    //  Items per page
+    $limit = 10;
+
+    //  Calculate offset
+    $offset = ($currentPage - 1) * $limit;
+
+    // Total invoices count
+    $totalItems = $invoiceModel->countAll();
+
+    //  Create pagination object
+    $pagination = new Pagination($totalItems, $limit, $currentPage);
+
+    //  Fetch paginated invoices with user names
+    $invoices = $invoiceModel->getPaginatedWithUsers($limit, $offset);
+
+    require APP_ROOT . '/app/Views/admin/track_invoices.php';
+}
+
+
 }

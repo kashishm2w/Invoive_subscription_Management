@@ -101,7 +101,7 @@ public function updateItem()
 
         if ($productId && isset($cart[$productId])) {
             if ($quantity < 1) {
-                unset($cart[$productId]); // auto remove if qty < 1
+                unset($cart[$productId]); 
             } else {
                 $cart[$productId]['quantity'] = $quantity;
             }

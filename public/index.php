@@ -7,12 +7,20 @@ define('APP_ROOT', dirname(__DIR__));
 require_once APP_ROOT . '/vendor/autoload.php';
 Dotenv\Dotenv::createImmutable(APP_ROOT)->safeLoad();
 
+// Include Session helper
 require_once APP_ROOT . '/app/Helpers/Session.php';
 use App\Helpers\Session;
+
+// Start session globally
 Session::start();
+
 
 require_once APP_ROOT . '/app/Core/Router.php';
 require_once APP_ROOT . '/app/Core/Database.php';
+require_once APP_ROOT . '/app/Models/User.php';
+// require_once APP_ROOT . '/app/Models/Product.php';
+require_once APP_ROOT . '/app/Controllers/AuthController.php';
+require_once APP_ROOT . '/app/Controllers/DashboardController.php';
 
 use App\Core\Router;
 use App\Controllers\AuthController;
@@ -21,7 +29,7 @@ use App\Controllers\ProductController;
 use App\Controllers\CartController;
 use App\Controllers\InvoiceController;
 
-use App\Controllers\CheckoutController;
+use App\Controllers\SettingController;
 
 $router = new Router();
 //Dashboard
@@ -46,7 +54,6 @@ $router->get('/dashboard/products/edit', [ProductController::class, 'editProduct
 $router->post('/dashboard/products/edit', [ProductController::class, 'updateProduct']);
 $router->get('/dashboard/products/delete', [ProductController::class, 'deleteProduct']);
 $router->get('/dashboard/invoices', [ProductController::class, 'trackInvoices']);
-
 // cart
 $router->get('/cart', [CartController::class, 'showCart']);
 $router->post('/cart/add', [CartController::class, 'addItem']);
@@ -56,8 +63,11 @@ $router->post('/cart/remove', [CartController::class, 'removeItem']);
 // Invoices
 $router-> get('/invoice/show',[InvoiceController::class,'show']);
 $router-> post('/invoice/create',[InvoiceController::class,'create']);
+$router->get('/my_invoices', [InvoiceController::class, 'myInvoices']);
+$router->get('/invoice/pdf', [InvoiceController::class, 'pdf']);
 
-// // Checkout - create invoice, generate PDF, send email
-// $router->post('/checkout', [CheckoutController::class, 'index']);
+$router->get('/settings',         [SettingController:: class,'index']);
+$router->post('/settings/update', [SettingController:: class,'update']);
+
 $router->dispatch();
 

@@ -4,3 +4,7 @@
 
 # Vendor (Composer)
 /vendor/
+/app/Models/Product.php
+/aap/Views/admin/
+/app/layout/footer
+/public/assets/css/header_footer

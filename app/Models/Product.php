@@ -6,7 +6,6 @@ use App\Core\Model;
 
 class Product extends Model
 {
-    // Get all products
     public function getAll(): array
     {
         $stmt = $this->db->prepare("SELECT * FROM products ORDER BY id DESC");
@@ -14,7 +13,6 @@ class Product extends Model
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Get a product by ID
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM products WHERE id = ? LIMIT 1");
@@ -72,7 +70,6 @@ class Product extends Model
     return $stmt->execute();
     }
 
-    // Update product
     public function update(int $id, array $data): bool
     {
         $stmt = $this->db->prepare(
@@ -95,7 +92,6 @@ class Product extends Model
         return $stmt->execute();
     }
 
-    // Delete product
     public function delete(int $id): bool
     {
         $stmt = $this->db->prepare("DELETE FROM products WHERE id = ?");

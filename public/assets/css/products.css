@@ -1,4 +1,3 @@
-/*  Page Base  */
 body {
     font-family: Arial, Helvetica, sans-serif;
     background-color: #f5f6fa;
@@ -6,14 +5,12 @@ body {
     padding: 0;
 }
 
-/*  Page Heading  */
 h1 {
     text-align: center;
     margin: 30px 0;
     color: #2c3e50;
 }
 
-/*  Cart Table  */
 table {
     width: 90%;
     margin: 0 auto;
@@ -22,7 +19,6 @@ table {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-/*  Table Header  */
 thead {
     background-color: #34495e;
 }
@@ -35,7 +31,6 @@ thead th {
     border: 1px solid #ddd;
 }
 
-/*  Table Body  */
 tbody td {
     padding: 10px;
     text-align: center;
@@ -44,12 +39,10 @@ tbody td {
     font-size: 14px;
 }
 
-/*  Alternate Row Color  */
 tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
 
-/*  Product Image  */
 tbody img {
     width: 60px;
     height: auto;
@@ -57,26 +50,22 @@ tbody img {
     border: 1px solid #ddd;
 }
 
-/*  Product Name  */
 tbody td:nth-child(2) {
     font-weight: 600;
     color: #333;
 }
 
-/*  Price & Total  */
 tbody td:nth-child(3),
 tbody td:nth-child(6) {
     font-weight: bold;
     color: #2c3e50;
 }
 
-/*  Tax Column  */
 tbody td:nth-child(4) {
     color: #27ae60;
     font-weight: 600;
 }
 
-/*  Quantity Input  */
 input[type="number"] {
     width: 60px;
     padding: 6px;
@@ -91,7 +80,6 @@ input[type="number"]:focus {
     border-color: #3498db;
 }
 
-/*  Remove Button  */
 button {
     padding: 6px 12px;
     background-color: #e74c3c;
@@ -107,7 +95,6 @@ button:hover {
     background-color: #c0392b;
 }
 
-/*  Grand Total  */
 h3 {
     width: 90%;
     margin: 20px auto;
@@ -116,7 +103,6 @@ h3 {
     color: #2c3e50;
 }
 
-/*  Checkout Link  */
 a[href="/checkout"] {
     display: block;
     width: fit-content;
@@ -134,14 +120,12 @@ a[href="/checkout"]:hover {
     background-color: #219150;
 }
 
-/*  Empty Cart Message  */
 p {
     text-align: center;
     font-size: 16px;
     color: #777;
     margin-top: 40px;
 }
-/*  Product Listing Header  */
 .dashboard-header {
     width: 90%;
     margin: 20px auto;
@@ -162,8 +146,6 @@ p {
 .btn-add-product:hover {
     background-color: #2980b9;
 }
-
-/*  Product Table (Reuse Cart Table Styles)  */
 .product-table {
     width: 90%;
     margin: 0 auto 30px;
@@ -172,14 +154,12 @@ p {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-/*  Product Image  */
 .product-poster {
     width: 60px;
     border-radius: 6px;
     border: 1px solid #ddd;
 }
 
-/*  Quantity Input (Listing Page)  */
 .product-table input[type="number"] {
     width: 55px;
     padding: 5px;
@@ -188,7 +168,6 @@ p {
     border-radius: 4px;
 }
 
-/*  Action Links  */
 .product-table a {
     color: #3498db;
     text-decoration: none;
@@ -200,7 +179,6 @@ p {
     text-decoration: underline;
 }
 
-/*  Add To Cart Button  */
 .product-table button {
     padding: 6px 12px;
     background-color: #27ae60;
@@ -212,18 +190,15 @@ p {
     transition: all 0.3s ease;
 }
 
-/* Hover */
 .product-table button:hover {
     background-color: #219150;
 }
 
-/* Added / Disabled State */
 .product-table button:disabled {
     background-color: #6c757d;
     cursor: not-allowed;
 }
 
-/*  View Cart Button  */
 .button-container {
     width: 90%;
     margin: 20px auto 40px;
@@ -246,7 +221,6 @@ p {
     height:10px;
     width: 10px;
 }
-/*  Mobile Responsive  */
 @media (max-width: 768px) {
     .dashboard-header {
         flex-direction: column;
@@ -290,9 +264,30 @@ max-width: max-content;
 .btn-back:active {
     transform: translateY(1px);
 }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,.5);
+}
+
+.modal-content {
+    background: #fff;
+    width: 350px;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.close {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
 
 
-/*  Responsive Design  */
 @media (max-width: 768px) {
     table {
         width: 100%;

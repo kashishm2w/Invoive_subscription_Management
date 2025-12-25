@@ -58,16 +58,31 @@
 </table>
 
 <h3>Grand Total: ₹<?= number_format($grandTotal, 2) ?></h3>
-
-<form action="/invoice/create" method="POST" style="text-align:center; margin-top:20px;">
-    <button type="submit" class="checkout-btn">
-        Proceed to Checkout
-    </button>
+<?php if (\App\Helpers\Session::has('user_id')): ?>
+<form action="/invoice/create" method="POST">
+    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
 </form>
+<?php else: ?>
+<button class="checkout-btn" onclick="openLoginModal()">Proceed to Checkout</button>
+<?php endif; ?>
+
 
 <?php else: ?>
 <p>Your cart is empty.</p>
 <?php endif; ?>
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeLoginModal()">&times;</span>
+
+        <h2>Login Required</h2>
+
+       
+        <?php
+        $redirect = '/invoice/create';
+        require APP_ROOT . '/app/Views/auth/login_form.php';
+        ?>
+    </div>
+</div>
 
 <script>
 function updateQty(productId, qty) {
@@ -88,6 +103,12 @@ function removeItem(productId) {
         body: `product_id=${productId}`
     })
     .then(() => location.reload());
+}
+function openLoginModal() {
+    document.getElementById('loginModal').style.display = 'block';
+}
+function closeLoginModal() {
+    document.getElementById('loginModal').style.display = 'none';
 }
 </script>
 

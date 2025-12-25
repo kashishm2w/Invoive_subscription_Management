@@ -74,7 +74,7 @@ confirmInput.addEventListener("input", () => {
     if (confirmInput.value !== passwordInput.value) {
         showError(confirmInput, "Passwords do not match");
     } else {
-        clearError(confirmInput); //  error disappears if matches
+        clearError(confirmInput); 
     }
 });
 
@@ -105,5 +105,5 @@ form.addEventListener("submit", (e) => {
         hasError = true;
     }
 
-    if (hasError) e.preventDefault(); // prevent submission if errors exist
+    if (hasError) e.preventDefault(); 
 });

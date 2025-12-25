@@ -4,14 +4,6 @@ use App\Helpers\Session;
 ?>
 <link rel="stylesheet" href="/assets/css/header_footer.css">
 
-<div class="top-bar">
-    <div class="container top-bar_content">
-        <div class="top-bar_left">
-            <span class="top-bar_item">(854) 269-1413</span>
-            <span class="top-bar_item">info@yourcompany.com</span>
-        </div>
-    </div>
-</div>
 
 <header class="main-header">
     <div class="container header_content">
@@ -23,8 +15,7 @@ use App\Helpers\Session;
                     <li class="nav_item">
                         <a href="/dashboard" class="nav_link">Dashboard</a>
                     </li>
-                <?php endif; ?> <li class="nav_item"><a href="dashboard/invoices" class="nav_link">Invoices</a></li>
-                <li class="nav_item"><a href="/clients" class="nav_link">Clients</a></li>
+                <?php endif; ?> <li class="nav_item"><a href="my_invoices" class="nav_link">Invoices</a></li>
                 <li class="nav_item"><a href="/products" class="nav_link">Products</a></li>
                 <li class="nav_item"><a href="/subscriptions" class="nav_link">Subscriptions</a></li>
             </ul>
@@ -43,7 +34,8 @@ use App\Helpers\Session;
 
                         <a href="/profile" class="account_link">My Profile</a>
 
-                        <a href="/profile" class="account_link">My order</a>
+                        <a href="/profile" class="account_link">My Order</a>
+                        <a href="/my_invoices" class="account_link">My Invoices</a>
 
                     <?php endif; ?>
                     <?php if (Session::get('role') === 'admin'): ?>
@@ -89,5 +81,3 @@ use App\Helpers\Session;
         }
     });
 </script>
-
-

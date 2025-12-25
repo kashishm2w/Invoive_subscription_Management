@@ -40,11 +40,9 @@
                     <td><?= htmlspecialchars($product['name']) ?></td>
 
                     <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
-                        <!-- Admin sees price & tax -->
                         <td><?= number_format($product['price'], 2) ?></td>
                         <td><?= htmlspecialchars($product['tax_percent']) ?>%</td>
                     <?php else: ?>
-                        <!-- User/guest sees total price -->
                         <?php
                         $price = (float)$product['price'];
                         $tax   = (float)$product['tax_percent'];
@@ -53,7 +51,6 @@
                         <td><strong>₹<?= number_format($total, 2) ?></strong></td>
                     <?php endif; ?>
 
-                    <!-- Quantity -->
                     <td>
                         <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
                             <strong><?= (int)$product['quantity'] ?></strong>
@@ -75,14 +72,12 @@ $cartQty = isset($cart[$product['id']])
                         <?php endif; ?>
                     </td>
 
-                    <!-- Actions -->
                     <td>
                         <a href="/dashboard/product?id=<?= $product['id'] ?>">View</a>
                         <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
                             | <a href="/dashboard/products/edit?id=<?= $product['id'] ?>">Edit</a>
                             | <a href="/dashboard/products/delete?id=<?= $product['id'] ?>" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                             <!-- <img src="/assets/images/icons/trash.png" class="icon"> -->
-                            <!-- Inside your table row where button is displayed -->
                             | <?php elseif (\App\Helpers\Session::get('role') !== 'admin'): ?>
     | <button 
         id="cart-btn-<?= $product['id'] ?>" 
@@ -107,25 +102,6 @@ $cartQty = isset($cart[$product['id']])
 </div>
 <?php endif; ?>
 <script>
-    // function addToCart(productId) {
-    //     let qty = document.getElementById('qty-' + productId).value;
-
-    //     fetch('/cart/add', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/x-www-form-urlencoded'
-    //             },
-    //             body: `product_id=${productId}&quantity=${qty}`
-    //         })
-    //         .then(res => res.json())
-    //         .then(data => {
-    //             if (data.success) {
-    //                 alert('Added to cart!');
-    //             } else {
-    //                 alert(data.error);
-    //             }
-    //         });
-    // }
 
     function addToCart(productId) {
         let qty = document.getElementById('qty-' + productId).value;

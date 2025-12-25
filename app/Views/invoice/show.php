@@ -2,7 +2,6 @@
 <link rel="stylesheet" href="/assets/css/invoice.css">
 
 <div class="invoice-wrapper">
-    <!-- Header -->
     <div class="invoice-header">
         <div class="logo">
             <img src="/assets/images/logo.png" alt="Company Logo">
@@ -14,7 +13,6 @@
         </div>
     </div>
 
-    <!-- Parties -->
     <div class="invoice-parties">
         <div class="invoice-to">
             <h3>Invoice To:</h3>
@@ -30,7 +28,6 @@
         </div>
     </div>
 
-    <!-- Items Table -->
     <table class="invoice-items">
         <thead>
             <tr>
@@ -63,13 +60,11 @@
         </tbody>
     </table>
 
-    <!-- Payment Info -->
     <div class="invoice-payment">
         <h3>Payment Info:</h3>
         <p><strong>Amount:</strong> &#8377;<?= number_format($grandTotal, 2) ?></p>
     </div>
 
-    <!-- Totals -->
     <div class="invoice-totals">
         <table>
             <tr>
@@ -87,14 +82,13 @@
         </table>
     </div>
 
-    <!-- Terms -->
     <div class="invoice-terms">
         <h3>Terms & Conditions:</h3>
         <p><?= htmlspecialchars($invoice['notes'] ?? 'All claims must be made in writing within 30 days. Delivery dates are not guaranteed. Taxes excluded unless stated.') ?></p>
     </div>
 </div>
 <div class="invoice-actions">
-    <a href="/invoice/download?id=<?= $invoice['id'] ?>" class="btn btn-download">
+    <a href="/invoice/pdf?id=<?= $invoice['id'] ?>" class="btn btn-download">
          Download PDF
     </a>
     <a href="/invoice/send-email?id=<?= $invoice['id'] ?>" class="btn btn-email">
