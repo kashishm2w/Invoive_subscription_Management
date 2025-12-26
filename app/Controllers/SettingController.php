@@ -34,21 +34,36 @@ class SettingController
     public function update()
     {
         $userId = Session::get('user_id');
-        $name = trim($_POST['name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? null;
+
+        $name     = trim($_POST['name'] ?? '');
+        $email    = trim($_POST['email'] ?? '');
+        $phoneNo  = trim($_POST['phone'] ?? '');
+        $address  = trim($_POST['address'] ?? '');
+        $password = trim($_POST['password'] ?? '');
 
         if (!$name || !$email) {
             header("Location: /settings");
             exit;
         }
 
-        $this->settingModel->updateUser($userId, $name, $email, $password);
+        $this->settingModel->updateUser(
+            $userId,
+            $name,
+            $email,
+            $phoneNo,
+            $address,
+            $password ?: null
+        );
 
+        // Update session values
         Session::set('name', $name);
         Session::set('email', $email);
+        Session::set('phone', $phoneNo);
+        Session::set('address', $address);
 
-        header("Location: /settings");
+        Session::set('profile_updated', true);
+
+        header("Location: /products");
         exit;
     }
 }

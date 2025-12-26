@@ -170,5 +170,61 @@ public function getByUser(int $userId): array
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
 }
+public function getAllInvoicesWithDetails(): array
+{
+    $stmt = $this->db->prepare("
+        SELECT i.*, 
+               u.name AS user_name,
+               u.email AS user_email,
+               u.phone_no AS user_phone,
+               u.address AS user_address,
+               it.id AS item_id,
+               it.item_name AS item_name,
+               it.price,
+               it.quantity
+        FROM invoices i
+        LEFT JOIN users u ON i.created_by = u.id
+        LEFT JOIN invoice_items it ON i.id = it.invoice_id
+        ORDER BY i.invoice_date ASC
+    ");
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $invoices = [];
+    while ($row = $result->fetch_assoc()) {
+        $invoiceId = $row['id'];
+
+        if (!isset($invoices[$invoiceId])) {
+            $invoices[$invoiceId] = [
+                'id'             => $row['id'],
+                'invoice_number' => $row['invoice_number'],
+                'invoice_date'   => $row['invoice_date'],
+                'due_date'       => $row['due_date'],
+                'subtotal'       => $row['subtotal'],
+                'tax_rate'       => $row['tax_rate'],
+                'tax_type'       => $row['tax_type'],
+                'total_amount'   => $row['total_amount'],
+                'status'         => $row['status'],
+                'user_name'      => $row['user_name'],
+                'user_email'     => $row['user_email'],
+                'user_phone'     => $row['user_phone'],
+                'user_address'   => $row['user_address'],
+                'items'          => []
+            ];
+        }
+
+        if ($row['item_id']) {
+            $invoices[$invoiceId]['items'][] = [
+                'id'       => $row['item_id'],
+                'name'     => $row['item_name'],
+                'price'    => $row['price'],
+                'quantity' => $row['quantity']
+            ];
+        }
+    }
+
+    return array_values($invoices);
+}
 
 }

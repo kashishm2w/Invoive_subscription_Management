@@ -18,21 +18,32 @@ Session::start();
 require_once APP_ROOT . '/app/Core/Router.php';
 require_once APP_ROOT . '/app/Core/Database.php';
 require_once APP_ROOT . '/app/Models/User.php';
+require_once APP_ROOT . '/app/Models/Subscription.php';
+
 // require_once APP_ROOT . '/app/Models/Product.php';
 require_once APP_ROOT . '/app/Controllers/AuthController.php';
 require_once APP_ROOT . '/app/Controllers/DashboardController.php';
+require_once APP_ROOT . '/app/Controllers/ProductController.php';
+require_once APP_ROOT . '/app/Controllers/CartController.php';
+require_once APP_ROOT . '/app/Controllers/InvoiceController.php';
+require_once APP_ROOT . '/app/Controllers/SubscriptionController.php';
+require_once APP_ROOT . '/app/Controllers/SettingController.php';
 
 use App\Core\Router;
 use App\Controllers\AuthController;
+use App\Controllers\UserController;
+
 use App\Controllers\DashboardController;
 use App\Controllers\ProductController;
 use App\Controllers\CartController;
 use App\Controllers\InvoiceController;
+use App\Controllers\SubscriptionController;
+use App\Controllers\SubscriptionPlanController;
 
 use App\Controllers\SettingController;
 
 $router = new Router();
-//Dashboard
+//Dashboard/*  */
 $router->get('/', [DashboardController::class, 'index']);
 $router->get('/dashboard', [DashboardController::class, 'index']);
 
@@ -44,6 +55,9 @@ $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 
+// user
+// $router->post('/user/update-profile',[UserController::class ,'updateProfile']);
+
 // Products
 $router->get('/products', [ProductController::class, 'listProducts']);
 
@@ -53,7 +67,7 @@ $router->post('/dashboard/add-product', [ProductController::class, 'addProduct']
 $router->get('/dashboard/products/edit', [ProductController::class, 'editProductForm']);
 $router->post('/dashboard/products/edit', [ProductController::class, 'updateProduct']);
 $router->get('/dashboard/products/delete', [ProductController::class, 'deleteProduct']);
-$router->get('/dashboard/invoices', [ProductController::class, 'trackInvoices']);
+// $router->get('/dashboard/invoices', [ProductController::class, 'trackInvoices']);
 // cart
 $router->get('/cart', [CartController::class, 'showCart']);
 $router->post('/cart/add', [CartController::class, 'addItem']);
@@ -64,10 +78,26 @@ $router->post('/cart/remove', [CartController::class, 'removeItem']);
 $router-> get('/invoice/show',[InvoiceController::class,'show']);
 $router-> post('/invoice/create',[InvoiceController::class,'create']);
 $router->get('/my_invoices', [InvoiceController::class, 'myInvoices']);
-$router->get('/invoice/pdf', [InvoiceController::class, 'pdf']);
+// Admin: Track all invoices
+$router->get('/track_invoices', [InvoiceController::class, 'trackInvoices']);
 
+$router->get('/invoice/pdf', [InvoiceController::class, 'pdf']);
+//subscription
+$router->get('/subscriptions', [SubscriptionController::class, 'index']);
+$router->post('/subscribe', [SubscriptionController::class, 'subscribe']);
+
+
+$router->get('/dashboard/subscription-plans', [SubscriptionPlanController::class, 'index']);
+$router->post('/dashboard/subscription-plans', [SubscriptionPlanController::class, 'create']);
+$router->get('/admin/plans', [SubscriptionPlanController::class, 'index']);
+$router->get('/admin/plan/get', [SubscriptionPlanController::class, 'getPlan']);
+$router->post('/admin/plan/save', [SubscriptionPlanController::class, 'save']);
+$router->get('/admin/plan/delete', [SubscriptionPlanController::class, 'delete']);
+
+// setting
 $router->get('/settings',         [SettingController:: class,'index']);
 $router->post('/settings/update', [SettingController:: class,'update']);
 
 $router->dispatch();
 
+// $router->get('/track_invoices', 'InvoiceController@index');

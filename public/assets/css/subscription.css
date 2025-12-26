@@ -1,0 +1,294 @@
+/*  Reset  */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #F5F5F0; /* page background matches header/footer theme */
+    color: #2f3e4e; /* primary text color */
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/*  Active Plan Box  */
+.active-plan {
+    background-color: #E0F2F1; /* subtle greenish tone */
+    border-left: 5px solid #2c3e50;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.active-plan h3 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.active-plan p {
+    font-size: 15px;
+}
+
+/*  Plans Grid  */
+.plans {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.plan-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 250px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.plan-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.plan-card p {
+    font-size: 14px;
+    margin: 6px 0;
+}
+
+/* Price & Badge */
+.plan-card .price {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.plan-card .billing-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background-color: #2c3e50;
+    color: #F5F5F0;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+/*  Buttons  */
+/* Add Plan Button */
+#addPlanBtn {
+    padding: 14px 24px;
+    background-color: #007bff;
+
+    max-width: max-content;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: background-color 0.3s, transform 0.2s;
+    min-width: 180px;
+    text-align: center;
+}
+
+#addPlanBtn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Plan Card Buttons */
+.plan-card button {
+    margin-top: 12px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Edit Button */
+.editPlanBtn {
+    background-color: #28a745;
+    color: #fff;
+    margin-right: 8px;
+}
+
+.editPlanBtn:hover {
+    background-color: #1e7e34;
+}
+
+/* Delete Button */
+.deletePlanBtn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.deletePlanBtn:hover {
+    background-color: #a71d2a;
+}
+
+/* Subscribe Button */
+.plan-card form button {
+    background-color: #2c3e50;
+    color: #F5F5F0;
+}
+
+.plan-card form button:hover {
+    background-color: #34495e;
+}
+
+/*  Modal  */
+#planModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+#planModal > div {
+    background: #fff;
+    width: 400px;
+    max-width: 90%;
+    padding: 25px;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+#closeModal {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #2c3e50;
+}
+
+/* Modal Form */
+#planForm label {
+    display: block;
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+#planForm input[type="text"],
+#planForm input[type="number"],
+#planForm select,
+#planForm textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 5px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+#planForm textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Modal Save Button */
+#planForm button {
+    width: 100%;
+    padding: 14px 0;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#planForm button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/*  Table  */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: #fff;
+}
+
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+table th {
+    background-color: #2c3e50;
+    color: #F5F5F0;
+    font-weight: 600;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #e0f2f1;
+    transition: background-color 0.3s;
+}
+/* Active subscription card */
+.active-plan-card {
+    border: 2px solid #28a745;
+    background: linear-gradient(135deg, #e6f9f0, #ffffff);
+    box-shadow: 0 10px 25px rgba(40,167,69,0.25);
+}
+
+/* Active badge */
+.active-badge {
+    display: inline-block;
+    margin: 8px 0 10px;
+    padding: 6px 12px;
+    background-color: #28a745;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/*  Responsive  */
+@media(max-width: 768px) {
+    .plans {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .plan-card {
+        width: 90%;
+    }
+
+    #planModal > div {
+        width: 90%;
+    }
+}

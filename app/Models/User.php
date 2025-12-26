@@ -38,4 +38,23 @@ class User extends Model
         $result = $stmt->get_result();
         return $result->num_rows ? $result->fetch_assoc() : null;
     }
+    public function updateProfile(int $id, array $data): bool
+{
+    $stmt = $this->db->prepare("
+        UPDATE users 
+        SET name = ?, email = ?, address = ?
+        WHERE id = ?
+    ");
+
+    $stmt->bind_param(
+        "sssi",
+        $data['name'],
+        $data['email'],
+        $data['address'],
+        $id
+    );
+
+    return $stmt->execute();
+}
+
 }

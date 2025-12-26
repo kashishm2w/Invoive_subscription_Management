@@ -11,12 +11,17 @@ use App\Helpers\Session;
 
         <nav class="header_nav">
             <ul class="nav_list">
-                <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
+                <?php if (Session::get('role') === 'admin'): ?>
                     <li class="nav_item">
                         <a href="/dashboard" class="nav_link">Dashboard</a>
+                        <a href="/track_invoices" class="nav_link">Track Invoices</a>
                     </li>
-                <?php endif; ?> <li class="nav_item"><a href="my_invoices" class="nav_link">Invoices</a></li>
-                <li class="nav_item"><a href="/products" class="nav_link">Products</a></li>
+                <?php endif; ?>
+                <?php if (Session::has('user_id') &&(Session::get('role') !== 'admin')): ?>
+                    <li class="nav_item">
+                        <a href="/my_invoices" class="nav_link">My Invoices</a>
+                    </li>
+                <?php endif; ?> <li class="nav_item"><a href="/products" class="nav_link">Products</a></li>
                 <li class="nav_item"><a href="/subscriptions" class="nav_link">Subscriptions</a></li>
             </ul>
         </nav>
@@ -41,9 +46,9 @@ use App\Helpers\Session;
                     <?php if (Session::get('role') === 'admin'): ?>
                         <a href="/dashboard/add-product" class="account_link">Add Product</a>
                         <a href="/dashboard/products" class="account_link">Manage Products</a>
-                        <a href="/dashboard/invoices" class="account_link">Track Invoices</a>
+                        <a href="/track_invoices" class="account_link">Track Invoices</a>
                     <?php endif; ?>
-                                            <a href="/settings" class="account_link">Settings</a>
+                    <a href="/settings" class="account_link">Settings</a>
 
                     <a href="/logout" class="account_link">Logout<img src="/assets/images/icons/log-out.png" class="icon"></a>
                 </div>

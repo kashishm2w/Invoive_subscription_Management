@@ -78,7 +78,7 @@
 
        
         <?php
-        $redirect = '/invoice/create';
+        $redirect = '/cart';
         require APP_ROOT . '/app/Views/auth/login_form.php';
         ?>
     </div>
@@ -111,4 +111,3 @@ function closeLoginModal() {
     document.getElementById('loginModal').style.display = 'none';
 }
 </script>
-

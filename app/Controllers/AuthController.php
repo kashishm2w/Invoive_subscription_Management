@@ -76,10 +76,25 @@ class AuthController
     /*  LOGIN  */
 
     // GET /login
-    public function showLogin()
-    {
-        require APP_ROOT . '/app/Views/auth/login.php';
+public function showLogin()
+{
+    // If already logged in
+    if (Session::has('user_id')) {
+
+        // Admin → dashboard
+        if (Session::get('role') === 'admin') {
+            header("Location: /dashboard");
+            exit;
+        }
+
+        // Normal user → products
+        header("Location: /products");
+        exit;
     }
+
+    // Not logged in → show login page
+    require APP_ROOT . '/app/Views/auth/login.php';
+}
 
     // POST /login
   public function login()
