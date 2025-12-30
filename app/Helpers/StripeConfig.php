@@ -4,13 +4,12 @@ namespace App\Helpers;
 
 class StripeConfig
 {
-
     /**
      * Initialize Stripe with the secret key
      */
     public static function init(): void
     {
-        \Stripe\Stripe::setApiKey(self::SECRET_KEY);
+        \Stripe\Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
     }
 
     /**
@@ -18,6 +17,6 @@ class StripeConfig
      */
     public static function getPublishableKey(): string
     {
-        return self::PUBLISHABLE_KEY;
+        return $_ENV['STRIPE_PUBLISHABLE_KEY'];
     }
 }
