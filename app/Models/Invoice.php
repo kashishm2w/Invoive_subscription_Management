@@ -85,6 +85,39 @@ public function getDailyTotals(string $startDate, string $endDate): array
 
     return $data;
 }
+
+/**
+ * Get daily totals broken down by status (total, paid, unpaid)
+ */
+public function getDailyTotalsByStatus(string $startDate, string $endDate): array
+{
+    $stmt = $this->db->prepare("
+        SELECT 
+            DATE(invoice_date) AS date,
+            SUM(total_amount) AS total,
+            SUM(CASE WHEN status = 'Paid' THEN total_amount ELSE 0 END) AS paid,
+            SUM(CASE WHEN status = 'Unpaid' THEN total_amount ELSE 0 END) AS unpaid
+        FROM invoices
+        WHERE invoice_date BETWEEN ? AND ?
+        GROUP BY DATE(invoice_date)
+        ORDER BY DATE(invoice_date)
+    ");
+
+    $stmt->bind_param("ss", $startDate, $endDate);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[$row['date']] = [
+            'total' => (float)$row['total'],
+            'paid' => (float)$row['paid'],
+            'unpaid' => (float)$row['unpaid']
+        ];
+    }
+
+    return $data;
+}
 // public function getAll(): array
 // {
 //     $sql = "SELECT * FROM invoices ORDER BY created_at DESC";
@@ -103,34 +136,43 @@ public function countAll(): int
     return (int)$result->fetch_assoc()['total'];
 }
 
-// public function getPaginated(int $limit, int $offset): array
-// {
-//     $stmt = $this->db->prepare(
-//         "SELECT * FROM invoices ORDER BY created_at DESC LIMIT ? OFFSET ?"
-//     );
-//     $stmt->bind_param("ii", $limit, $offset);
-//     $stmt->execute();
+public function getPaginated(int $limit, int $offset): array
+{
+    $stmt = $this->db->prepare(
+        "SELECT * FROM invoices ORDER BY created_at DESC LIMIT ? OFFSET ?"
+    );
+    $stmt->bind_param("ii", $limit, $offset);
+    $stmt->execute();
 
-//     $result = $stmt->get_result();
-//     return $result->fetch_all(MYSQLI_ASSOC);
-// }
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
 public function getAllWithUsers(): array
 {
+    $userId = $_SESSION['user_id'];
+    $userName = $_SESSION['name']; 
     $sql = "
-        SELECT invoices.*, users.name AS user_name
+        SELECT invoices.*
         FROM invoices
-        LEFT JOIN users ON invoices.created_by = users.id
+        WHERE invoices.created_by = ?
         ORDER BY invoices.created_at DESC
     ";
-    $result = $this->db->query($sql);
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     $invoices = [];
     while ($row = $result->fetch_assoc()) {
+        $row['user_name'] = $userName; 
         $invoices[] = $row;
     }
 
     return $invoices;
 }
+
+
 
 public function getPaginatedWithUsers(int $limit, int $offset): array
 {
@@ -225,6 +267,79 @@ public function getAllInvoicesWithDetails(): array
     }
 
     return array_values($invoices);
+}
+
+// Dashboard Statistics Methods
+
+/**
+ * Get total amount of all invoices
+ */
+public function getTotalAmount(): float
+{
+    $result = $this->db->query("SELECT COALESCE(SUM(total_amount), 0) AS total FROM invoices");
+    return (float)$result->fetch_assoc()['total'];
+}
+
+/**
+ * Get total amount of paid invoices
+ */
+public function getPaidAmount(): float
+{
+    $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total FROM invoices WHERE status = 'paid'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (float)$result->fetch_assoc()['total'];
+}
+
+/**
+ * Get total amount of unpaid invoices
+ */
+public function getUnpaidAmount(): float
+{
+    $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total FROM invoices WHERE status = 'unpaid'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (float)$result->fetch_assoc()['total'];
+}
+
+/**
+ * Get total amount of pending invoices
+ */
+public function getPendingAmount(): float
+{
+    $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total FROM invoices WHERE status = 'pending'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (float)$result->fetch_assoc()['total'];
+}
+
+/**
+ * Get count of invoices by status
+ */
+public function getCountByStatus(string $status): int
+{
+    $stmt = $this->db->prepare("SELECT COUNT(*) AS count FROM invoices WHERE status = ?");
+    $stmt->bind_param("s", $status);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (int)$result->fetch_assoc()['count'];
+}
+
+/**
+ * Get all dashboard statistics at once
+ */
+public function getDashboardStats(): array
+{
+    return [
+        'total_amount' => $this->getTotalAmount(),
+        'paid_amount' => $this->getPaidAmount(),
+        'unpaid_amount' => $this->getUnpaidAmount(),
+        'pending_amount' => $this->getPendingAmount(),
+        'total_invoices' => $this->countAll(),
+        'paid_count' => $this->getCountByStatus('paid'),
+        'unpaid_count' => $this->getCountByStatus('unpaid'),
+        'pending_count' => $this->getCountByStatus('pending')
+    ];
 }
 
 }

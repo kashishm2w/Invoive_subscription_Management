@@ -18,7 +18,7 @@
     $tax   = (float)$product['tax_percent'];
     $total = $price + ($price * $tax / 100);
     ?>
-    <p><strong></strong> ₹<?= number_format($total, 2) ?></p>
+    <p><strong></strong> &#8377;<?= number_format($total, 2) ?></p>
 
     <?php if (\App\Helpers\Session::get('role') !== 'admin'): ?>
         <div style="margin-top:15px;">
@@ -34,7 +34,11 @@
             </button>
         </div>
          <?php else: ?>
-        <a href="/dashboard/products/edit?id=<?= $product['id'] ?>">Edit Product</a>
+<button type="button" onclick="openEditProductModal(<?= $product['id'] ?>)">
+    Edit
+</button>
+
+<div id="modalContainer"></div>
     <?php endif; ?>
 
         <br>
@@ -61,5 +65,30 @@
                 }
             });
     }
+    
+function openEditProductModal(productId) {
+    fetch(`/dashboard/products/edit?id=${productId}&ajax=1`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('editFormContainer').innerHTML = html;
+            document.getElementById('editProductModal').style.display = 'block';
+        });
+}
+
+function closeEditProductModal() {
+    document.getElementById('editProductModal').style.display = 'none';
+}
+
+// Close modal on outside click
+window.onclick = function(event) {
+    const modal = document.getElementById('editProductModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+};
+
+
 </script>
-<?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
+<?php 
+require APP_ROOT . '/app/Views/layouts/footer.php'; 
+?>

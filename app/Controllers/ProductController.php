@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Invoice;
 use App\Helpers\Pagination; 
 
+
 class ProductController
 {
     private Product $productModel;
@@ -24,6 +25,15 @@ class ProductController
         require APP_ROOT . '/app/Views/products/list.php'; 
     }
 
+    // Home Page with Product Cards
+    public function home()
+    {
+        $products = $this->productModel->getAll();
+        $cart = Session::get('cart') ?? [];
+        $cartProductIds = array_keys($cart);
+        require APP_ROOT . '/app/Views/products/home.php';
+    }
+
 
 
     // Admin Check
@@ -37,6 +47,7 @@ class ProductController
     // Show Single Product (View Page)
     public function show()
     {
+        
         $id = $_GET['id'] ?? null;
 
         if (!$id) {
@@ -51,6 +62,17 @@ class ProductController
             exit;
         }
 
+        // Get cart product IDs to check if product is already in cart
+        $cart = Session::get('cart') ?? [];
+        $cartProductIds = array_keys($cart);
+        $isInCart = in_array($product['id'], $cartProductIds);
+
+        // If AJAX request, return only the partial view for modal
+        if (isset($_GET['ajax'])) {
+            require APP_ROOT . '/app/Views/products/show_partial.php';
+            exit;
+        }
+
         require APP_ROOT . '/app/Views/products/show.php';
     }
 
@@ -59,6 +81,13 @@ class ProductController
     {
         $this->checkAdmin();
         $errors = [];
+        
+        // If AJAX request, return only the partial form for modal
+        if (isset($_GET['ajax'])) {
+            require APP_ROOT . '/app/Views/admin/add_product_form.php';
+            exit;
+        }
+        
         require APP_ROOT . '/app/Views/admin/add_product.php';
     }
 
@@ -77,12 +106,25 @@ class ProductController
             $quantity    = trim($_POST['quantity'] ?? 1);
             $poster      = $_FILES['poster'] ?? null;
             // validation
-            if ($name === '') $errors[] = "Product name is required.";
-            if ($description === '') $errors[] = "Description is required.";
-            if (!is_numeric($price) || $price <= 0) $errors[] = "Price must be a valid number.";
-            if (!is_numeric($tax_percent) || $tax_percent < 0) $errors[] = "Tax percent must be a valid number.";
-            if (!is_numeric($quantity) || $quantity < 1 || $quantity > 150) $errors[] = "Quantity must be between 1 and 200.";
+    if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
+        $errors[] = "Product name must be 3–100 characters and contain only letters, numbers, space, - or _";
+    }
 
+if ($description === ''||!preg_match('/^[a-zA-Z0-9 .,:\$]{10,1000}$/', $description)
+) {
+    $errors[] = "Description must be 10 & 1000 characters and may contain only letters, numbers, space, . , : $";
+}
+    if (!preg_match('/^\d+(\.\d{1,2})?$/', $price) || $price <= 0) {
+        $errors[] = "Price must be a valid number with up to 2 decimal places.";
+    }
+
+    if (!preg_match('/^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/', $tax_percent)) {
+        $errors[] = "Tax percent must be between 0 and 100.";
+    }
+
+    if (!preg_match('/^(?:[1-9][0-9]?|100)$/', $quantity)) {
+        $errors[] = "Quantity must be between 1 and 100.";
+    }
             // Poster validation
             if ($poster && $poster['error'] === 0) {
                 $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
@@ -121,9 +163,11 @@ class ProductController
                 die("DB Error: " . $e->getMessage());
             }
 
+            Session::set('success', 'Product added successfully!');
             header("Location: /products");
             exit;
         }
+        
     }
 
     // Manage Products
@@ -135,18 +179,26 @@ class ProductController
     }
 
     // Edit Product
-    public function editProductForm()
-    {
-        $this->checkAdmin();
-        $id = $_GET['id'] ?? null;
-        if (!$id) {
-            header("Location: /dashboard/products");
-            exit;
-        }
-
-        $product = $this->productModel->getById($id);
-        require APP_ROOT . '/app/Views/admin/edit_product.php';
+public function editProductForm()
+{
+    $this->checkAdmin();
+    $id = $_GET['id'] ?? null;
+    if (!$id) {
+        header("Location: /dashboard/products");
+        exit;
     }
+
+    $product = $this->productModel->getById($id);
+
+    if (isset($_GET['ajax'])) {
+        // Only return the form for modal
+        require APP_ROOT . '/app/Views/admin/edit_product_form.php';
+        exit;
+    }
+
+    // fallback full page
+    require APP_ROOT . '/app/Views/admin/edit_product.php';
+}
 
     // Update Product
     public function updateProduct()
@@ -165,6 +217,7 @@ class ProductController
 
             $this->productModel->update($id, $data);
 
+            Session::set('success', 'Product updated successfully!');
             header("Location: /products");
             exit;
         }
@@ -177,6 +230,7 @@ class ProductController
         $id = $_GET['id'] ?? null;
         if ($id) {
             $this->productModel->delete($id);
+            Session::set('success', 'Product deleted successfully!');
         }
         header("Location:/products");
         exit;

@@ -1,11 +1,18 @@
-<?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
-<link rel="stylesheet" href="/assets/css/invoice.css">
+<?php require APP_ROOT . '/app/Views/layouts/header.php';
+use App\Helpers\Session;
+ ?>
 
+<link rel="stylesheet" href="/assets/css/invoice.css">
+<?php if (Session::has('success')): ?>
+    <div class="alert alert-success">
+        <?= Session::get('success') ?>
+    </div>
+<?php endif; ?>
 <div class="invoice-wrapper">
     <div class="invoice-header">
-        <div class="logo">
+        <!-- <div class="logo">
             <img src="/assets/images/logo.png" alt="Company Logo">
-        </div>
+        </div> -->
         <div class="invoice-info">
             <h1>Invoice</h1>
             <p><strong>Invoice No:</strong> #<?= htmlspecialchars($invoice['invoice_number']) ?></p>
@@ -14,24 +21,25 @@
     </div>
 
     <div class="invoice-parties">
-        <div class="invoice-to">
-            <h3>Invoice To:</h3>
-            <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
-            <p><?= htmlspecialchars($client['address'] ?? '') ?></p>
-            <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
-        </div>
-        <div class="pay-to">
-            <h3>Pay To:</h3>
-            <p><?= htmlspecialchars($company['company_name'] ?? 'Company Name') ?></p>
-            <p><?= htmlspecialchars($company['address'] ?? '') ?></p>
-            <p><?= htmlspecialchars($company['email'] ?? '') ?></p>
-        </div>
+<div class="pay-to">
+    <h3>Pay To:</h3>
+    <p><?= htmlspecialchars($company['company_name'] ?? 'Company Name') ?></p>
+    <p><?= htmlspecialchars($company['address'] ?? '') ?></p>
+    <p><?= htmlspecialchars($company['email'] ?? '') ?></p>
+</div>
+
+<div class="invoice-to">
+    <h3>Invoice To:</h3>
+    <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
+    <p><?= htmlspecialchars($client['address'] ?? '') ?></p>
+    <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
+</div>
     </div>
 
     <table class="invoice-items">
         <thead>
             <tr>
-                <th>#</th>
+                <th>Sr No.</th>
                 <th>Item</th>
                 <th>Description</th>
                 <th>Price</th>

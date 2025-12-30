@@ -61,8 +61,9 @@
     <tr>
         <td>
             <strong>Billed To:</strong><br>
-            <?= htmlspecialchars($client['name'] ?? 'Customer') ?><br>
-            <?= htmlspecialchars($client['email'] ?? '') ?>
+            <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
+            <p><?= htmlspecialchars($client['address'] ?? '') ?></p>
+            <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
         </td>
     </tr>
 </table>
@@ -70,7 +71,7 @@
 <table>
     <thead>
         <tr>
-            <th>#</th>
+            <th>Sr no.</th>
             <th>Item</th>
             <th class="right">Price</th>
             <th class="right">Qty</th>
@@ -82,9 +83,9 @@
         <tr>
             <td><?= $i + 1 ?></td>
             <td><?= htmlspecialchars($item['item_name']) ?></td>
-            <td class="right">₹<?= number_format($item['price'], 2) ?></td>
+            <td class="right">&#8377;<?= number_format($item['price'], 2) ?></td>
             <td class="right"><?= $item['quantity'] ?></td>
-            <td class="right">₹<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+            <td class="right">&#8377;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -93,15 +94,15 @@
 <table>
     <tr>
         <td class="right">Subtotal</td>
-        <td class="right">₹<?= number_format($invoice['subtotal'], 2) ?></td>
+        <td class="right">&#8377;<?= number_format($invoice['subtotal'], 2) ?></td>
     </tr>
     <tr>
         <td class="right">GST (<?= $invoice['tax_rate'] ?>%)</td>
-        <td class="right">₹<?= number_format($invoice['tax_amount'], 2) ?></td>
+        <td class="right">&#8377;<?= number_format($invoice['tax_amount'], 2) ?></td>
     </tr>
     <tr>
         <td class="right"><strong>Grand Total</strong></td>
-        <td class="right"><strong>₹<?= number_format($invoice['total_amount'], 2) ?></strong></td>
+        <td class="right"><strong>&#8377;<?= number_format($invoice['total_amount'], 2) ?></strong></td>
     </tr>
 </table>
 

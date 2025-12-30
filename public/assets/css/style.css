@@ -1,3 +1,4 @@
+/*  RESET & BASE  */
 * {
     margin: 0;
     padding: 0;
@@ -10,6 +11,7 @@ body {
     color: #2f3e4e;
 }
 
+/*  FORM CONTAINER  */
 .form-container {
     max-width: 420px;
     margin: 60px auto;
@@ -24,8 +26,10 @@ body {
     margin-bottom: 25px;
     color: #80A1BA;
     font-size: 24px;
+    font-weight: 600;
 }
 
+/*  ERROR LIST  */
 .error-list {
     background-color: #fdecea;
     border: 1px solid #f5c6cb;
@@ -41,6 +45,7 @@ body {
     margin-bottom: 5px;
 }
 
+/*  FORM  */
 .register-form {
     display: flex;
     flex-direction: column;
@@ -49,7 +54,7 @@ body {
 
 .form-input {
     width: 100%;
-    padding: 11px 12px;
+    padding: 12px 14px;
     border-radius: 4px;
     border: 1px solid #ccc;
     font-size: 14px;
@@ -78,6 +83,7 @@ body {
     background-color: #6f90a9;
 }
 
+/*  LOGIN LINK  */
 .login-link {
     margin-top: 18px;
     text-align: center;
@@ -93,34 +99,79 @@ body {
 .login-link a:hover {
     text-decoration: underline;
 }
+
+/*  MODAL  */
 .modal {
     display: none;
     position: fixed;
-    z-index: 9999;
     inset: 0;
-    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
 }
 
 .modal-content {
     background: #fff;
-    width: 360px;
-    margin: 10% auto;
-    padding: 20px;
+    width: 100%;
+    max-width: 400px;
+    padding: 25px 30px;
     border-radius: 10px;
     position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
+/* Modal Inputs & Buttons */
 .modal-content input,
 .modal-content button {
     width: 100%;
-    margin-bottom: 12px;
-    padding: 10px;
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
 }
 
+.modal-content button {
+    background-color: #80A1BA;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-content button:hover {
+    background-color: #6f90a9;
+}
+
+/* Close Button */
 .close {
     position: absolute;
-    top: 10px;
-    right: 14px;
-    font-size: 20px;
+    top: 12px;
+    right: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #777;
     cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+
+/*  RESPONSIVE  */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 25px 20px;
+        margin: 40px 15px;
+    }
+
+    .modal-content {
+        padding: 20px 15px;
+    }
 }

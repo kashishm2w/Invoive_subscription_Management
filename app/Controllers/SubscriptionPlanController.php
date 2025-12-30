@@ -48,8 +48,10 @@ class SubscriptionPlanController
 
         if($id) {
             $this->planModel->update($id, $data);
+            Session::set('success', 'Plan updated successfully!');
         } else {
             $this->planModel->create($data);
+            Session::set('success', 'Plan added successfully!');
         }
 
         header('Location: /subscriptions');
@@ -60,7 +62,41 @@ class SubscriptionPlanController
     public function delete()
     {
         $id = $_GET['id'] ?? null;
-        if($id) $this->planModel->delete($id);
+        
+        if (!$id) {
+            Session::set('error', 'Plan ID is required');
+            header('Location: /subscriptions');
+            exit;
+        }
+
+        // Check if plan exists
+        $plan = $this->planModel->getPlan($id);
+        if (!$plan) {
+            Session::set('error', 'Plan not found');
+            header('Location: /subscriptions');
+            exit;
+        }
+
+        // Check if plan has any subscriptions
+        if ($this->planModel->hasSubscriptions($id)) {
+            Session::set('error', 'Cannot delete this plan because it has active subscriptions. Please cancel or reassign those subscriptions first.');
+            header('Location: /subscriptions');
+            exit;
+        }
+
+        // Try to delete the plan
+        try {
+            $result = $this->planModel->delete($id);
+            if ($result) {
+                Session::set('success', 'Plan "' . htmlspecialchars($plan['plan_name']) . '" deleted successfully');
+            } else {
+                Session::set('error', 'Failed to delete plan.');
+            }
+        } catch (\mysqli_sql_exception $e) {
+            Session::set('error', 'Cannot delete plan: It has associated subscriptions.');
+        } catch (\Exception $e) {
+            Session::set('error', 'An error occurred while deleting the plan.');
+        }
 
         header('Location: /subscriptions');
         exit;

@@ -25,7 +25,7 @@
             <tr>
                 <td><?= $plan['id'] ?></td>
                 <td><?= htmlspecialchars($plan['plan_name']) ?></td>
-                <td>₹<?= $plan['price'] ?></td>
+                <td>&#8377;<?= $plan['price'] ?></td>
                 <td><?= ucfirst($plan['billing_cycle']) ?></td>
                 <td><?= htmlspecialchars($plan['description']) ?></td>
             </tr>

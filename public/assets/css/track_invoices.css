@@ -136,6 +136,7 @@
     pointer-events: none;
 }
 
+
 @media (max-width: 768px) {
     .invoice-container {
         padding: 16px;

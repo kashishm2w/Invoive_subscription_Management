@@ -1,4 +1,6 @@
-<?php require APP_ROOT . '\App\Helpers\Session.php'; ?>
+<?php
+use App\Helpers\Session;
+ ?>
 
 <button id="editProfileBtn">Edit Profile</button>
 
@@ -12,7 +14,7 @@
         <form id="profileForm">
             <input type="hidden" name="id" value="
             <?= 
-            // Session::get('user_id') 
+            Session::get('user_id') 
             ?>
             ">
 

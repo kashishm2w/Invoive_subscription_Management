@@ -46,4 +46,16 @@ class SubscriptionPlan extends Model
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+
+    /**
+     * Check if a plan has any subscriptions (active or not)
+     */
+    public function hasSubscriptions(int $id): bool
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM subscriptions WHERE plan_id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['count'] > 0;
+    }
 }

@@ -7,8 +7,24 @@ $currentSubscription = $currentSubscription ?? null;
 
 
 <link rel="stylesheet" href="/assets/css/subscription.css">
+<?php if (Session::has('error')): ?>
+    <div class="alert alert-error">
+        <?= Session::get('error') ?>
+    </div>
+        <?php Session::remove('error'); ?>
+<?php endif; ?>
 
-<h1>Subscription Plans</h1>
+<?php if (Session::has('success')): ?>
+    <div class="alert alert-success">
+        <?= Session::get('success') ?>
+    </div>
+      <?php Session::remove('success'); ?>
+<?php endif; ?>
+
+<div class="containers">
+
+    <h1>Subscription Plans</h1>
+</div>
 
 <?php if (Session::has('user_id') && is_array($currentSubscription)): ?>
     <div class="active-plan">
@@ -16,7 +32,7 @@ $currentSubscription = $currentSubscription ?? null;
         <p>
             <strong><?= htmlspecialchars($currentSubscription['plan_name']) ?></strong><br>
             
-            ₹<?= $currentSubscription['price'] ?> /
+            &#8377;<?= $currentSubscription['price'] ?> /
             <?= ucfirst($currentSubscription['billing_cycle']) ?><br>
             Valid till: <?= $currentSubscription['end_date'] ?>
         </p>
@@ -28,15 +44,9 @@ $currentSubscription = $currentSubscription ?? null;
     Session::get('role') !== 'admin'
 ): ?>
 
-    <p>You currently have no subscription. Choose a plan below:</p>
-
 <?php elseif (!Session::has('user_id')): ?>
-
-    <p>
-        Please <a href="javascript:void(0)" onclick="openLoginModal()">login</a> to subscribe.
-    </p>
-
 <?php endif; ?>
+
 
 <?php if (Session::get('role') === 'admin'): ?>
     <button id="addPlanBtn">Add Plan</button>
@@ -62,18 +72,26 @@ $isActivePlan =
 
             <p><?= htmlspecialchars($plan['description']) ?></p>
             <p class="price">
-                ₹<?= $plan['price'] ?>
+                &#8377;<?= $plan['price'] ?>
                 <span class="billing-badge"><?= ucfirst($plan['billing_cycle']) ?></span>
             </p>
 
             <?php if (Session::has('user_id') && Session::get('role') !== 'admin'): ?>
-                <form method="POST" action="/subscribe">
-                    <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-                    <label>
-                        <input type="checkbox" name="auto_renew"> Auto renew
-                    </label>
-                    <button type="submit">Subscribe</button>
-                </form>
+                <?php if ($isActivePlan): ?>
+                    <!-- Active plan: Show Active button + Cancel -->
+                    <div class="plan-actions">
+                        <button class="btn-active" disabled>Active</button>
+                    </div>
+                <?php else: ?>
+                    <!-- Not active: Show Buy Now -->
+                    <form method="POST" action="/subscribe">
+                        <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
+                        <label>
+                            <input type="checkbox" name="auto_renew"> Auto renew
+                        </label>
+                        <button type="submit">Buy Now</button>
+                    </form>
+                <?php endif; ?>
 
             <?php elseif (!Session::has('user_id')): ?>
                 <button class="checkout-btn" onclick="openLoginModal()">Subscribe</button>
@@ -167,6 +185,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+document.addEventListener('DOMContentLoaded', function () {
+    const alerts = document.querySelectorAll('.alert');
+
+    if (!alerts.length) return;
+
+    setTimeout(() => {
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-10px)';
+
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 2000); // 2 seconds
+});
+
 </script>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
+

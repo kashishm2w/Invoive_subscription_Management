@@ -24,7 +24,8 @@ class DashboardController
     $startDate = date('Y-m-01'); // first day of month
     $endDate   = date('Y-m-t');  // last day of month
 
-    $dailyTotals = $invoiceModel->getDailyTotals($startDate, $endDate);
+    // Get daily totals by status (total, paid, unpaid)
+    $dailyTotals = $invoiceModel->getDailyTotalsByStatus($startDate, $endDate);
 
     // Fill missing dates with 0
     $period = new \DatePeriod(
@@ -37,17 +38,22 @@ class DashboardController
     foreach ($period as $date) {
         $d = $date->format('Y-m-d');
         $salesData[] = [
-            'date'  => $d,
-            'total' => $dailyTotals[$d] ?? 0
+            'date'   => $d,
+            'total'  => $dailyTotals[$d]['total'] ?? 0,
+            'paid'   => $dailyTotals[$d]['paid'] ?? 0,
+            'unpaid' => $dailyTotals[$d]['unpaid'] ?? 0
         ];
     }
+
+    // Get dashboard statistics
+    $stats = $invoiceModel->getDashboardStats();
 
     require APP_ROOT . '/app/Views/dashboard/index.php';
 }
 private function adminOnly()
     {
         if (!Session::has('user_id') || Session::get('role') !== 'admin') {
-            header('Location: /products'); // or /login
+            header('Location: /home'); // or /login
             exit;
         }
     }

@@ -31,27 +31,57 @@ public function index()
     require APP_ROOT . '/app/Views/subscription/subscription.php';
 }
 
-    public function subscribe()
-    {
-        if(!Session::has('user_id')){
-            header('Location: /login');
-            exit;
-        }
 
-        $userId = Session::get('user_id');
-        $planId = $_POST['plan_id'];
-        $start = date('Y-m-d');
-        $end   = date('Y-m-d', strtotime('+1 month'));
+public function subscribe()
+{
+    if (!Session::has('user_id')) {
+        header('Location: /login');
+        exit;
+    }
 
-        $this->subscriptionModel->subscribe([
-            'user_id' => $userId,
-            'plan_id' => $planId,
-            'start_date' => $start,
-            'end_date' => $end,
-            'auto_renew' => isset($_POST['auto_renew']) ? 1 : 0
-        ]);
+    $userId = Session::get('user_id');
+    $planId = $_POST['plan_id'] ?? null;
+    $autoRenew = isset($_POST['auto_renew']) ? 1 : 0;
+
+    if (!$planId) {
+        Session::set('error', 'Please select a plan');
+        header('Location: /subscriptions');
+        exit;
+    }
+
+    $activeSubscription = $this->subscriptionModel
+        ->getActiveSubscription($userId);
+
+    if ($activeSubscription) {
+        Session::set(
+            'error',
+            'You already have an active plan: ' . $activeSubscription['plan_name']
+        );
 
         header('Location: /subscriptions');
         exit;
     }
+
+    // Redirect to payment page
+    header('Location: /payment?plan_id=' . $planId . '&auto_renew=' . $autoRenew);
+    exit;
+}
+
+/**
+ * Admin: Track all subscriptions
+ */
+public function trackSubscriptions()
+{
+    Session::start();
+    
+    if (!Session::has('user_id') || Session::get('role') !== 'admin') {
+        header('Location: /login');
+        exit;
+    }
+
+    $subscriptions = $this->subscriptionModel->getAllWithUserDetails();
+
+    require APP_ROOT . '/app/Views/admin/track_subscriptions.php';
+}
+
 }

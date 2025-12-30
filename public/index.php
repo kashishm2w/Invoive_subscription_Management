@@ -28,6 +28,7 @@ require_once APP_ROOT . '/app/Controllers/CartController.php';
 require_once APP_ROOT . '/app/Controllers/InvoiceController.php';
 require_once APP_ROOT . '/app/Controllers/SubscriptionController.php';
 require_once APP_ROOT . '/app/Controllers/SettingController.php';
+require_once APP_ROOT . '/app/Controllers/PaymentController.php';
 
 use App\Core\Router;
 use App\Controllers\AuthController;
@@ -39,6 +40,7 @@ use App\Controllers\CartController;
 use App\Controllers\InvoiceController;
 use App\Controllers\SubscriptionController;
 use App\Controllers\SubscriptionPlanController;
+use App\Controllers\PaymentController;
 
 use App\Controllers\SettingController;
 
@@ -59,6 +61,7 @@ $router->get('/logout', [AuthController::class, 'logout']);
 // $router->post('/user/update-profile',[UserController::class ,'updateProfile']);
 
 // Products
+$router->get('/home', [ProductController::class, 'home']);
 $router->get('/products', [ProductController::class, 'listProducts']);
 
 $router->get('/dashboard/product', [ProductController::class, 'show']);
@@ -82,10 +85,19 @@ $router->get('/my_invoices', [InvoiceController::class, 'myInvoices']);
 $router->get('/track_invoices', [InvoiceController::class, 'trackInvoices']);
 
 $router->get('/invoice/pdf', [InvoiceController::class, 'pdf']);
+$router-> get('/invoice/send-mail',[InvoiceController::class,'sendEmail']);
+
 //subscription
 $router->get('/subscriptions', [SubscriptionController::class, 'index']);
 $router->post('/subscribe', [SubscriptionController::class, 'subscribe']);
+$router->get('/subscription/cancel', [SubscriptionController::class, 'cancelSubscription']);
 
+// Payment (Stripe)
+$router->get('/payment', [PaymentController::class, 'showPaymentPage']);
+$router->post('/payment/process', [PaymentController::class, 'processPayment']);
+
+// Admin: Track Subscriptions
+$router->get('/track_subscriptions', [SubscriptionController::class, 'trackSubscriptions']);
 
 $router->get('/dashboard/subscription-plans', [SubscriptionPlanController::class, 'index']);
 $router->post('/dashboard/subscription-plans', [SubscriptionPlanController::class, 'create']);
@@ -97,6 +109,8 @@ $router->get('/admin/plan/delete', [SubscriptionPlanController::class, 'delete']
 // setting
 $router->get('/settings',         [SettingController:: class,'index']);
 $router->post('/settings/update', [SettingController:: class,'update']);
+$router->get('/settings/company', [SettingController::class,'company']);
+$router->post('/settings/company',  [SettingController::class,'company']);
 
 $router->dispatch();
 

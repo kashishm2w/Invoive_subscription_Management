@@ -21,9 +21,13 @@ class CartController
         $cart = Session::get('cart') ?? [];
         $totalAmount = 0;
 
-        foreach ($cart as $item) {
+        // Add current stock info to each cart item
+        foreach ($cart as $productId => &$item) {
+            $product = $this->productModel->getById($productId);
+            $item['available_stock'] = $product ? $product['quantity'] : 0;
             $totalAmount += $item['price'] * $item['quantity'] + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
         }
+        unset($item); // Break reference
 
         require APP_ROOT . '/app/Views/cart/show.php';
     }
@@ -96,6 +100,24 @@ public function updateItem()
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $productId = $_POST['product_id'] ?? null;
         $quantity  = (int)($_POST['quantity'] ?? 1);
+
+        // Fetch product to check stock
+        $product = $this->productModel->getById($productId);
+        
+        if (!$product) {
+            echo json_encode(['success' => false, 'error' => 'Product not found']);
+            exit;
+        }
+        
+        // Check if requested quantity exceeds stock
+        if ($quantity > $product['quantity']) {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Only ' . $product['quantity'] . ' items available',
+                'available_stock' => $product['quantity']
+            ]);
+            exit;
+        }
 
         $cart = Session::get('cart') ?? [];
 

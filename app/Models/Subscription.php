@@ -85,5 +85,45 @@ class Subscription extends Model
             : null;
     }
 
+    /**
+     * Get all subscriptions with user details (for admin tracking)
+     */
+    public function getAllWithUserDetails(): array
+    {
+        $result = $this->db->query("
+            SELECT 
+                s.*,
+                u.name as user_name,
+                u.email as user_email,
+                p.plan_name,
+                p.price,
+                p.billing_cycle,
+                COALESCE(i.status, 'unpaid') as payment_status
+            FROM subscriptions s
+            JOIN users u ON u.id = s.user_id
+            JOIN subscription_plans p ON p.id = s.plan_id
+            LEFT JOIN invoices i ON i.client_id = s.user_id 
+                AND i.invoice_number LIKE 'SUB-%'
+                AND DATE(i.invoice_date) = DATE(s.start_date)
+            ORDER BY s.created_at DESC
+        ");
+
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Cancel subscription (update status to cancelled)
+     */
+    // public function cancel(int $subscriptionId, int $userId): bool
+    // {
+    //     // Update subscription status to cancelled
+    //     $stmt = $this->db->prepare("
+    //         UPDATE subscriptions 
+    //         SET status = 'cancelled' 
+    //         WHERE id = ? AND user_id = ?
+    //     ");
+    //     $stmt->bind_param("ii", $subscriptionId, $userId);
+    //     return $stmt->execute();
+    // }
 
 }

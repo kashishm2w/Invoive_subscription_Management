@@ -1,3 +1,4 @@
+<?php use App\Helpers\Session; ?>
 <link rel="stylesheet" href="assets/css/header_footer.css">
 
 <footer class="footer">
@@ -9,9 +10,9 @@
                 Invoice & Subscription Management System helps businesses create invoices, manage clients, collect online payments, and handle subscriptions efficiently.
             </p>
             <p>
-                <a href="/terms" class="footer__link">Terms of Service</a><br>
-                <a href="/privacy" class="footer__link">Privacy Policy</a><br>
-                <a href="/cookie-policy" class="footer__link">Cookie Policy</a>
+                <a href="#" class="footer__link">Terms of Service</a><br>
+                <a href="#" class="footer__link">Privacy Policy</a><br>
+                <a href="#" class="footer__link">Cookie Policy</a>
             </p>
         </div>
 
@@ -32,14 +33,6 @@
             </p>
         </div>
 
-        <div class="footer__block">
-            <h4>Get Started</h4>
-            <p>
-                <a href="/contact" class="footer__link btn-footer">Contact Sales</a><br>
-                <a href="/request-demo" class="footer__link btn-footer">Request a Demo</a>
-            </p>
-        </div>
-
     </div>
 
     <div class="footer__bottom">
@@ -50,3 +43,34 @@
     </div>
 
 </footer>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Global SweetAlert Handler -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (Session::has('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '<?= addslashes(Session::get('success')) ?>',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        <?php Session::remove('success'); ?>
+    <?php endif; ?>
+
+    <?php if (Session::has('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<?= addslashes(Session::get('error')) ?>',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        <?php Session::remove('error'); ?>
+    <?php endif; ?>
+});
+</script>
+

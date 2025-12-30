@@ -69,6 +69,7 @@ class AuthController
             // Save to database
             $this->user->register($name, $email, $hashed);
 
+            Session::set('success', 'Registration successful! Please login.');
             header("Location: /login");
             exit;
         }
@@ -88,7 +89,7 @@ public function showLogin()
         }
 
         // Normal user → products
-        header("Location: /products");
+        header("Location: /home");
         exit;
     }
 
@@ -125,6 +126,9 @@ public function showLogin()
         Session::set('user_id', $user['id']);
         Session::set('name', $user['name']);
         Session::set('role', $user['role']);
+        Session::set('email', $user['email']);
+        Session::set('success', 'Welcome back, ' . $user['name'] . '!');
+
 
         // Popup login redirect (cart → checkout)
         if (!empty($_POST['redirect_after_login'])) {
@@ -140,7 +144,12 @@ public function showLogin()
             exit;
         }
 
-        header("Location: /dashboard");
+        // Default redirect based on role
+        if (Session::get('role') === 'admin') {
+            header("Location: /dashboard");
+        } else {
+            header("Location: /home");
+        }
         exit;
     }
 
