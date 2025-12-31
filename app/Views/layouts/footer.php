@@ -9,11 +9,6 @@
             <p>
                 Invoice & Subscription Management System helps businesses create invoices, manage clients, collect online payments, and handle subscriptions efficiently.
             </p>
-            <p>
-                <a href="#" class="footer__link">Terms of Service</a><br>
-                <a href="#" class="footer__link">Privacy Policy</a><br>
-                <a href="#" class="footer__link">Cookie Policy</a>
-            </p>
         </div>
 
         <div class="footer__block">

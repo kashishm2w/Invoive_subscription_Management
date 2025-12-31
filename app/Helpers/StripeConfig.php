@@ -20,3 +20,4 @@ class StripeConfig
         return $_ENV['STRIPE_PUBLISHABLE_KEY'];
     }
 }
+  

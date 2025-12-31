@@ -4,6 +4,7 @@ require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
 ?>
 <link rel="stylesheet" href="/assets/css/home.css">
+<link rel="stylesheet" href="/assets/css/products.css">
 <section class="hero-section">
     <h1>Welcome to Our Store</h1>
     <p>Discover amazing products at great prices</p>
@@ -70,6 +71,15 @@ use App\Helpers\Session;
                         </div>
                     </div>
                 <?php endforeach; ?>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                    <a href="?page=<?= $i ?>" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>>
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
             </div>
         <?php else: ?>
             <p class="no-products">No products available at the moment.</p>
@@ -201,6 +211,27 @@ use App\Helpers\Session;
             }
         }
     });
+
+    // Open Edit Product Modal (for admin)
+    function openEditProductModal(productId) {
+        fetch(`/dashboard/products/edit?id=${productId}&ajax=1`)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('viewProductContainer').innerHTML = html;
+                document.getElementById('viewProductModal').style.display = 'block';
+            })
+            .catch(err => {
+                console.error('Error loading edit form:', err);
+                alert('Failed to load edit form. Please try again.');
+            });
+    }
+
+    // Confirm Delete Product (for admin)
+    function confirmDeleteProduct(productId) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            window.location.href = '/dashboard/products/delete?id=' + productId;
+        }
+    }
 </script>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>

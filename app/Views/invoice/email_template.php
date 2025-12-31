@@ -43,13 +43,22 @@
                 <td><?= htmlspecialchars($item['item_name']) ?></td>
                 <td><?= $item['quantity'] ?></td>
                 <td>&#8377;<?= number_format($item['price'], 2) ?></td>
+                <td>
+        <?php if (isset($item['status'])): ?>
+            <span class="status <?= strtolower($item['status']) ?>">
+                <?= ucfirst($item['status']) ?>
+            </span>
+        <?php else: ?>
+            <span class="status unpaid">Unpaid</span>
+        <?php endif; ?>
+    </td>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 
     <p>
-        Thank you from Kashish Mittal.<br>
+        Thank you from shopping.<br>
         <strong>Invoice and sub</strong>
     </p>
 </div>

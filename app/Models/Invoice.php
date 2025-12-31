@@ -227,7 +227,7 @@ public function getAllInvoicesWithDetails(): array
         FROM invoices i
         LEFT JOIN users u ON i.created_by = u.id
         LEFT JOIN invoice_items it ON i.id = it.invoice_id
-        ORDER BY i.invoice_date ASC
+        ORDER BY i.invoice_date DESC
     ");
 
     $stmt->execute();
@@ -271,9 +271,7 @@ public function getAllInvoicesWithDetails(): array
 
 // Dashboard Statistics Methods
 
-/**
- * Get total amount of all invoices
- */
+
 public function getTotalAmount(): float
 {
     $result = $this->db->query("SELECT COALESCE(SUM(total_amount), 0) AS total FROM invoices");

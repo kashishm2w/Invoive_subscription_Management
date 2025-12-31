@@ -111,19 +111,5 @@ class Subscription extends Model
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Cancel subscription (update status to cancelled)
-     */
-    // public function cancel(int $subscriptionId, int $userId): bool
-    // {
-    //     // Update subscription status to cancelled
-    //     $stmt = $this->db->prepare("
-    //         UPDATE subscriptions 
-    //         SET status = 'cancelled' 
-    //         WHERE id = ? AND user_id = ?
-    //     ");
-    //     $stmt->bind_param("ii", $subscriptionId, $userId);
-    //     return $stmt->execute();
-    // }
-
+ 
 }

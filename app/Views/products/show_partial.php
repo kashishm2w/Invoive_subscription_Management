@@ -42,6 +42,15 @@
             <span class="stock-label">Available Stock:</span>
             <span class="stock-value"><?= (int)$product['quantity'] ?> units</span>
         </div>
+        
+        <div class="admin-product-actions">
+            <button type="button" class="btn-edit" onclick="closeViewProductModal(); openEditProductModal(<?= $product['id'] ?>)">
+                Edit Product
+            </button>
+            <button type="button" class="btn-delete" onclick="confirmDeleteProduct(<?= $product['id'] ?>)">
+                Delete Product
+            </button>
+        </div>
     <?php endif; ?>
 
     <?php if (\App\Helpers\Session::get('role') !== 'admin'): ?>

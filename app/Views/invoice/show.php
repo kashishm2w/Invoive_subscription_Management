@@ -1,6 +1,7 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
  ?>
+    <a href="/home" class="back">&#8592; Back</a>
 
 <link rel="stylesheet" href="/assets/css/invoice.css">
 <?php if (Session::has('success')): ?>

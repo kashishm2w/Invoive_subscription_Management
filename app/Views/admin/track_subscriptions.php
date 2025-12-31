@@ -5,56 +5,172 @@ use App\Helpers\Session;
 
 <link rel="stylesheet" href="/assets/css/products.css">
 <style>
+/*  TRACK SUBSCRIPTIONS  */
+
 .track-header {
+    max-width: 1100px;
+    margin: 32px auto 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 90%;
-    margin: 20px auto;
 }
 
-.status-badge {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
+.track-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* TABLE WRAPPER */
+.product-table {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+/* TABLE HEADER */
+.product-table thead {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+
+.product-table th {
+    padding: 14px;
+    text-align: left;
+    font-size: 14px;
     font-weight: 600;
-    text-transform: uppercase;
+    color: #ffffff;
+    white-space: nowrap;
 }
 
+/* TABLE BODY */
+.product-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.product-table tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.product-table tbody tr:hover {
+    background-color: #eef2ff;
+}
+
+/*  STATUS BADGES  */
+.status-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+    min-width: 90px;
+    text-align: center;
+}
+
+/* Subscription Status */
 .status-active {
-    background: #d4edda;
-    color: #155724;
+    background-color: #dcfce7;
+    color: #166534;
 }
 
 .status-expired {
-    background: #f8d7da;
-    color: #721c24;
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
 .status-cancelled {
-    background: #fff3cd;
-    color: #856404;
+    background-color: #e5e7eb;
+    color: #374151;
 }
 
 .status-pending {
-    background: #e2e3e5;
-    color: #383d41;
+    background-color: #fff7ed;
+    color: #9a3412;
 }
 
-/* Payment Status Badges */
+/* Payment Status */
 .payment-paid {
-    background: #d4edda;
-    color: #155724;
+    background-color: #dcfce7;
+    color: #166534;
 }
 
 .payment-unpaid {
-    background: #fff3cd;
-    color: #856404;
+    background-color: #fff7ed;
+    color: #9a3412;
 }
 
 .payment-overdue {
-    background: #f8d7da;
-    color: #721c24;
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/*  EMPTY STATE  */
+.no-data {
+    margin: 30px 0;
+    font-size: 15px;
+    color: #6b7280;
+    text-align: center;
+}
+
+/*  RESPONSIVE  */
+@media (max-width: 768px) {
+    .track-header {
+        padding: 0 16px;
+    }
+
+    .product-table {
+        font-size: 13px;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 10px 8px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        min-width: 70px;
+        padding: 4px 10px;
+    }
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 28px;
+     margin-bottom: 20px;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #374151;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+}
+
+.pagination a:hover {
+    background: #f3f4f6;
+}
+
+.pagination a.active {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #fff;
+    border-color: transparent;
 }
 </style>
 
@@ -68,7 +184,7 @@ use App\Helpers\Session;
     <table class="product-table">
         <thead>
             <tr>
-                <th>sr no.</th>
+                <th>Sr no.</th>
                 <th>User Name</th>
                 <th>Email</th>
                 <th>Plan</th>
@@ -107,6 +223,14 @@ use App\Helpers\Session;
             <?php endforeach; ?>
         </tbody>
     </table>
+    
+    <div class="pagination">
+        <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+            <a href="?page=<?= $i ?>" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+        <?php endfor; ?>
+    </div>
 <?php endif; ?>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>

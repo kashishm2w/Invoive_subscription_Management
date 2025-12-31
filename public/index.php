@@ -76,6 +76,8 @@ $router->get('/cart', [CartController::class, 'showCart']);
 $router->post('/cart/add', [CartController::class, 'addItem']);
 $router->post('/cart/update', [CartController::class, 'updateItem']);
 $router->post('/cart/remove', [CartController::class, 'removeItem']);
+$router->get('/cart/payment', [CartController::class, 'showPaymentPage']);
+$router->post('/cart/payment/process', [CartController::class, 'processPayment']);
 
 // Invoices
 $router-> get('/invoice/show',[InvoiceController::class,'show']);
@@ -85,7 +87,7 @@ $router->get('/my_invoices', [InvoiceController::class, 'myInvoices']);
 $router->get('/track_invoices', [InvoiceController::class, 'trackInvoices']);
 
 $router->get('/invoice/pdf', [InvoiceController::class, 'pdf']);
-$router-> get('/invoice/send-mail',[InvoiceController::class,'sendEmail']);
+$router->get('/invoice/send-email',[InvoiceController::class,'sendEmail']);
 
 //subscription
 $router->get('/subscriptions', [SubscriptionController::class, 'index']);

@@ -5,7 +5,7 @@
 <h2>Add New Plan</h2>
 <form method="POST" action="/dashboard/subscription-plans">
     <label>Plan Name</label><br>
-    <input type="text" name="plan_name" required><br><b-+++++++++++
+    <input type="text" name="plan_name" required><br>
     <button type="submit">Add Plan</button>
 </form>
 

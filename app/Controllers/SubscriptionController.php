@@ -79,7 +79,21 @@ public function trackSubscriptions()
         exit;
     }
 
-    $subscriptions = $this->subscriptionModel->getAllWithUserDetails();
+    $currentPage = (int)($_GET['page'] ?? 1);
+    $limit = 10;
+    $offset = ($currentPage - 1) * $limit;
+
+    $allSubscriptions = $this->subscriptionModel->getAllWithUserDetails();
+    $totalItems = count($allSubscriptions);
+    
+    $subscriptions = array_slice($allSubscriptions, $offset, $limit);
+
+    $pagination = [
+        'total'        => $totalItems,
+        'per_page'     => $limit,
+        'current_page' => $currentPage,
+        'total_pages'  => ceil($totalItems / $limit),
+    ];
 
     require APP_ROOT . '/app/Views/admin/track_subscriptions.php';
 }

@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/assets/css/products.css">
 
 <div class="dashboard-header">
-    <h1>Product Listing</h1>
+    <h2>Product Listing</h2>
 
     <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
         <button type="button" class="btn-add-product" onclick="openAddProductModal()">+ Add Product</button>
@@ -69,6 +69,14 @@
             <?php endforeach; ?>
         </tbody>
     </table>
+    
+    <div class="pagination">
+        <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+            <a href="?page=<?= $i ?>" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>>
+                <?= $i ?>
+            </a>
+        <?php endfor; ?>
+    </div>
 <?php else: ?>
     <p>No products found.</p>
 <?php endif; ?>
@@ -99,6 +107,7 @@
         <!-- Form content will be loaded here via AJAX -->
     </div>
 </div>
+<?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
 
 <script>
     function addToCart(productId) {
@@ -118,11 +127,35 @@
                     btn.disabled = true;
                     btn.style.backgroundColor = "#6c757d";
                     btn.style.cursor = "not-allowed";
+                    
+                    // Show SweetAlert immediately
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Cart!',
+                        text: 'Product added successfully',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                 } else {
-                    console.error(data.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.error || 'Failed to add to cart',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                 }
             })
-            .catch(err => console.error('Error:', err));
+            .catch(err => {
+                console.error('Error:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to add to cart. Please try again.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
     }
 
 // Add to Cart from View Modal

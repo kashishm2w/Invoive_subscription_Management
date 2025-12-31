@@ -89,6 +89,3 @@ window.onclick = function(event) {
 
 
 </script>
-<?php 
-require APP_ROOT . '/app/Views/layouts/footer.php'; 
-?>

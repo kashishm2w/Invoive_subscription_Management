@@ -152,4 +152,126 @@ public function removeItem()
     }
 }
 
+// Show Product Payment Page
+public function showPaymentPage()
+{
+    if (!Session::has('user_id')) {
+        Session::set('redirect_after_login', '/cart');
+        header("Location: /login");
+        exit;
+    }
+
+    $cart = Session::get('cart') ?? [];
+    if (empty($cart)) {
+        header("Location: /cart");
+        exit;
+    }
+
+    $stripePublishableKey = \App\Helpers\StripeConfig::getPublishableKey();
+
+    require APP_ROOT . '/app/Views/cart/product_payment.php';
+}
+
+// Process Product Payment via Stripe
+public function processPayment()
+{
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: /cart');
+        exit;
+    }
+
+    if (!Session::has('user_id')) {
+        header('Location: /login');
+        exit;
+    }
+
+    $token = $_POST['stripeToken'] ?? null;
+    if (!$token) {
+        Session::set('error', 'Payment failed. Please try again.');
+        header('Location: /cart');
+        exit;
+    }
+
+    $cart = Session::get('cart') ?? [];
+    if (empty($cart)) {
+        Session::set('error', 'Cart is empty.');
+        header('Location: /cart');
+        exit;
+    }
+
+    // Calculate totals
+    $subtotal = $taxAmount = 0;
+    foreach ($cart as $item) {
+        $lineTotal = $item['price'] * $item['quantity'];
+        $lineTax = $lineTotal * $item['tax_percent'] / 100;
+        $subtotal += $lineTotal;
+        $taxAmount += $lineTax;
+    }
+    $totalAmount = $subtotal + $taxAmount;
+    $taxRate = $subtotal > 0 ? ($taxAmount / $subtotal) * 100 : 0;
+
+    // Initialize Stripe
+    \App\Helpers\StripeConfig::init();
+
+    try {
+        // Create Stripe charge
+        $charge = \Stripe\Charge::create([
+            'amount' => (int)($totalAmount * 100), // Convert to paise
+            'currency' => 'inr',
+            'description' => 'Product Purchase',
+            'source' => $token,
+            'metadata' => [
+                'user_id' => Session::get('user_id'),
+                'type' => 'product_purchase'
+            ]
+        ]);
+
+        // Payment successful - create invoice
+        $invoiceModel = new \App\Models\Invoice();
+        $itemModel = new \App\Models\InvoiceItem();
+
+        $invoiceId = $invoiceModel->create([
+            'created_by' => Session::get('user_id'),
+            'client_id' => Session::get('user_id'),
+            'invoice_number' => 'INV-' . date('Ymd-His'),
+            'invoice_date' => date('Y-m-d'),
+            'due_date' => date('Y-m-d'),
+            'subtotal' => $subtotal,
+            'tax_type' => 'GST',
+            'tax_rate' => round($taxRate, 2),
+            'tax_amount' => $taxAmount,
+            'discount' => 0,
+            'total_amount' => $totalAmount,
+            'status' => 'paid',
+            'notes' => 'Paid via Stripe | Transaction ID: ' . $charge->id
+        ]);
+
+        // Add invoice items
+        foreach ($cart as $item) {
+            $itemModel->addItem($invoiceId, [
+                'name' => $item['name'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'total' => $item['price'] * $item['quantity']
+            ]);
+        }
+
+        // Clear cart
+        Session::remove('cart');
+
+        Session::set('success', 'Payment successful! Your order has been placed.');
+        header("Location: /invoice/show?id=" . $invoiceId);
+        exit;
+
+    } catch (\Stripe\Exception\CardException $e) {
+        Session::set('error', 'Card declined: ' . $e->getMessage());
+        header('Location: /cart/payment');
+        exit;
+    } catch (\Exception $e) {
+        Session::set('error', 'Payment failed: ' . $e->getMessage());
+        header('Location: /cart/payment');
+        exit;
+    }
+}
+
 }

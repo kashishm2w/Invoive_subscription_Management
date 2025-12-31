@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/assets/css/products.css">
     <a href="/products" class="btn-back">&#8592; Back</a>
 
-<h1>Your Cart</h1>
+<h2>Your Cart</h2>
 
 <?php if (!empty($cart)): ?>
 <table border="1" cellpadding="5">
@@ -66,17 +66,55 @@
 <h3>Grand Total: &#8377;<?= number_format($grandTotal, 2) ?></h3>
 <div class="checkout-container">
 <?php if (\App\Helpers\Session::has('user_id')): ?>
-<form action="/invoice/create" method="POST">
-    <button type="submit" class="checkout-btn">Proceed to Checkout</button>
-</form>
+<button class="checkout-btn" onclick="openPaymentModal()">Proceed to Checkout</button>
 <?php else: ?>
 <button class="checkout-btn" onclick="openLoginModal()">Proceed to Checkout</button>
 <?php endif; ?>
 </div>
 
+<!-- Payment Options Modal -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content payment-modal-content">
+        <span class="close" onclick="closePaymentModal()">&times;</span>
+        <h2>Choose Payment Method</h2>
+        
+        <div class="payment-summary">
+            <p>Total Amount: <strong>&#8377;<?= number_format($grandTotal, 2) ?></strong></p>
+        </div>
+        
+        <div class="payment-options">
+            <a href="/cart/payment" class="payment-option-btn pay-now-btn">
+                <span class="payment-icon">
+                    <img src="/assets/images/icons/money.png" alt="Pay now" class="icon">
+                </span>
+                <span class="payment-text">
+                    <strong>Pay Now</strong>
+                    <small>Secure online payment via card</small>
+                </span>
+            </a>
+            
+            <form action="/invoice/create" method="POST" style="width: 100%;">
+                <input type="hidden" name="payment_method" value="cod">
+                <button type="submit" class="payment-option-btn cod-btn">
+                    <span class="payment-icon">
+                        <img src="/assets/images/icons/cash-on-delivery.png" alt="COD" class="icon">
+                    </span>
+                    <span class="payment-text">
+                        <strong>Cash on Delivery</strong>
+                        <small>Pay when you receive the order</small>
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <?php else: ?>
 <p>Your cart is empty.</p>
+<div class="blank-cart">
+    <img src="/uploads/blank-cart.png" alt="Empty cart">
+</div>
 <?php endif; ?>
 <div id="loginModal" class="modal">
     <div class="modal-content">
@@ -167,5 +205,11 @@ function openLoginModal() {
 }
 function closeLoginModal() {
     document.getElementById('loginModal').style.display = 'none';
+}
+function openPaymentModal() {
+    document.getElementById('paymentModal').style.display = 'flex';
+}
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
 }
 </script>

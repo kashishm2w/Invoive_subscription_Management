@@ -3,22 +3,51 @@ require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
 ?>
 
-<link rel="stylesheet" href="/assets/css/subscription.css">
+<link rel="stylesheet" href="/assets/css/products.css">
 <link rel="stylesheet" href="/assets/css/payment.css">
 
 <div class="payment-container">
+    <a href="/cart" class="back-link">← Back to Cart</a>
+    
     <h2>Complete Your Payment</h2>
     
-    <div class="plan-summary">
-        <h3><?= htmlspecialchars($plan['plan_name']) ?></h3>
-        <div class="price">&#8377;<?= number_format($plan['price'], 2) ?></div>
-        <div class="billing"><?= ucfirst($plan['billing_cycle']) ?> Billing</div>
+    <div class="cart-summary">
+        <h3>Order Summary</h3>
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $grandTotal = 0; ?>
+                <?php foreach ($cart as $item): ?>
+                    <?php
+                        $itemTotal = $item['price'] * $item['quantity']
+                            + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
+                        $grandTotal += $itemTotal;
+                    ?>
+                    <tr>
+                        <td><?= htmlspecialchars($item['name']) ?></td>
+                        <td><?= $item['quantity'] ?></td>
+                        <td>&#8377;<?= number_format($item['price'], 2) ?></td>
+                        <td>&#8377;<?= number_format($itemTotal, 2) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3"><strong>Grand Total</strong></td>
+                    <td><strong>&#8377;<?= number_format($grandTotal, 2) ?></strong></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
-    <form action="/payment/process" method="POST" id="payment-form">
-        <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-        <input type="hidden" name="auto_renew" value="<?= $autoRenew ?>">
-        
+    <form action="/cart/payment/process" method="POST" id="payment-form">
         <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #34495e;">
             Card Details
         </label>
@@ -28,13 +57,9 @@ use App\Helpers\Session;
         
         <button type="submit" class="pay-btn" id="submit-btn">
             <span class="loading-spinner" id="spinner"></span>
-            <span id="btn-text">Pay &#8377;<?= number_format($plan['price'], 2) ?></span>
+            <span id="btn-text">Pay &#8377;<?= number_format($grandTotal, 2) ?></span>
         </button>
     </form>
-
-    <a href="/subscriptions" class="back-link"> Back to Plans</a>
-
-   
 </div>
 
 <!-- Stripe.js -->
@@ -94,7 +119,7 @@ form.addEventListener('submit', function(event) {
             // Re-enable button
             submitBtn.disabled = false;
             spinner.style.display = 'none';
-            btnText.textContent = 'Pay &#8377;<?= number_format($plan['price'], 2) ?>';
+            btnText.textContent = 'Pay &#8377;<?= number_format($grandTotal, 2) ?>';
         } else {
             // Add token to form and submit
             var hiddenInput = document.createElement('input');
