@@ -1,8 +1,9 @@
 /* Dashboard Container */
 .dashboard-container {
-width: 1314px;
+    width: 1314px;
     margin: 0px 170px;
-    padding: 20px;}
+    padding: 20px;
+}
 
 /* Dashboard Header */
 .dashboard-header {
@@ -102,6 +103,7 @@ width: 1314px;
     background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
     color: #fff;
 }
+
 .stat-card.total .stat-value {
     color: #667eea;
 }
@@ -121,9 +123,9 @@ width: 1314px;
 /* Chart Section */
 .charts-row {
     display: flex;
-    gap: 20px; 
-    flex-wrap: wrap; 
-    justify-content: center; 
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .chart-section {
@@ -131,7 +133,7 @@ width: 1314px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     padding: 24px;
-    width: 600px; 
+    width: 600px;
 }
 
 .chart-header {

@@ -5,6 +5,8 @@ use App\Helpers\Session;
 ?>
 <link rel="stylesheet" href="/assets/css/home.css">
 <link rel="stylesheet" href="/assets/css/products.css">
+
+<main class="main-content">
 <section class="hero-section">
     <h1>Welcome to Our Store</h1>
     <p>Discover amazing products at great prices</p>
@@ -233,5 +235,5 @@ use App\Helpers\Session;
         }
     }
 </script>
-
+</main>
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>

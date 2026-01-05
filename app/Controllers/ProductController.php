@@ -25,7 +25,7 @@ class ProductController
 
         $allProducts = $this->productModel->getAll();
         $totalItems = count($allProducts);
-        
+
         $products = array_slice($allProducts, $offset, $limit);
 
         $pagination = [
@@ -44,12 +44,12 @@ class ProductController
     public function home()
     {
         $currentPage = (int)($_GET['page'] ?? 1);
-        $limit = 10;
+        $limit = 12;
         $offset = ($currentPage - 1) * $limit;
 
         $allProducts = $this->productModel->getAll();
         $totalItems = count($allProducts);
-        
+
         $products = array_slice($allProducts, $offset, $limit);
 
         $pagination = [
@@ -139,9 +139,8 @@ class ProductController
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
                 $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
             }
-
-            if ($description === '' || strlen($description) < 10 || strlen($description) > 1000) {
-                $errors[] = "Description must be between 10 and 1000 characters.";
+            if (!preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
+                $errors[] = "Description must be 10-1000 characters and can include letters, numbers, spaces, newlines, and . , : ; ' \" ( ) - ! ?";
             }
             if (!preg_match('/^\d+(\.\d{1,2})?$/', $price) || $price <= 0) {
                 $errors[] = "Price must be a valid number with up to 2 decimal places.";
@@ -216,6 +215,51 @@ class ProductController
         }
 
         $product = $this->productModel->getById($id);
+  if (!$product) {
+        header("Location: /dashboard/products");
+        exit;
+    }
+
+    $errors = [];
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Collect form input
+        $name        = trim($_POST['name'] ?? '');
+        $price       = trim($_POST['price'] ?? '');
+        $quantity    = trim($_POST['quantity'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+
+        // Validation
+        if ($name === '' || strlen($name) < 2 || strlen($name) > 50) {
+            $errors[] = "Name must be between 2 and 50 characters.";
+        }
+
+        if (!preg_match('/^\d+(\.\d{1,2})?$/', $price)) {
+            $errors[] = "Price must be a valid number (up to 2 decimal places).";
+        }
+
+        if (!filter_var($quantity, FILTER_VALIDATE_INT) || $quantity < 0) {
+            $errors[] = "Quantity must be a valid integer greater than or equal to 0.";
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n]{10,1000}$/s', $description)) {
+            $errors[] = "Description must be 10-1000 characters and can include letters, numbers, spaces, newlines, and . , : ; ' \" ( )";
+        }
+
+        // If no errors, update product
+        if (empty($errors)) {
+            $this->productModel->update($id, [
+                'name'        => $name,
+                'price'       => $price,
+                'quantity'    => $quantity,
+                'description' => $description
+            ]);
+
+            $_SESSION['success'] = "Product updated successfully!";
+            header("Location: /dashboard/products");
+            exit;
+        }
+    }
 
         if (isset($_GET['ajax'])) {
             // Only return the form for modal
@@ -231,36 +275,126 @@ class ProductController
     public function updateProduct()
     {
         $this->checkAdmin();
+        
+        // Check if this is an AJAX request
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
-            
-            // Get the current product to preserve the existing poster if no new one uploaded
+            $errors = [];
+
+            // Validate ID
+            if (!$id) {
+                $errors[] = "Product ID is required.";
+            }
+
+            // Get the current product
             $currentProduct = $this->productModel->getById($id);
+            if (!$currentProduct) {
+                $errors[] = "Product not found.";
+            }
+
+            // Collect and validate form data
+            $name        = trim($_POST['name'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+            $price       = trim($_POST['price'] ?? 0);
+            $tax_percent = trim($_POST['tax_percent'] ?? 0);
+            $quantity    = trim($_POST['quantity'] ?? 0);
+
+            // Validation
+            if ($name === '' || strlen($name) < 2 || strlen($name) > 100) {
+                $errors[] = "Product name must be between 2 and 100 characters.";
+            }
+
+            if (!preg_match('/^\d+(\.\d{1,2})?$/', $price) || $price <= 0) {
+                $errors[] = "Price must be a valid positive number with up to 2 decimal places.";
+            }
+
+            if (!preg_match('/^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/', $tax_percent)) {
+                $errors[] = "Tax percent must be between 0 and 100.";
+            }
+
+            if (!filter_var($quantity, FILTER_VALIDATE_INT) || $quantity < 0 || $quantity > 100) {
+                $errors[] = "Quantity must be between 0 and 100.";
+            }
+
+            // If there are validation errors, return error response
+            if (!empty($errors)) {
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'errors' => $errors]);
+                    exit;
+                } else {
+                    $_SESSION['errors'] = $errors;
+                    header("Location: /dashboard/products/edit?id=" . $id);
+                    exit;
+                }
+            }
+
+            // Handle poster upload
             $poster_name = $currentProduct['poster'] ?? 'default.png';
-            
-            // Handle new poster upload
             $poster = $_FILES['poster'] ?? null;
             if ($poster && $poster['error'] === 0 && $poster['size'] > 0) {
                 $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-                if (in_array($poster['type'], $allowed_types) && $poster['size'] <= 2 * 1024 * 1024) {
+                if (!in_array($poster['type'], $allowed_types)) {
+                    $errors[] = "Poster must be a JPG, PNG, or GIF image.";
+                } elseif ($poster['size'] > 2 * 1024 * 1024) {
+                    $errors[] = "Poster image size must be less than 2MB.";
+                } else {
                     $poster_name = time() . '_' . basename($poster['name']);
                     move_uploaded_file($poster['tmp_name'], APP_ROOT . '/public/uploads/' . $poster_name);
                 }
             }
-            
+
+            // Check for poster errors
+            if (!empty($errors)) {
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'errors' => $errors]);
+                    exit;
+                } else {
+                    $_SESSION['errors'] = $errors;
+                    header("Location: /dashboard/products/edit?id=" . $id);
+                    exit;
+                }
+            }
+
             $data = [
-                'name'        => trim($_POST['name'] ?? ''),
-                'description' => trim($_POST['description'] ?? ''),
-                'price'       => trim($_POST['price'] ?? 0),
-                'tax_percent' => trim($_POST['tax_percent'] ?? 0),
-                'quantity'    => trim($_POST['quantity'] ?? 0),
+                'name'        => $name,
+                'description' => $description,
+                'price'       => $price,
+                'tax_percent' => $tax_percent,
+                'quantity'    => $quantity,
                 'poster'      => $poster_name,
             ];
 
-            $this->productModel->update($id, $data);
-
-            header("Location: /products");
-            exit;
+            try {
+                $this->productModel->update($id, $data);
+                
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true, 'message' => 'Product updated successfully!']);
+                    exit;
+                } else {
+                    $_SESSION['success'] = "Product updated successfully!";
+                    header("Location: /products");
+                    exit;
+                }
+            } catch (\Exception $e) {
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'errors' => ['Failed to update product. Please try again.']]);
+                    exit;
+                } else {
+                    $_SESSION['errors'] = ['Failed to update product. Please try again.'];
+                    header("Location: /dashboard/products/edit?id=" . $id);
+                    exit;
+                }
+            }
         }
     }
 

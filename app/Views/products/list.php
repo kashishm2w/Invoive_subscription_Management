@@ -1,6 +1,7 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
 <link rel="stylesheet" href="/assets/css/products.css">
 
+<main class="main-content">
 <div class="dashboard-header">
     <h2>Product Listing</h2>
 
@@ -107,6 +108,7 @@
         <!-- Form content will be loaded here via AJAX -->
     </div>
 </div>
+</main>
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
 
 <script>
@@ -246,20 +248,46 @@ function handleEditFormSubmit(e) {
     
     fetch('/dashboard/products/edit', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
-    .then(res => {
-        if (res.ok || res.redirected) {
-            // Success - close modal and reload page to show updated data
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        if (ok && data.success) {
+            // Success - close modal and show success alert
             closeEditProductModal();
-            window.location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Product Updated!',
+                text: data.message || 'The product has been updated successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.reload();
+            });
         } else {
-            throw new Error('Update failed');
+            // Error - show validation errors
+            const errorMessage = data.errors ? data.errors.join('\n') : 'Failed to update product.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Update Failed',
+                text: errorMessage,
+                confirmButtonColor: '#d33'
+            });
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Update Product';
         }
     })
     .catch(err => {
         console.error('Error updating product:', err);
-        alert('Failed to update product. Please try again.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Update Failed',
+            text: 'Failed to update product. Please try again.',
+            confirmButtonColor: '#d33'
+        });
         submitBtn.disabled = false;
         submitBtn.textContent = 'Update Product';
     });
@@ -329,16 +357,30 @@ function handleAddFormSubmit(e) {
     })
     .then(res => {
         if (res.ok || res.redirected) {
-            // Success - close modal and reload page to show new product
+            // Success - close modal and redirect to page 1 to show new product
             closeAddProductModal();
-            window.location.reload();
+            Swal.fire({
+                icon: 'success',
+                title: 'Product Added!',
+                text: 'The product has been added successfully.',
+                timer: 1500,
+                showConfirmButton: false
+            }).then(() => {
+                // Redirect to page 1 to see the newly added product
+                window.location.href = '/products?page=1';
+            });
         } else {
             throw new Error('Add product failed');
         }
     })
     .catch(err => {
         console.error('Error adding product:', err);
-        alert('Failed to add product. Please try again.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to add product. Please try again.',
+            confirmButtonColor: '#d33'
+        });
         submitBtn.disabled = false;
         submitBtn.textContent = 'Add Product';
     });
