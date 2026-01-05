@@ -1,24 +1,16 @@
+<?php use App\Helpers\Session; ?>
 <link rel="stylesheet" href="assets/css/header_footer.css">
 
-<!-- ================= FOOTER ================= -->
 <footer class="footer">
 
     <div class="container footer__content">
-
-        <!-- About / Terms -->
         <div class="footer__block">
             <h4>About</h4>
             <p>
                 Invoice & Subscription Management System helps businesses create invoices, manage clients, collect online payments, and handle subscriptions efficiently.
             </p>
-            <p>
-                <a href="/terms" class="footer__link">Terms of Service</a><br>
-                <a href="/privacy" class="footer__link">Privacy Policy</a><br>
-                <a href="/cookie-policy" class="footer__link">Cookie Policy</a>
-            </p>
         </div>
 
-        <!-- Contact -->
         <div class="footer__block">
             <h4>Contact</h4>
             <p>
@@ -27,28 +19,17 @@
             </p>
         </div>
 
-        <!-- Support / Hours -->
         <div class="footer__block">
             <h4>Support</h4>
             <p>
-                Monday – Friday: 09:00 AM – 06:00 PM<br>
-                Saturday: 09:00 AM – 01:00 PM<br>
+                Monday- Friday: 09:00 AM - 06:00 PM<br>
+                Saturday: 09:00 AM -01:00 PM<br>
                 Sunday: Closed
-            </p>
-        </div>
-
-        <!-- Call to Action -->
-        <div class="footer__block">
-            <h4>Get Started</h4>
-            <p>
-                <a href="/contact" class="footer__link btn-footer">Contact Sales</a><br>
-                <a href="/request-demo" class="footer__link btn-footer">Request a Demo</a>
             </p>
         </div>
 
     </div>
 
-    <!-- Footer Bottom -->
     <div class="footer__bottom">
         <p>
             © 2025 Invoice & Subscription Management System. All Rights Reserved.<br>
@@ -57,3 +38,34 @@
     </div>
 
 </footer>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Global SweetAlert Handler -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (Session::has('success')): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: '<?= addslashes(Session::get('success')) ?>',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        <?php Session::remove('success'); ?>
+    <?php endif; ?>
+
+    <?php if (Session::has('error')): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: '<?= addslashes(Session::get('error')) ?>',
+            timer: 1500,
+            showConfirmButton: false
+        });
+        <?php Session::remove('error'); ?>
+    <?php endif; ?>
+});
+</script>
+

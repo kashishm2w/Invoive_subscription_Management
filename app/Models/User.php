@@ -19,7 +19,7 @@ class User extends Model
     public function register(string $name, string $email, string $hashedPassword): bool
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'admin')"
+            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')"
         );
         $stmt->bind_param("sss", $name, $email, $hashedPassword);
 
@@ -38,4 +38,31 @@ class User extends Model
         $result = $stmt->get_result();
         return $result->num_rows ? $result->fetch_assoc() : null;
     }
+    public function updateProfile(int $id, array $data): bool
+{
+    $stmt = $this->db->prepare("
+        UPDATE users 
+        SET name = ?, email = ?, address = ?
+        WHERE id = ?
+    ");
+
+    $stmt->bind_param(
+        "sssi",
+        $data['name'],
+        $data['email'],
+        $data['address'],
+        $id
+    );
+
+    return $stmt->execute();
+}
+public function getById(int $id): ?array
+{
+    $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->num_rows ? $result->fetch_assoc() : null;
+}
+
 }

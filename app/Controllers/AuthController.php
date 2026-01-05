@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Helpers\Session;
@@ -22,7 +23,6 @@ class AuthController
         require APP_ROOT . '/app/Views/auth/register.php';
     }
 
-    // POST /register
     // POST /register
     public function register()
     {
@@ -69,74 +69,104 @@ class AuthController
             // Save to database
             $this->user->register($name, $email, $hashed);
 
+            Session::set('success', 'Registration successful! Please login.');
             header("Location: /login");
             exit;
         }
     }
-
-
     /*  LOGIN  */
 
     // GET /login
-    public function showLogin()
-    {
-        require APP_ROOT . '/app/Views/auth/login.php';
-    }
+public function showLogin()
+{
+    // If already logged in
+    if (Session::has('user_id')) {
 
-    // POST /login
-    public function login()
-    {
-        $errors = [];
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = strtolower(trim($_POST['email'] ?? ''));
-            $password = trim($_POST['password'] ?? '');
-
-            if ($email === '' || $password === '') {
-                $errors[] = "Email and password are required.";
-            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors[] = "Invalid email format.";
-            } else {
-                $user = $this->user->findByEmail($email);
-// var_dump([
-//                 'input_password' => $password,
-//                 'hashed_password_db' => $user['password'] ?? null,
-//                 'password_verify' => $user ? password_verify($password, $user['password']) : 'user not found'
-//             ]);
-//             exit;
-                if (!$user || !password_verify($password, $user['password'])) {
-                    $errors[] = "Invalid email or password.";
-                }
-            }
-
-            if (!empty($errors)) {
-                require APP_ROOT . '/app/Views/auth/login.php';
-                return;
-            }
-
-            // LOGIN SUCCESS
-            Session::set('user_id', $user['id']);
-            Session::set('name', $user['name']);
-            Session::set('role', $user['role']);
-
+        // Admin → dashboard
+        if (Session::get('role') === 'admin') {
             header("Location: /dashboard");
             exit;
         }
 
-        // GET request
-        require APP_ROOT . '/app/Views/auth/login.php';
+        // Normal user → products
+        header("Location: /home");
+        exit;
     }
-    public function logout()
-{
-    // Start session if not started
-    Session::start();
 
-    // Destroy all session data
-    Session::destroy();
-
-    // Redirect to login page
-    header("Location: /dashboard");
-    exit;
+    // Not logged in → show login page
+    require APP_ROOT . '/app/Views/auth/login.php';
 }
 
+    // POST /login
+  public function login()
+{
+    $errors = [];
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = strtolower(trim($_POST['email'] ?? ''));
+        $password = trim($_POST['password'] ?? '');
+
+        if ($email === '' || $password === '') {
+            $errors[] = "Email and password are required.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format.";
+        } else {
+            $user = $this->user->findByEmail($email);
+            if (!$user || !password_verify($password, $user['password'])) {
+                $errors[] = "Invalid email or password.";
+            }
+        }
+
+        if (!empty($errors)) {
+            require APP_ROOT . '/app/Views/auth/login.php';
+            return;
+        }
+
+        // LOGIN SUCCESS
+        Session::set('user_id', $user['id']);
+        Session::set('name', $user['name']);
+        Session::set('role', $user['role']);
+        Session::set('email', $user['email']);
+        Session::set('success', 'Welcome back, ' . $user['name'] . '!');
+
+
+        // Popup login redirect (cart → checkout)
+        if (!empty($_POST['redirect_after_login'])) {
+            header("Location: " . $_POST['redirect_after_login']);
+            exit;
+        }
+
+        // Normal redirect
+        if (Session::has('redirect_after_login')) {
+            $redirect = Session::get('redirect_after_login');
+            Session::remove('redirect_after_login');
+            header("Location: " . $redirect);
+            exit;
+        }
+
+        // Default redirect based on role
+        if (Session::get('role') === 'admin') {
+            header("Location: /dashboard");
+        } else {
+            header("Location: /home");
+        }
+        exit;
+    }
+
+    // GET request
+    require APP_ROOT . '/app/Views/auth/login.php';
+}
+
+    public function logout()
+    {
+        // Start session if not started
+        Session::start();
+
+        // Destroy all session data
+        Session::destroy();
+
+        // Redirect to login page
+        header("Location: /dashboard");
+        exit;
+    }
 }

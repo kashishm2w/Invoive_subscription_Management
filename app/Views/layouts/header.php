@@ -1,75 +1,97 @@
 <?php
-
 use App\Helpers\Session;
 ?>
-<link rel="stylesheet" href="assets/css/header_footer.css">
-
-<div class="top-bar">
-    <div class="container top-bar__content">
-        <div class="top-bar__left">
-            <span class="top-bar__item">(854) 269-1413</span>
-            <span class="top-bar__item">info@yourcompany.com</span>
-        </div>
-    </div>
-</div>
+<link rel="stylesheet" href="/assets/css/header_footer.css">
 
 <header class="main-header">
-    <div class="container header__content">
-        <div class="header__logo">Invoice & Subscription System</div>
+    <div class="container header_content">
+        <!-- Left: Logo (clickable) -->
+        <a href="/home" class="header_logo">Invoice & Subscription System</a>
 
-        <nav class="header__nav">
-            <ul class="nav__list">
-                <li class="nav__item"><a href="/dashboard" class="nav__link">Dashboard</a></li>
-                <li class="nav__item"><a href="/invoices" class="nav__link">Invoices</a></li>
-                <li class="nav__item"><a href="/clients" class="nav__link">Clients</a></li>
-                <li class="nav__item"><a href="/products" class="nav__link">Products</a></li>
-                <li class="nav__item"><a href="/subscriptions" class="nav__link">Subscriptions</a></li>
+        <!-- Center: Navigation -->
+        <nav class="header_nav">
+            <ul class="nav_list">
+                <li class="nav_item"><a href="/home" class="nav_link">Home</a></li>
+
+                <?php if (Session::get('role') === 'admin'): ?>
+                    <li class="nav_item"><a href="/dashboard" class="nav_link">Dashboard</a></li>
+                    <li class="nav_item"><a href="/track_invoices" class="nav_link">Track Invoices</a></li>
+                    <li class="nav_item"><a href="/track_subscriptions" class="nav_link">Track Subscriptions</a></li>
+                <?php endif; ?>
+
+                <?php if (Session::has('user_id') && Session::get('role') !== 'admin'): ?>
+                    <li class="nav_item"><a href="/my_invoices" class="nav_link">My Invoices</a></li>
+                <?php endif; ?>
+
+                <li class="nav_item"><a href="/products" class="nav_link">Products</a></li>
+                <li class="nav_item"><a href="/subscriptions" class="nav_link">Subscriptions</a></li>
+                <?php if (!Session::has('user_id') || Session::get('role') !== 'admin'): ?>
+                    <li class="nav_item"><a href="/cart" class="nav_link">Cart</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
 
-        <div class="header__account">
+        <!-- Right: Account -->
+        <div class="header_account">
             <?php if (Session::has('user_id')): ?>
-                Welcome, <strong class="top-bar__username"><?= htmlspecialchars(Session::get('name')) ?></strong>
+                <span>Welcome, <strong class="top-bar_username"><?= htmlspecialchars(Session::get('name')) ?></strong></span>
+                <button class="account_btn"><img src="/assets/images/icons/menu.png" class="icon" alt="Menu"></button>
 
-
-                <button class="account__btn">ACCOUNT ▾</button>
-                <div class="account__menu">
-                    <a href="/profile" class="account__link">My Profile</a>
-                    <a href="/settings" class="account__link">Settings</a>
-                    <?php if (Session::get('role') === 'admin'): ?>
-                        <a href="/dashboard/add-product" class="account__btn" style="margin-left:10px;">Add Product</a>
-                        <a href="/dashboard/products" class="account__link">Manage Products</a>
-                        <a href="/dashboard/invoices" class="account__link">Track Invoices</a>
+                <div class="account_menu">
+                    <?php if (Session::get('role') !== 'admin'): ?>
+                        <a href="/profile" class="account_link">My Order</a>
+                        <a href="/my_invoices" class="account_link">My Invoices</a>
                     <?php endif; ?>
-                    <a href="/logout" class="account__link">Logout</a>
+
+                    <?php if (Session::get('role') === 'admin'): ?>
+                        <a href="/dashboard/add-product" class="account_link">Add Product</a>
+                        <a href="/track_invoices" class="account_link">Track Invoices</a>
+                    <?php endif; ?>
+
+                    <a href="/settings" class="account_link">Settings</a>
+                    <a href="/logout" class="account_link">Logout <img src="/assets/images/icons/log-out.png" class="icon" alt="Logout"></a>
                 </div>
             <?php else: ?>
-                <a href="/login" class="account__btn">Sign In</a>
-                <a href="/register" class="account__btn" style="margin-left:10px;">Create Account</a>
+                <a href="/login" class="auth_btn">Sign In</a>
+                <a href="/register" class="auth_btn primary">Create Account</a>
             <?php endif; ?>
         </div>
-
     </div>
 </header>
+
+<div class="sidebar-overlay"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const accountBtn = document.querySelector('.account__btn');
-    const accountMenu = document.querySelector('.account__menu');
+    const menuBtn = document.querySelector('.account_btn');
+    const sidebar = document.querySelector('.account_menu');
+    const overlay = document.querySelector('.sidebar-overlay');
 
-    // Toggle dropdown on button click
-    accountBtn.addEventListener('click', function(e) {
-        e.stopPropagation(); // Prevent click from closing immediately
-        accountMenu.classList.toggle('active');
-    });
-
-    // Hide dropdown when clicking outside
-    document.addEventListener('click', function() {
-        accountMenu.classList.remove('active');
-    });
-
-    // Prevent closing when clicking inside menu
-    accountMenu.addEventListener('click', function(e) {
+    menuBtn.addEventListener('click', function(e) {
         e.stopPropagation();
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeSidebar();
+    });
+
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+
+    // Close sidebar when clicking outside of it
+    document.addEventListener('click', function(e) {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            closeSidebar();
+        }
     });
 });
 </script>
+
+
+ 
