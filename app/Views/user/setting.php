@@ -5,16 +5,22 @@
     <h1>User Settings</h1>
 <form action="/settings/update" method="POST">
     <label>Name</label>
-    <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+<input type="text" name="name" 
+       value="<?= htmlspecialchars($user['name'] ?? '') ?>" required>
 
     <label>Email</label>
-    <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>">
+<input type="email" name="email" 
+       value="<?= htmlspecialchars($user['email'] ?? '') ?>">
 
     <label>Phone Number</label>
-    <input type="text" name="phone" value="<?= htmlspecialchars($user['phone_no']) ?>" required>
+<input type="text" name="phone" 
+       value="<?= htmlspecialchars($user['phone_no'] ?? '') ?>" required>
 
     <label>Address</label>
-    <textarea name="address" required><?= htmlspecialchars($user['address']) ?></textarea>
+<textarea name="address" required><?= htmlspecialchars($user['address'] ?? '') ?></textarea>
+
+
+
 
     <label>Password (leave blank to keep current)</label>
     <input type="password" name="password">

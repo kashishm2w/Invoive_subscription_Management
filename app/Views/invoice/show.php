@@ -11,9 +11,6 @@ use App\Helpers\Session;
 <?php endif; ?>
 <div class="invoice-wrapper">
     <div class="invoice-header">
-        <!-- <div class="logo">
-            <img src="/assets/images/logo.png" alt="Company Logo">
-        </div> -->
         <div class="invoice-info">
             <h1>Invoice</h1>
             <p><strong>Invoice No:</strong> #<?= htmlspecialchars($invoice['invoice_number']) ?></p>
@@ -42,7 +39,6 @@ use App\Helpers\Session;
             <tr>
                 <th>Sr No.</th>
                 <th>Item</th>
-                <th>Description</th>
                 <th>Price</th>
                 <th>Qty</th>
                 <th>Total</th>
@@ -60,10 +56,9 @@ use App\Helpers\Session;
                 <tr>
                     <td><?= $index + 1 ?></td>
                     <td><?= htmlspecialchars($item['item_name']) ?></td>
-                    <td><?= htmlspecialchars($item['description'] ?? '') ?></td>
                     <td>&#8377;<?= number_format($item['price'], 2) ?></td>
                     <td><?= $item['quantity'] ?></td>
-                    <td>&#8377;<?= number_format($total, 2) ?></td>
+                    <td>&#8377;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
@@ -77,7 +72,7 @@ use App\Helpers\Session;
     <div class="invoice-totals">
         <table>
             <tr>
-                <td>Subtotal:</td>
+                <td>Total:</td>
                 <td>&#8377;<?= number_format($invoice['subtotal'], 2) ?></td>
             </tr>
             <tr>

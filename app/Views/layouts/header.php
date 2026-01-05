@@ -39,7 +39,6 @@ use App\Helpers\Session;
 
                 <div class="account_menu">
                     <?php if (Session::get('role') !== 'admin'): ?>
-                        <a href="/profile" class="account_link">My Order</a>
                         <a href="/my_invoices" class="account_link">My Invoices</a>
                     <?php endif; ?>
 

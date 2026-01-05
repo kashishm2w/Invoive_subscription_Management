@@ -27,7 +27,9 @@
 
                 $grandTotal += $itemTotal;
             ?>
-            <tr>
+            <tr data-product-id="<?= $item['id'] ?>" 
+                data-price="<?= $item['price'] ?>" 
+                data-tax="<?= $item['tax_percent'] ?>">
                 <td>
                     <?php if (!empty($item['poster'])): ?>
                         <img src="/uploads/<?= htmlspecialchars($item['poster']) ?>" style="width:60px;">
@@ -53,7 +55,7 @@
                     <span class="stock-error" id="error-<?= $item['id'] ?>"></span>
                 </td>
 
-                <td>&#8377;<?= number_format($itemTotal, 2) ?></td>
+                <td id="item-total-<?= $item['id'] ?>">&#8377;<?= number_format($itemTotal, 2) ?></td>
 
                 <td>
                     <button onclick="removeItem(<?= $item['id'] ?>)">Remove</button>
@@ -63,12 +65,12 @@
     </tbody>
 </table>
 
-<h3>Grand Total: &#8377;<?= number_format($grandTotal, 2) ?></h3>
+<h3>Grand Total: &#8377;<span id="grand-total"><?= number_format($grandTotal, 2) ?></span></h3>
 <div class="checkout-container">
 <?php if (\App\Helpers\Session::has('user_id')): ?>
-<button class="checkout-btn" onclick="openPaymentModal()">Proceed to Checkout</button>
+<button class="checkout-btn" onclick="openPaymentModal()">Proceed to Buy</button>
 <?php else: ?>
-<button class="checkout-btn" onclick="openLoginModal()">Proceed to Checkout</button>
+<button class="checkout-btn" onclick="openLoginModal()">Proceed to Buy</button>
 <?php endif; ?>
 </div>
 
@@ -172,7 +174,26 @@ function updateQty(productId, qty, inputElement) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload();
+            // Update totals dynamically without page reload
+            const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+            const price = parseFloat(row.dataset.price);
+            const taxPercent = parseFloat(row.dataset.tax);
+            
+            // Calculate new item total
+            const itemTotal = (price * quantity) + (price * taxPercent / 100) * quantity;
+            
+            // Update item total display
+            const itemTotalCell = document.getElementById('item-total-' + productId);
+            itemTotalCell.innerHTML = '&#8377;' + itemTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            
+            // Recalculate and update grand total
+            recalculateGrandTotal();
+            
+            // Show success feedback (optional subtle effect)
+            inputElement.style.backgroundColor = '#d4edda';
+            setTimeout(() => {
+                inputElement.style.backgroundColor = '';
+            }, 500);
         } else {
             // Show inline error message
             errorSpan.textContent = data.error;
@@ -188,6 +209,30 @@ function updateQty(productId, qty, inputElement) {
         console.error('Error:', error);
         inputElement.value = inputElement.defaultValue;
     });
+}
+
+function recalculateGrandTotal() {
+    let grandTotal = 0;
+    const rows = document.querySelectorAll('tbody tr[data-product-id]');
+    
+    rows.forEach(row => {
+        const price = parseFloat(row.dataset.price);
+        const taxPercent = parseFloat(row.dataset.tax);
+        const qtyInput = row.querySelector('.qty-input');
+        const quantity = parseInt(qtyInput.value);
+        
+        const itemTotal = (price * quantity) + (price * taxPercent / 100) * quantity;
+        grandTotal += itemTotal;
+    });
+    
+    // Update grand total display
+    document.getElementById('grand-total').textContent = grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    
+    // Also update the modal total if it exists
+    const modalTotal = document.querySelector('.payment-summary strong');
+    if (modalTotal) {
+        modalTotal.innerHTML = '&#8377;' + grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
 }
 
 function removeItem(productId) {
