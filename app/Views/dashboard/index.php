@@ -48,30 +48,32 @@
                 <span class="stat-count"><?= $stats['unpaid_count'] ?? 0 ?> invoices</span>
             </div>
         </div>
-      
+
     </div>
     <!-- Chart Section -->
-<div class="charts-row">
-    <div class="chart-section">
-        <div class="chart-header">
-            <h2>Daily Invoice Analytics</h2>
-            <span class="chart-period"><?= date('F Y') ?></span>
+    <div class="charts-row">
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2>Daily Invoice Analytics</h2>
+                <span class="chart-period"><?= date('F Y') ?></span>
+            </div>
+            <div class="chart-container">
+                <canvas id="invoiceChart"></canvas>
+            </div>
         </div>
-        <div class="chart-container">
-            <canvas id="invoiceChart"></canvas>
-        </div>
-    </div>
 
-    <div class="chart-section">
-        <div class="chart-header">
-            <h2>Invoice Status Distribution</h2>
-            <span class="chart-period"><?= date('F Y') ?></span>
-        </div>
-        <div class="chart-container" style="max-width: 400px; margin: auto;">
-            <canvas id="invoicePieChart"></canvas>
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2>Invoice Status Distribution</h2>
+                <span class="chart-period">
+                    <?= 'December 2025 - ' . date('F Y') ?>
+                </span>
+            </div>
+            <div class="chart-container" style="max-width: 400px; margin: auto;">
+                <canvas id="invoicePieChart"></canvas>
+            </div>
         </div>
     </div>
-</div>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -164,8 +166,8 @@
                     <?= $stats['unpaid_amount'] ?? 0 ?>,
                 ],
                 backgroundColor: [
-                    'rgba(39, 174, 96, 0.85)', 
-                    'rgba(231, 76, 60, 0.85)', 
+                    'rgba(39, 174, 96, 0.85)',
+                    'rgba(231, 76, 60, 0.85)',
                 ],
                 borderWidth: 1
             }]

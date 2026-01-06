@@ -125,6 +125,10 @@ class ProductController
     public function addProduct()
     {
         $this->checkAdmin();
+        
+        // Check if this is an AJAX request
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = [];
@@ -139,8 +143,8 @@ class ProductController
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
                 $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
             }
-            if (!preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
-                $errors[] = "Description must be 10-1000 characters and can include letters, numbers, spaces, newlines, and . , : ; ' \" ( ) - ! ?";
+            if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
+                $errors[] = "Description must be 10-1000 characters ";
             }
             if (!preg_match('/^\d+(\.\d{1,2})?$/', $price) || $price <= 0) {
                 $errors[] = "Price must be a valid number with up to 2 decimal places.";
@@ -164,8 +168,14 @@ class ProductController
                 }
             }
 
-            // If there are errors, reload form with errors
+            // If there are errors, return JSON for AJAX or reload form
             if (!empty($errors)) {
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'errors' => $errors]);
+                    exit;
+                }
                 require APP_ROOT . '/app/Views/admin/add_product.php';
                 return;
             }
@@ -187,7 +197,19 @@ class ProductController
                     'quantity'    => $quantity,
                     'poster'      => $poster_name
                 ]);
+                
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true, 'message' => 'Product added successfully!']);
+                    exit;
+                }
             } catch (\Exception $e) {
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    http_response_code(500);
+                    echo json_encode(['success' => false, 'errors' => ['Failed to add product. Please try again.']]);
+                    exit;
+                }
                 die("DB Error: " . $e->getMessage());
             }
 
@@ -298,25 +320,39 @@ class ProductController
             // Collect and validate form data
             $name        = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
-            $price       = trim($_POST['price'] ?? 0);
+            $price       = trim($_POST['price'] ?? '');
             $tax_percent = trim($_POST['tax_percent'] ?? 0);
-            $quantity    = trim($_POST['quantity'] ?? 0);
+            $quantity    = trim($_POST['quantity'] ?? 1);
+            $poster      = $_FILES['poster'] ?? null;
 
-            // Validation
-            if ($name === '' || strlen($name) < 2 || strlen($name) > 100) {
-                $errors[] = "Product name must be between 2 and 100 characters.";
+            // Validation - same as addProduct
+            if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
+                $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
             }
-
+            if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
+                $errors[] = "Description must be 10-1000 characters";
+            }
             if (!preg_match('/^\d+(\.\d{1,2})?$/', $price) || $price <= 0) {
-                $errors[] = "Price must be a valid positive number with up to 2 decimal places.";
+                $errors[] = "Price must be a valid number with up to 2 decimal places.";
             }
 
             if (!preg_match('/^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/', $tax_percent)) {
                 $errors[] = "Tax percent must be between 0 and 100.";
             }
 
-            if (!filter_var($quantity, FILTER_VALIDATE_INT) || $quantity < 0 || $quantity > 100) {
-                $errors[] = "Quantity must be between 0 and 100.";
+            if (!preg_match('/^(?:[1-9][0-9]?|100)$/', $quantity)) {
+                $errors[] = "Quantity must be between 1 and 100.";
+            }
+
+            // Poster validation
+            if ($poster && $poster['error'] === 0) {
+                $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+                if (!in_array($poster['type'], $allowed_types)) {
+                    $errors[] = "Poster must be a JPG, PNG, or GIF image.";
+                }
+                if ($poster['size'] > 2 * 1024 * 1024) { // 2MB max
+                    $errors[] = "Poster image size must be less than 2MB.";
+                }
             }
 
             // If there are validation errors, return error response
@@ -335,31 +371,9 @@ class ProductController
 
             // Handle poster upload
             $poster_name = $currentProduct['poster'] ?? 'default.png';
-            $poster = $_FILES['poster'] ?? null;
             if ($poster && $poster['error'] === 0 && $poster['size'] > 0) {
-                $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-                if (!in_array($poster['type'], $allowed_types)) {
-                    $errors[] = "Poster must be a JPG, PNG, or GIF image.";
-                } elseif ($poster['size'] > 2 * 1024 * 1024) {
-                    $errors[] = "Poster image size must be less than 2MB.";
-                } else {
-                    $poster_name = time() . '_' . basename($poster['name']);
-                    move_uploaded_file($poster['tmp_name'], APP_ROOT . '/public/uploads/' . $poster_name);
-                }
-            }
-
-            // Check for poster errors
-            if (!empty($errors)) {
-                if ($isAjax) {
-                    header('Content-Type: application/json');
-                    http_response_code(400);
-                    echo json_encode(['success' => false, 'errors' => $errors]);
-                    exit;
-                } else {
-                    $_SESSION['errors'] = $errors;
-                    header("Location: /dashboard/products/edit?id=" . $id);
-                    exit;
-                }
+                $poster_name = time() . '_' . basename($poster['name']);
+                move_uploaded_file($poster['tmp_name'], APP_ROOT . '/public/uploads/' . $poster_name);
             }
 
             $data = [

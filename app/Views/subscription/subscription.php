@@ -172,6 +172,7 @@ $currentSubscription = $currentSubscription ?? null;
                         document.getElementById('price').value = data.price;
                         document.getElementById('billing_cycle').value = data.billing_cycle;
                         document.getElementById('description').value = data.description;
+                        document.getElementById('discount_percent').value = data.discount_percent || 0;
                         modal.style.display = 'flex';
                     });
             });

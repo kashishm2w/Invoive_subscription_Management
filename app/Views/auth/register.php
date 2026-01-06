@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/assets/css/style.css">
+<?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
 
 <div class="form-container">
     <h2 class="form-title">Register</h2>
@@ -23,5 +24,6 @@
         Already have an account? <a href="/login">Login here</a>
     </p>
 </div>
+<?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
 
 <script src="/assets/js/register.js"></script>

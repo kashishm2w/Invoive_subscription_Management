@@ -43,7 +43,8 @@ class SubscriptionPlanController
             'plan_name' => $_POST['plan_name'],
             'price' => $_POST['price'],
             'billing_cycle' => $_POST['billing_cycle'],
-            'description' => $_POST['description']
+            'description' => $_POST['description'],
+            'discount_percent'=>$_POST['discount_percent']
         ];
 
         if($id) {

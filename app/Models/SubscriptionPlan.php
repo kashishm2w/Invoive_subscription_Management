@@ -22,10 +22,10 @@ class SubscriptionPlan extends Model
     public function create(array $data)
     {
         $stmt = $this->db->prepare("
-            INSERT INTO subscription_plans (plan_name, price, billing_cycle, description)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO subscription_plans (plan_name, price, billing_cycle, description, discount_percent)
+            VALUES (?, ?, ?, ?,?)
         ");
-        $stmt->bind_param("sdss", $data['plan_name'], $data['price'], $data['billing_cycle'], $data['description']);
+        $stmt->bind_param("sdssi", $data['plan_name'], $data['price'], $data['billing_cycle'], $data['description'], $data['discount_percent']);
         return $stmt->execute();
     }
 
@@ -33,10 +33,10 @@ class SubscriptionPlan extends Model
     {
         $stmt = $this->db->prepare("
             UPDATE subscription_plans
-            SET plan_name=?, price=?, billing_cycle=?, description=?
+            SET plan_name=?, price=?, billing_cycle=?, description=?, discount_percent=?
             WHERE id=?
         ");
-        $stmt->bind_param("sdssi", $data['plan_name'], $data['price'], $data['billing_cycle'], $data['description'], $id);
+        $stmt->bind_param("sdssii", $data['plan_name'], $data['price'], $data['billing_cycle'], $data['description'],$data['discount_percent'], $id);
         return $stmt->execute();
     }
 
