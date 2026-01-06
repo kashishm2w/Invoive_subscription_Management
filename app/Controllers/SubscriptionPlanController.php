@@ -1,21 +1,24 @@
 <?php
-namespace App\Controllers;
 
+namespace App\Controllers;
+use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Helpers\Session;
 
 class SubscriptionPlanController
 {
     private SubscriptionPlan $planModel;
-
+    private Subscription $subscriptionModel;
     public function __construct()
     {
         Session::start();
-        if(Session::get('role') !== 'admin') {
+        if (Session::get('role') !== 'admin') {
             die('Access Denied'); // only admin can manage plans
         }
 
         $this->planModel = new SubscriptionPlan();
+                $this->subscriptionModel = new Subscription();
+
     }
 
     // List all plans (for admin)
@@ -29,7 +32,7 @@ class SubscriptionPlanController
     public function getPlan()
     {
         $id = $_GET['id'] ?? null;
-        if(!$id) die(json_encode(['error' => 'Plan ID missing']));
+        if (!$id) die(json_encode(['error' => 'Plan ID missing']));
         $plan = $this->planModel->getPlan($id);
         header('Content-Type: application/json');
         echo json_encode($plan);
@@ -44,10 +47,10 @@ class SubscriptionPlanController
             'price' => $_POST['price'],
             'billing_cycle' => $_POST['billing_cycle'],
             'description' => $_POST['description'],
-            'discount_percent'=>$_POST['discount_percent']
+            'discount_percent' => $_POST['discount_percent']
         ];
 
-        if($id) {
+        if ($id) {
             $this->planModel->update($id, $data);
             Session::set('success', 'Plan updated successfully!');
         } else {
@@ -63,7 +66,7 @@ class SubscriptionPlanController
     public function delete()
     {
         $id = $_GET['id'] ?? null;
-        
+
         if (!$id) {
             Session::set('error', 'Plan ID is required');
             header('Location: /subscriptions');
@@ -101,5 +104,18 @@ class SubscriptionPlanController
 
         header('Location: /subscriptions');
         exit;
+    }
+    public function cancel()
+    {
+        if (!Session::has('user_id')) {
+            header('Location: /login');
+            exit;
+        }
+
+        $userId = Session::get('user_id');
+        $this->subscriptionModel->cancelByUser($userId);
+
+        Session::set('success', 'Subscription cancelled successfully');
+        header('Location: /subscriptions');
     }
 }

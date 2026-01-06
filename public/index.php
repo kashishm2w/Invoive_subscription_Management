@@ -29,6 +29,7 @@ require_once APP_ROOT . '/app/Controllers/InvoiceController.php';
 require_once APP_ROOT . '/app/Controllers/SubscriptionController.php';
 require_once APP_ROOT . '/app/Controllers/SettingController.php';
 require_once APP_ROOT . '/app/Controllers/PaymentController.php';
+require_once APP_ROOT . '/app/Controllers/AddressController.php';
 
 use App\Core\Router;
 use App\Controllers\AuthController;
@@ -43,6 +44,7 @@ use App\Controllers\SubscriptionPlanController;
 use App\Controllers\PaymentController;
 
 use App\Controllers\SettingController;
+use App\Controllers\AddressController;
 
 $router = new Router();
 //Dashboard/*  */
@@ -92,7 +94,7 @@ $router->get('/invoice/send-email',[InvoiceController::class,'sendEmail']);
 //subscription
 $router->get('/subscriptions', [SubscriptionController::class, 'index']);
 $router->post('/subscribe', [SubscriptionController::class, 'subscribe']);
-$router->get('/subscription/cancel', [SubscriptionController::class, 'cancelSubscription']);
+$router->post('/subscription/cancel', [SubscriptionController::class, 'cancelSubscription']);
 
 // Payment (Stripe)
 $router->get('/payment', [PaymentController::class, 'showPaymentPage']);
@@ -113,6 +115,11 @@ $router->get('/settings',         [SettingController:: class,'index']);
 $router->post('/settings/update', [SettingController:: class,'update']);
 $router->get('/settings/company', [SettingController::class,'company']);
 $router->post('/settings/company',  [SettingController::class,'company']);
+
+// Address routes
+$router->get('/address/list', [AddressController::class, 'getAddresses']);
+$router->post('/address/add', [AddressController::class, 'addAddress']);
+$router->post('/address/set-default', [AddressController::class, 'setDefaultAddress']);
 
 $router->dispatch();
 

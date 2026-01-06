@@ -69,9 +69,39 @@ class Subscription extends Model
             FROM subscriptions s
             JOIN subscription_plans p ON p.id = s.plan_id
             WHERE s.user_id = ?
+              AND s.status = 'active'
               AND s.start_date <= CURDATE()
               AND s.end_date >= CURDATE()
             ORDER BY s.end_date DESC
+            LIMIT 1
+        ");
+
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        return $result->num_rows
+            ? $result->fetch_assoc()
+            : null;
+    }
+
+    /**
+     * Get user's most recent cancelled subscription
+     */
+    public function getCancelledSubscription(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                s.*,
+                p.plan_name,
+                p.price,
+                p.billing_cycle
+            FROM subscriptions s
+            JOIN subscription_plans p ON p.id = s.plan_id
+            WHERE s.user_id = ?
+              AND s.status = 'cancelled'
+            ORDER BY s.created_at DESC
             LIMIT 1
         ");
 
@@ -111,5 +141,14 @@ class Subscription extends Model
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
- 
+ public function cancelByUser(int $userId)
+{
+    $stmt = $this->db->prepare(
+        "UPDATE subscriptions 
+         SET status = 'cancelled'
+         WHERE user_id = ? AND status = 'active'"
+    );
+    $stmt->bind_param("i", $userId);
+    return $stmt->execute();
+}
 }

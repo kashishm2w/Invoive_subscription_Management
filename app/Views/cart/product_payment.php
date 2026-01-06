@@ -3,7 +3,6 @@ require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
 ?>
 
-<link rel="stylesheet" href="/assets/css/products.css">
 <link rel="stylesheet" href="/assets/css/payment.css">
 
 <div class="payment-container">

@@ -4,6 +4,7 @@ require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
 
 $currentSubscription = $currentSubscription ?? null;
+$cancelledSubscription = $cancelledSubscription ?? null;
 
 ?>
 <link rel="stylesheet" href="/assets/css/subscription.css">
@@ -35,6 +36,18 @@ $currentSubscription = $currentSubscription ?? null;
                 &#8377;<?= $currentSubscription['price'] ?> /
                 <?= ucfirst($currentSubscription['billing_cycle']) ?><br>
                 Valid till: <?= $currentSubscription['end_date'] ?>
+            </p>
+        </div>
+
+    <?php elseif (Session::has('user_id') && is_array($cancelledSubscription)): ?>
+        <div class="cancelled-plan">
+            <h3>Your Subscription</h3>
+            <span class="cancelled-badge">Cancelled</span>
+            <p>
+                <strong><?= htmlspecialchars($cancelledSubscription['plan_name']) ?></strong><br>
+                &#8377;<?= $cancelledSubscription['price'] ?> /
+                <?= ucfirst($cancelledSubscription['billing_cycle']) ?><br>
+                <span class="cancelled-text">This subscription has been cancelled.</span>
             </p>
         </div>
 
@@ -80,7 +93,9 @@ $currentSubscription = $currentSubscription ?? null;
                         <!-- Active plan: Show Active button -->
                         <div class="plan-actions">
                             <button class="btn-active" disabled>Active</button>
+                            <button class="btn-cancel" onclick="cancelSubscription()">Cancel</button>
                         </div>
+
                     <?php else: ?>
                         <!-- Not active: Show Buy Now -->
                         <form method="POST" action="/subscribe">
@@ -107,8 +122,8 @@ $currentSubscription = $currentSubscription ?? null;
     <!-- = ADD / EDIT PLAN MODAL = -->
     <div id="planModal">
         <div>
-        <span id="closeModal" class="close-btn" onclick="closePlanModal()">&times;</span>
-        <h3 id="modalTitle">Add Plan</h3>
+            <span id="closeModal" class="close-btn" onclick="closePlanModal()">&times;</span>
+            <h3 id="modalTitle">Add Plan</h3>
 
             <?php
             $redirect = '/subscriptions';
@@ -132,13 +147,40 @@ $currentSubscription = $currentSubscription ?? null;
     <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
 </div>
 <script>
+    /*  CANCEL SUBSCRIPTION  */
+    function cancelSubscription() {
+        if (!confirm('Are you sure you want to cancel your subscription?')) {
+            return;
+        }
+
+        fetch('/subscription/cancel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        })
+        .then(response => {
+            if (response.ok || response.redirected) {
+                window.location.href = '/subscriptions';
+            } else {
+                alert('Failed to cancel subscription. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+
     /*  LOGIN MODAL  */
     function openLoginModal() {
         document.getElementById('loginModal').style.display = 'flex';
     }
+
     function closeLoginModal() {
         document.getElementById('loginModal').style.display = 'none';
     }
+
     function closePlanModal() {
         document.getElementById('planModal').style.display = 'none';
     }
