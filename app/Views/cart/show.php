@@ -79,6 +79,7 @@
     <div class="modal-content payment-modal-content">
         <span class="close" onclick="closePaymentModal()">&times;</span>
         <h2>Choose Payment Method</h2>
+        <h4> Add Address</h4>
         
         <div class="payment-summary">
             <p>Total Amount: <strong>&#8377;<?= number_format($grandTotal, 2) ?></strong></p>

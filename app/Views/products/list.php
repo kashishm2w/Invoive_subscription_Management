@@ -253,7 +253,18 @@ function handleEditFormSubmit(e) {
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(res => {
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return res.json().then(data => ({ ok: res.ok, data }));
+        } else {
+            // Non-JSON response (likely server error or redirect)
+            if (res.ok || res.redirected) {
+                return { ok: true, data: { success: true, message: 'Product updated successfully!' } };
+            }
+            throw new Error('Server returned non-JSON response');
+        }
+    })
     .then(({ ok, data }) => {
         if (ok && data.success) {
             // Success - close modal and show success alert
@@ -353,24 +364,48 @@ function handleAddFormSubmit(e) {
     
     fetch('/dashboard/add-product', {
         method: 'POST',
-        body: formData
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
     .then(res => {
-        if (res.ok || res.redirected) {
-            // Success - close modal and redirect to page 1 to show new product
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return res.json().then(data => ({ ok: res.ok, data }));
+        } else {
+            // Non-JSON response (likely server error or redirect)
+            if (res.ok || res.redirected) {
+                return { ok: true, data: { success: true, message: 'Product added successfully!' } };
+            }
+            throw new Error('Server returned non-JSON response');
+        }
+    })
+    .then(({ ok, data }) => {
+        if (ok && data.success) {
+            // Success - close modal and show success alert
             closeAddProductModal();
             Swal.fire({
                 icon: 'success',
                 title: 'Product Added!',
-                text: 'The product has been added successfully.',
-                timer: 1500,
+                text: data.message || 'The product has been added successfully.',
+                timer: 2000,
                 showConfirmButton: false
             }).then(() => {
                 // Redirect to page 1 to see the newly added product
                 window.location.href = '/products?page=1';
             });
         } else {
-            throw new Error('Add product failed');
+            // Error - show validation errors
+            const errorMessage = data.errors ? data.errors.join('\n') : 'Failed to add product.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Add Product Failed',
+                text: errorMessage,
+                confirmButtonColor: '#d33'
+            });
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Product';
         }
     })
     .catch(err => {

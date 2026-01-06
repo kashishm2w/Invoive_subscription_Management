@@ -7,7 +7,7 @@ use App\Helpers\Session;
 <link rel="stylesheet" href="/assets/css/payment.css">
 
 <div class="payment-container">
-    <a href="/cart" class="back-link">← Back to Cart</a>
+    <a href="/cart" class="back-link">Back to Cart</a>
     
     <h2>Complete Your Payment</h2>
     

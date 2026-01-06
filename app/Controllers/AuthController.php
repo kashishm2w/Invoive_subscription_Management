@@ -48,8 +48,8 @@ class AuthController
             // Email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors[] = "Invalid email format.";
-            } elseif (strlen($email) > 25) {
-                $errors[] = "Email must not exceed 25 characters.";
+            } elseif (strlen($email) > 100) {
+                $errors[] = "Invalid Emial format.";
             } elseif ($this->user->emailExists($email)) {
                 $errors[] = "Email already registered.";
             }
