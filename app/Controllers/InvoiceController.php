@@ -8,8 +8,6 @@ use App\Models\InvoiceItem;
 use Mpdf\Mpdf;
 use \App\Models\User;
 use \App\Models\Company;
-
-
 use App\Helpers\Mailer;
 
 Session::start();
@@ -99,7 +97,7 @@ class InvoiceController
         $totalAmount = $subtotal + $taxAmount;
         $taxRate = $subtotal > 0 ? ($taxAmount / $subtotal) * 100 : 0;
 
-        $allowedStatus = ['pending', 'unpaid', 'paid', 'overdue', 'cancelled'];
+        $allowedStatus = ['pending', 'unpaid', 'paid', 'overdue'];
         $status = 'unpaid';
         if (!in_array($status, $allowedStatus)) {
             $status = 'pending';
@@ -287,7 +285,7 @@ class InvoiceController
         $items = $this->itemModel->getByInvoice($invoiceId);
 
         if ($currentUserRole !== 'admin') {
-            $userModel = new \App\Models\User();
+            $userModel = new User();
             $client = $userModel->getById($invoice['client_id']);
             // echo '<pre>';
             // var_dump($invoice['client_id']);

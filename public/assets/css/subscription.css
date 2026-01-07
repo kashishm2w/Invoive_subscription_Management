@@ -81,6 +81,45 @@ body {
     font-size: 15px;
 }
 
+/* Cancelled Subscription Styles */
+.cancelled-plan {
+    background: #FEE2E2;
+    border-left: 5px solid #DC2626;
+    padding: 20px;
+    max-width: 500px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.cancelled-plan h3 {
+    margin-bottom: 10px;
+    color: #991B1B;
+}
+
+.cancelled-badge {
+    display: inline-block;
+    background: #DC2626;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.cancelled-plan p {
+    font-size: 15px;
+    color: #7F1D1D;
+}
+
+.cancelled-text {
+    color: #DC2626;
+    font-style: italic;
+    font-size: 13px;
+}
+
 #addPlanBtn {
     padding: 14px 24px;
     background: #007bff;
@@ -113,7 +152,7 @@ body {
     background: #fff;
     border-radius: 12px;
     padding: 20px 20px 30px;
-    width: 250px;
+    width: 275px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;

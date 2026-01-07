@@ -22,10 +22,17 @@ public function index()
     $plans = $this->planModel->getAll();
 
     $currentSubscription = null;
+    $cancelledSubscription = null;
 
     if (Session::has('user_id')) {
         $currentSubscription = $this->subscriptionModel
             ->getActiveSubscription(Session::get('user_id'));
+        
+        // Only fetch cancelled subscription if there's no active one
+        if (!$currentSubscription) {
+            $cancelledSubscription = $this->subscriptionModel
+                ->getCancelledSubscription(Session::get('user_id'));
+        }
     }
 
     require APP_ROOT . '/app/Views/subscription/subscription.php';
@@ -97,5 +104,17 @@ public function trackSubscriptions()
 
     require APP_ROOT . '/app/Views/admin/track_subscriptions.php';
 }
+public function cancelSubscription()
+    {
+        if (!Session::has('user_id')) {
+            header('Location: /login');
+            exit;
+        }
 
+        $userId = Session::get('user_id');
+        $this->subscriptionModel->cancelByUser($userId);
+
+        Session::set('success', 'Subscription cancelled successfully');
+        header('Location: /subscriptions');
+    }
 }
