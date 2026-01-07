@@ -149,26 +149,49 @@ $cancelledSubscription = $cancelledSubscription ?? null;
 <script>
     /*  CANCEL SUBSCRIPTION  */
     function cancelSubscription() {
-        if (!confirm('Are you sure you want to cancel your subscription?')) {
-            return;
-        }
-
-        fetch('/subscription/cancel', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you really want to cancel your subscription?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/subscription/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => {
+                    if (response.ok || response.redirected) {
+                        Swal.fire({
+                            title: 'Cancelled!',
+                            text: 'Your subscription has been cancelled.',
+                            icon: 'success'
+                        }).then(() => {
+                            window.location.href = '/subscriptions';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to cancel subscription. Please try again.',
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error'
+                    });
+                });
             }
-        })
-        .then(response => {
-            if (response.ok || response.redirected) {
-                window.location.href = '/subscriptions';
-            } else {
-                alert('Failed to cancel subscription. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
         });
     }
 
@@ -239,7 +262,7 @@ $cancelledSubscription = $cancelledSubscription ?? null;
                 alert.style.opacity = '0';
                 alert.style.transform = 'translateY(-10px)';
 
-                setTimeout(() => alert.remove(), 500);
+                setTimeout(() => alert.remove(), 10000);
             });
         }, 2000); // 2 seconds
     });

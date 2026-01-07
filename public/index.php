@@ -67,8 +67,8 @@ $router->get('/home', [ProductController::class, 'home']);
 $router->get('/products', [ProductController::class, 'listProducts']);
 
 $router->get('/dashboard/product', [ProductController::class, 'show']);
-$router->get('/dashboard/add-product', [ProductController::class, 'addProductForm']);
-$router->post('/dashboard/add-product', [ProductController::class, 'addProduct']);
+$router->get('/add-product', [ProductController::class, 'addProductForm']);
+$router->post('/add-product', [ProductController::class, 'addProduct']);
 $router->get('/dashboard/products/edit', [ProductController::class, 'editProductForm']);
 $router->post('/dashboard/products/edit', [ProductController::class, 'updateProduct']);
 $router->get('/dashboard/products/delete', [ProductController::class, 'deleteProduct']);

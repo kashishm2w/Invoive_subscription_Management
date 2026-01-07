@@ -9,7 +9,7 @@
            </div>
 
            <div class="form-group">
-               <label for="price">Price (₹)</label>
+               <label for="price">Price (&#8377;)</label>
                <input type="number" name="price" id="price" placeholder="Enter price" required>
            </div>
 

@@ -1,4 +1,5 @@
 <?php
+
 use App\Helpers\Session;
 ?>
 <link rel="stylesheet" href="/assets/css/header_footer.css">
@@ -43,7 +44,9 @@ use App\Helpers\Session;
                     <?php endif; ?>
 
                     <?php if (Session::get('role') === 'admin'): ?>
-                        <a href="/dashboard/add-product" class="account_link">Add Product</a>
+                        <a href="/add-product" class="account_link">Add Product</a>
+                        <a href="/" class="account_link">Customers</a>
+                        <a href="/" class="account_link">Customers Order</a>
                         <a href="/track_invoices" class="account_link">Track Invoices</a>
                     <?php endif; ?>
 
@@ -61,36 +64,33 @@ use App\Helpers\Session;
 <div class="sidebar-overlay"></div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const menuBtn = document.querySelector('.account_btn');
-    const sidebar = document.querySelector('.account_menu');
-    const overlay = document.querySelector('.sidebar-overlay');
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuBtn = document.querySelector('.account_btn');
+        const sidebar = document.querySelector('.account_menu');
+        const overlay = document.querySelector('.sidebar-overlay');
 
-    menuBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    });
+        menuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
 
-    overlay.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
 
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') closeSidebar();
-    });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeSidebar();
+        });
 
-    function closeSidebar() {
-        sidebar.classList.remove('active');
-        overlay.classList.remove('active');
-    }
-
-    // Close sidebar when clicking outside of it
-    document.addEventListener('click', function(e) {
-        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-            closeSidebar();
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
         }
+
+        // Close sidebar when clicking outside of it
+        document.addEventListener('click', function(e) {
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                closeSidebar();
+            }
+        });
     });
-});
 </script>
-
-
- 

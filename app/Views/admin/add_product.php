@@ -1,7 +1,8 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
 <link rel="stylesheet" href="/assets/css/add_products.css">
 <div class="form-container">
-   <form method="POST" action="/dashboard/add-product" class="product-form">
+   <form method="POST" action="/add-product" class="product-form">
+<h2>Add New Product</h2>
 
     <div class="form-group">
         <label for="name">Product Name</label>

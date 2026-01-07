@@ -56,7 +56,7 @@ class InvoiceController
         $client = $userModel->getById($invoice['client_id']);
 
         $companyModel = new Company();
-        $company = $companyModel->getFirst();
+        $company = $companyModel->getByUserId($invoice['created_by']);
 
         $items = $this->itemModel->getByInvoice($invoiceId);
         // Calculate grand total dynamically
@@ -235,7 +235,7 @@ class InvoiceController
 
         // Fetch company data from database
         $companyModel = new Company();
-        $company = $companyModel->getFirst();
+        $company = $companyModel->getByUserId($invoice['created_by']);
         
         // Fallback if no company set
         if (!$company) {
@@ -297,10 +297,7 @@ class InvoiceController
         if ($currentUserRole !== 'admin') {
             $userModel = new User();
             $client = $userModel->getById($invoice['client_id']);
-            // echo '<pre>';
-            // var_dump($invoice['client_id']);
-            // var_dump($client);
-            // exit;
+            
             if (!$client) {
                 Session::set('error', 'Client not found');
                 header("Location: /invoice/show?id=" . $invoiceId);
@@ -321,7 +318,7 @@ class InvoiceController
 
         // Fetch company data from database
         $companyModel = new Company();
-        $company = $companyModel->getFirst();
+        $company = $companyModel->getByUserId($invoice['created_by']);
         
         // Fallback if no company set
         if (!$company) {

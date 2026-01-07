@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/assets/css/setting.css">
 
 <div class="settings-container">
-    <h1>Company Settings</h1>
+    <h1>Company Setup</h1>
     <h3>Add or Update</h3>
 
 
@@ -12,7 +12,7 @@
     <input 
         type="text" 
         name="company_name" 
-        value="<?= htmlspecialchars(\App\Helpers\Session::get('company_name') ?? '') ?>" 
+        value="<?= htmlspecialchars($company['company_name'] ?? '') ?>" 
         required
     >
 
@@ -20,7 +20,7 @@
     <input
         type="email"
         name="email"
-        value="<?= htmlspecialchars(\App\Helpers\Session::get('email') ?? '') ?>"
+        value="<?= htmlspecialchars($company['email'] ?? '') ?>"
         required
     >
 
@@ -28,18 +28,18 @@
     <input
         type="text"
         name="phone"
-        value="<?= htmlspecialchars(\App\Helpers\Session::get('phone') ?? '') ?>"
+        value="<?= htmlspecialchars($company['phone'] ?? '') ?>"
         required
     >
 
     <label>Address</label>
-    <textarea name="address" required><?= htmlspecialchars(\App\Helpers\Session::get('address') ?? '') ?></textarea>
+    <textarea name="address" required><?= htmlspecialchars($company['address'] ?? '') ?></textarea>
 
     <label>Tax Number (GST)</label>
     <input
         type="text"
         name="tax_number"
-        value="<?= htmlspecialchars(\App\Helpers\Session::get('tax_number') ?? '') ?>"
+        value="<?= htmlspecialchars($company['tax_number'] ?? '') ?>"
     >
 
     <!-- <label>Logo</label>
@@ -50,7 +50,3 @@
 </div>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
-22AAAAA0000A1Z5
-Hisar ,op. jindal
-Invoice and sub
-7408787382

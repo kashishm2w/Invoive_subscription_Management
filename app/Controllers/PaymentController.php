@@ -126,7 +126,7 @@ class PaymentController
             }
 
             // Create subscription
-            $this->subscriptionModel->subscribe([
+            $subscriptionResult = $this->subscriptionModel->subscribe([
                 'user_id' => $userId,
                 'plan_id' => $planId,
                 'start_date' => $start,
@@ -134,8 +134,20 @@ class PaymentController
                 'auto_renew' => $autoRenew
             ]);
 
+            if (!$subscriptionResult) {
+                Session::set('error', 'Payment successful but failed to create subscription. Please contact support.');
+                header('Location: /subscriptions');
+                exit;
+            }
+
             // Create subscription invoice
-            $this->createSubscriptionInvoice($userId, $plan, $charge->id);
+            $invoiceId = $this->createSubscriptionInvoice($userId, $plan, $charge->id);
+
+            if (!$invoiceId) {
+                Session::set('error', 'Payment successful but failed to create invoice. Please contact support.');
+                header('Location: /subscriptions');
+                exit;
+            }
 
             Session::set('success', 'Payment successful! Your subscription is now active.');
             header('Location: /subscriptions');
@@ -161,9 +173,9 @@ class PaymentController
         $itemModel = new InvoiceItem();
 
         $subtotal = $plan['price'];
-        $taxRate = 18; // GST 18%
-        $taxAmount = $subtotal * ($taxRate / 100);
-        $totalAmount = $subtotal + $taxAmount;
+        $taxRate = 0; // No tax on subscriptions
+        $taxAmount = 0;
+        $totalAmount = $subtotal;
 
         $invoiceId = $invoiceModel->create([
             'created_by' => $userId,
@@ -172,7 +184,7 @@ class PaymentController
             'invoice_date' => date('Y-m-d'),
             'due_date' => date('Y-m-d'),
             'subtotal' => $subtotal,
-            'tax_type' => 'GST',
+            'tax_type' => 'NONE',
             'tax_rate' => $taxRate,
             'tax_amount' => $taxAmount,
             'discount' => 0,

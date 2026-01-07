@@ -105,7 +105,6 @@
         
         <div class="payment-summary">
             <p>Total Amount: <strong>&#8377;<?= number_format($grandTotal, 2) ?></strong></p>
-          <p> Delivery charges: <strong>&#8377;75</strong>
         </div>
         
         <div class="payment-options">
@@ -256,7 +255,7 @@ function updateQty(productId, qty, inputElement) {
         // Hide message after 3 seconds
         setTimeout(() => {
             errorSpan.classList.remove('show');
-        }, 3000);
+        }, 10000);
         
         // Don't proceed if trying to exceed
         return;
@@ -294,7 +293,7 @@ function updateQty(productId, qty, inputElement) {
             inputElement.style.backgroundColor = '#d4edda';
             setTimeout(() => {
                 inputElement.style.backgroundColor = '';
-            }, 500);
+            }, 10000);
         } else {
             // Show inline error message
             errorSpan.textContent = data.error;
@@ -303,7 +302,7 @@ function updateQty(productId, qty, inputElement) {
             
             setTimeout(() => {
                 errorSpan.classList.remove('show');
-            }, 3000);
+            }, 10000);
         }
     })
     .catch(error => {
@@ -563,6 +562,6 @@ function showToast(message, type) {
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, 10000);
 }
 </script>
