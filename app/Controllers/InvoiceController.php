@@ -56,7 +56,7 @@ class InvoiceController
         $client = $userModel->getById($invoice['client_id']);
 
         $companyModel = new Company();
-        $company = $companyModel->getByUserId($invoice['created_by']);
+        $company = $companyModel->getFirst();
 
         $items = $this->itemModel->getByInvoice($invoiceId);
         // Calculate grand total dynamically
@@ -233,10 +233,20 @@ class InvoiceController
             ];
         }
 
-        $company = [
-            'company_name' => 'Invoice and sub',
-            'address' => 'Company Address'
-        ];
+        // Fetch company data from database
+        $companyModel = new Company();
+        $company = $companyModel->getFirst();
+        
+        // Fallback if no company set
+        if (!$company) {
+            $company = [
+                'company_name' => 'Invoice and Sub',
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+                'tax_number' => ''
+            ];
+        }
 
         ob_start();
         require APP_ROOT . '/app/Views/invoice/pdf.php';
@@ -307,6 +317,21 @@ class InvoiceController
             Session::set('error', 'Client email not found');
             header("Location: /invoice/show?id=" . $invoiceId);
             exit;
+        }
+
+        // Fetch company data from database
+        $companyModel = new Company();
+        $company = $companyModel->getFirst();
+        
+        // Fallback if no company set
+        if (!$company) {
+            $company = [
+                'company_name' => 'Invoice and Sub',
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+                'tax_number' => ''
+            ];
         }
 
         ob_start();

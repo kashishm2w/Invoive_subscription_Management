@@ -20,16 +20,21 @@ use App\Helpers\Session;
 
     <div class="invoice-parties">
 <div class="pay-to">
-    <h3>Pay To:</h3>
-    <p><?= htmlspecialchars($company['company_name'] ?? 'Company Name') ?></p>
+    <h3>Invoice From:</h3>
+    <p><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></p>
     <p><?= htmlspecialchars($company['address'] ?? '') ?></p>
+    <?php if (!empty($company['phone'])): ?>
+        <p>Phone: <?= htmlspecialchars($company['phone']) ?></p>
+    <?php endif; ?>
     <p><?= htmlspecialchars($company['email'] ?? '') ?></p>
+    <?php if (!empty($company['tax_number'])): ?>
+        <p><strong>GST:</strong> <?= htmlspecialchars($company['tax_number']) ?></p>
+    <?php endif; ?>
 </div>
 
 <div class="invoice-to">
     <h3>Invoice To:</h3>
     <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
-    <p><?= htmlspecialchars($client['address'] ?? '') ?></p>
     <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
 </div>
     </div>
@@ -65,7 +70,7 @@ use App\Helpers\Session;
     </table>
 
     <div class="invoice-payment">
-        <h3>Payment Info:</h3>
+        <h3>Payment Inforomation:</h3>
         <p><strong>Amount:</strong> &#8377;<?= number_format($grandTotal, 2) ?></p>
     </div>
 

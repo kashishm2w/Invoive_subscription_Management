@@ -189,6 +189,9 @@ class PaymentController
             'total' => $plan['price']
         ]);
 
+        // Send invoice email to user
+        \App\Helpers\Mailer::sendInvoiceEmail($userId, $invoiceId);
+
         return $invoiceId;
     }
 }
