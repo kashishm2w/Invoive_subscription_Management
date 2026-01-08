@@ -30,7 +30,11 @@ class SettingController
             require APP_ROOT . '/app/Views/user/setting.php';
         }
         else{
-                        require APP_ROOT . '/app/Views/admin/setting.php';
+            // Fetch company data from database for admin
+            $companyModel = new Company();
+            $company = $companyModel->getFirst();
+            
+            require APP_ROOT . '/app/Views/admin/setting.php';
 
         }
     }

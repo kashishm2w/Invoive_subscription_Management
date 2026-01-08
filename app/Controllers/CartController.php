@@ -256,6 +256,9 @@ public function processPayment()
             ]);
         }
 
+        // Send invoice email to user
+        \App\Helpers\Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
+
         // Clear cart
         Session::remove('cart');
 

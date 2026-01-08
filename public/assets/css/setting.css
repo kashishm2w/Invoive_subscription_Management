@@ -1,5 +1,5 @@
 .settings-container {
-    max-width: 600px;
+    width: 600px;
     margin: 40px auto;
     padding: 30px;
     background-color: #ffffff;
@@ -44,7 +44,7 @@
 .settings-container button {
     margin-top: 25px;
     padding: 12px 25px;
-    background-color: #4f46e5;
+    background-color:#2c3e50;
     color: #fff;
     border: none;
     border-radius: 6px;

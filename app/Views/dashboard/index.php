@@ -11,7 +11,7 @@
         <div class="stat-card total">
             <div class="stat-icon">
 
-                <span style="font-size: 32px; font-weight: bold;">₹</span>
+                <span style="font-size: 32px; font-weight: bold;">&#8377;</span>
             </div>
             <div class="stat-info">
                 <h3>Total Amount</h3>

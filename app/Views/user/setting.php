@@ -29,14 +29,16 @@
 </form>
 </div>
 <?php if (\App\Helpers\Session::get('profile_updated')): ?>
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Updated Successfully',
-        text: 'Your profile has been updated.',
-        confirmButtonColor: '#3085d6'
-    });
-</script>
+    
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Updated Successfully',
+            text: 'Your profile has been updated.',
+            confirmButtonColor: '#3085d6'
+        });
+    </script>
 <?php \App\Helpers\Session::remove('profile_updated'); ?>
 <?php endif; ?>
 
+<?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>

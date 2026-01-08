@@ -57,6 +57,11 @@ class InvoiceController
 
         $companyModel = new Company();
         $company = $companyModel->getByUserId($invoice['created_by']);
+        
+        // Fallback to admin/default company if user doesn't have company set
+        if (!$company) {
+            $company = $companyModel->getFirst();
+        }
 
         $items = $this->itemModel->getByInvoice($invoiceId);
         // Calculate grand total dynamically
@@ -104,30 +109,33 @@ class InvoiceController
         }
 
         $invoiceId = $this->invoiceModel->create([
-            'created_by'     => Session::get('user_id'),
-            'client_id'      => Session::get('user_id'),
-            'invoice_number' => 'INV-' . date('Ymd-His'),
-            'invoice_date'   => date('Y-m-d'),
-            'due_date'       => date('Y-m-d', strtotime('+7 days')),
-            'subtotal'       => $subtotal,
-            'tax_type'       => 'GST',
-            'tax_rate'       => round($taxRate, 2),
-            'tax_amount'     => $taxAmount,
-            'discount'       => 0,
-            'total_amount'   => $totalAmount,
-            'status'         => $status,
+            'created_by'=> Session::get('user_id'),
+            'client_id' => Session::get('user_id'),
+            'invoice_number'=> 'INV-' . date('Ymd-His'),
+            'invoice_date'=> date('Y-m-d'),
+            'due_date'=> date('Y-m-d', strtotime('+7 days')),
+            'subtotal'=> $subtotal,
+            'tax_type'=> 'GST',
+            'tax_rate'=> round($taxRate, 2),
+            'tax_amount'=> $taxAmount,
+            'discount'=> 0,
+            'total_amount'=> $totalAmount,
+            'status'=> $status,
             'notes' => 'Generated from cart'
         ]);
 
 
         foreach ($cart as $item) {
             $this->itemModel->addItem($invoiceId, [
-                'name'     => $item['name'],
-                'quantity' => $item['quantity'],
-                'price'    => $item['price'],
-                'total'    => $item['price'] * $item['quantity']
+                'name'=> $item['name'],
+                'quantity'=> $item['quantity'],
+                'price'=> $item['price'],
+                'total'=> $item['price'] * $item['quantity']
             ]);
         }
+
+        // Send invoice email to user for COD orders
+        \App\Helpers\Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
 
         Session::remove('cart');
         header("Location: /invoice/show?id=" . $invoiceId);
@@ -147,6 +155,9 @@ class InvoiceController
         $limit = 10;
         $offset = ($currentPage - 1) * $limit;
 
+        // Update overdue statuses before fetching
+        $this->invoiceModel->updateOverdueStatuses();
+
         if ($role !== 'admin') {
             $allInvoices = $this->invoiceModel->getAllWithUsers();
         } else {
@@ -158,10 +169,10 @@ class InvoiceController
         $invoices = array_slice($allInvoices, $offset, $limit);
 
         $pagination = [
-            'total'        => $totalItems,
-            'per_page'     => $limit,
-            'current_page' => $currentPage,
-            'total_pages'  => ceil($totalItems / $limit),
+            'total'=> $totalItems,
+            'per_page'=> $limit,
+            'current_page'=> $currentPage,
+            'total_pages'=> ceil($totalItems / $limit),
         ];
 
         require APP_ROOT . '/app/Views/user/my_invoices.php';
@@ -176,6 +187,9 @@ class InvoiceController
         $currentPage = (int)($_GET['page'] ?? 1);
         $limit = 10;
         $offset = ($currentPage - 1) * $limit;
+
+        // Update overdue statuses before fetching
+        $this->invoiceModel->updateOverdueStatuses();
 
         $allInvoices = $this->invoiceModel->getAllInvoicesWithDetails();
 
@@ -233,10 +247,25 @@ class InvoiceController
             ];
         }
 
-        $company = [
-            'company_name' => 'Invoice and sub',
-            'address' => 'Company Address'
-        ];
+        // Fetch company data from database
+        $companyModel = new Company();
+        $company = $companyModel->getByUserId($invoice['created_by']);
+        
+        // Fallback to admin/default company if user doesn't have company set
+        if (!$company) {
+            $company = $companyModel->getFirst();
+        }
+        
+        // Fallback if no company set at all
+        if (!$company) {
+            $company = [
+                'company_name' => 'Invoice and Sub',
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+                'tax_number' => ''
+            ];
+        }
 
         ob_start();
         require APP_ROOT . '/app/Views/invoice/pdf.php';
@@ -287,10 +316,7 @@ class InvoiceController
         if ($currentUserRole !== 'admin') {
             $userModel = new User();
             $client = $userModel->getById($invoice['client_id']);
-            // echo '<pre>';
-            // var_dump($invoice['client_id']);
-            // var_dump($client);
-            // exit;
+            
             if (!$client) {
                 Session::set('error', 'Client not found');
                 header("Location: /invoice/show?id=" . $invoiceId);
@@ -307,6 +333,21 @@ class InvoiceController
             Session::set('error', 'Client email not found');
             header("Location: /invoice/show?id=" . $invoiceId);
             exit;
+        }
+
+        // Fetch company data from database
+        $companyModel = new Company();
+        $company = $companyModel->getByUserId($invoice['created_by']);
+        
+        // Fallback if no company set
+        if (!$company) {
+            $company = [
+                'company_name' => 'Invoice and Sub',
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+                'tax_number' => ''
+            ];
         }
 
         ob_start();

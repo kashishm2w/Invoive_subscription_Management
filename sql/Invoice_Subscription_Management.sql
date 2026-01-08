@@ -68,7 +68,7 @@ CREATE TABLE `invoices` (
   `invoice_date` date NOT NULL,
   `due_date` date NOT NULL,
   `subtotal` decimal(10,2) NOT NULL,
-  `tax_type` enum('GST','VAT','NONE') DEFAULT 'GST',
+  `tax_type` enum('GST','NONE') DEFAULT 'GST',
   `tax_rate` decimal(5,2) DEFAULT '0.00',
   `tax_amount` decimal(10,2) DEFAULT '0.00',
   `discount` decimal(10,2) DEFAULT '0.00',

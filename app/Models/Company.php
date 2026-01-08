@@ -18,6 +18,20 @@ class Company extends Model
         return $res->num_rows ? $res->fetch_assoc() : null;
     }
 
+    /**
+     * Get the first/default company (admin's company settings)
+     */
+    public function getFirst(): ?array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM company ORDER BY id ASC LIMIT 1"
+        );
+        $stmt->execute();
+
+        $res = $stmt->get_result();
+        return $res->num_rows ? $res->fetch_assoc() : null;
+    }
+
 public function save(array $data): bool
 {
     $existing = $this->getByUserId($data['user_id']);

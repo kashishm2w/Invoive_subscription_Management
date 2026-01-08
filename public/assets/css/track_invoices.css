@@ -19,7 +19,6 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    margin-bottom: 20px;
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
@@ -84,13 +83,18 @@
 }
 
 .status.unpaid {
-    background-color: #fee2e2;
-    color: #991b1b;
+    background-color: #e2ecfe;
+    color: #1b2e99;
 }
 
 .status.paid {
     background-color: #dcfce7;
     color: #166534;
+}
+.status.overdue{
+        background-color: #fee2e2;
+    color: #991b1b;
+
 }
 
 .status.cancelled {

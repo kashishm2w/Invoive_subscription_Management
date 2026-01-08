@@ -50,7 +50,7 @@
             <strong>Due:</strong> <?= date('d M Y', strtotime($invoice['due_date'])) ?>
         </td>
         <td class="right">
-            <strong><?= htmlspecialchars($company['company_name'] ?? 'Company Name') ?></strong><br>
+            <strong><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></strong><br>
             <?= htmlspecialchars($company['email'] ?? '') ?><br>
             GST: <?= htmlspecialchars($company['tax_number'] ?? 'N/A') ?>
         </td>

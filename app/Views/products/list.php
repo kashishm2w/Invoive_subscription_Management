@@ -326,7 +326,7 @@ function closeViewProductModal() {
 
 // Open Add Product Modal
 function openAddProductModal() {
-    fetch('/dashboard/add-product?ajax=1')
+    fetch('/add-product?ajax=1')
         .then(res => res.text())
         .then(html => {
             document.getElementById('addFormContainer').innerHTML = html;
@@ -362,7 +362,7 @@ function handleAddFormSubmit(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Adding...';
     
-    fetch('/dashboard/add-product', {
+    fetch('/add-product', {
         method: 'POST',
         body: formData,
         headers: {

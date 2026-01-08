@@ -20,7 +20,7 @@ class InvoiceItem extends Model
             $item['name'],
             $item['quantity'],
             $item['price'],
-            $item['total']
+            $item['total'],
         );
 
         return $stmt->execute();
