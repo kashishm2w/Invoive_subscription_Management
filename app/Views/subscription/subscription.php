@@ -262,7 +262,7 @@ $cancelledSubscription = $cancelledSubscription ?? null;
                 alert.style.opacity = '0';
                 alert.style.transform = 'translateY(-10px)';
 
-                setTimeout(() => alert.remove(), 10000);
+                setTimeout(() => alert.remove(), 1500);
             });
         }, 2000); // 2 seconds
     });

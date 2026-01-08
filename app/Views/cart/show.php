@@ -255,7 +255,7 @@ function updateQty(productId, qty, inputElement) {
         // Hide message after 3 seconds
         setTimeout(() => {
             errorSpan.classList.remove('show');
-        }, 10000);
+        }, 1500);
         
         // Don't proceed if trying to exceed
         return;
@@ -293,7 +293,7 @@ function updateQty(productId, qty, inputElement) {
             inputElement.style.backgroundColor = '#d4edda';
             setTimeout(() => {
                 inputElement.style.backgroundColor = '';
-            }, 10000);
+            }, 1500);
         } else {
             // Show inline error message
             errorSpan.textContent = data.error;
@@ -302,7 +302,7 @@ function updateQty(productId, qty, inputElement) {
             
             setTimeout(() => {
                 errorSpan.classList.remove('show');
-            }, 10000);
+            }, 1500);
         }
     })
     .catch(error => {
@@ -562,6 +562,6 @@ function showToast(message, type) {
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
-    }, 10000);
+    }, 1500);
 }
 </script>

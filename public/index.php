@@ -90,6 +90,7 @@ $router->get('/track_invoices', [InvoiceController::class, 'trackInvoices']);
 
 $router->get('/invoice/pdf', [InvoiceController::class, 'pdf']);
 $router->get('/invoice/send-email',[InvoiceController::class,'sendEmail']);
+$router->get('/invoice/fetchFilteredInvoices', [InvoiceController::class, 'fetchFilteredInvoices']);
 
 //subscription
 $router->get('/subscriptions', [SubscriptionController::class, 'index']);
