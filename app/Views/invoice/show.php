@@ -1,7 +1,8 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php';
+
 use App\Helpers\Session;
- ?>
-    <a href="/home" class="back">&#8592; Back</a>
+?>
+<a href="/home" class="back">&#8592; Back</a>
 
 <link rel="stylesheet" href="/assets/css/invoice.css">
 <?php if (Session::has('success')): ?>
@@ -13,30 +14,30 @@ use App\Helpers\Session;
     <div class="invoice-header">
         <div class="invoice-info">
             <h1>Invoice</h1>
-            <p><strong>Invoice No:</strong> #<?= htmlspecialchars($invoice['invoice_number']) ?></p>
+            <p><strong>Invoice No:</strong><?= htmlspecialchars($invoice['invoice_number']) ?></p>
             <p><strong>Date:</strong> <?= date('d.m.Y', strtotime($invoice['invoice_date'])) ?></p>
         </div>
     </div>
 
     <div class="invoice-parties">
-<div class="pay-to">
-    <h3>Invoice From:</h3>
-    <p><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></p>
-    <p><?= htmlspecialchars($company['address'] ?? '') ?></p>
-    <?php if (!empty($company['phone'])): ?>
-        <p>Phone: <?= htmlspecialchars($company['phone']) ?></p>
-    <?php endif; ?>
-    <p><?= htmlspecialchars($company['email'] ?? '') ?></p>
-    <?php if (!empty($company['tax_number'])): ?>
-        <p><strong>GST:</strong> <?= htmlspecialchars($company['tax_number']) ?></p>
-    <?php endif; ?>
-</div>
+        <div class="pay-to">
+            <h3>Invoice From:</h3>
+            <p><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></p>
+            <p><?= htmlspecialchars($company['address'] ?? '') ?></p>
+            <?php if (!empty($company['phone'])): ?>
+                <p>Phone: <?= htmlspecialchars($company['phone']) ?></p>
+            <?php endif; ?>
+            <p><?= htmlspecialchars($company['email'] ?? '') ?></p>
+            <?php if (!empty($company['tax_number'])): ?>
+                <p><strong>GST:</strong> <?= htmlspecialchars($company['tax_number']) ?></p>
+            <?php endif; ?>
+        </div>
 
-<div class="invoice-to">
-    <h3>Invoice To:</h3>
-    <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
-    <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
-</div>
+        <div class="invoice-to">
+            <h3>Invoice To:</h3>
+            <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
+            <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
+        </div>
     </div>
 
     <table class="invoice-items">
@@ -53,10 +54,10 @@ use App\Helpers\Session;
             <?php $grandTotal = 0; ?>
             <?php foreach ($items as $index => $item): ?>
                 <?php
-                    $lineTotal = $item['price'] * $item['quantity'];
-                    $lineTax   = $lineTotal * ($invoice['tax_rate']/100);
-                    $total     = $lineTotal + $lineTax;
-                    $grandTotal += $total;
+                $lineTotal = $item['price'] * $item['quantity'];
+                $lineTax   = $lineTotal * ($invoice['tax_rate'] / 100);
+                $total     = $lineTotal + $lineTax;
+                $grandTotal += $total;
                 ?>
                 <tr>
                     <td><?= $index + 1 ?></td>
@@ -64,28 +65,29 @@ use App\Helpers\Session;
                     <td>&#8377;<?= number_format($item['price'], 2) ?></td>
                     <td><?= $item['quantity'] ?></td>
                     <td>&#8377;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 
     <div class="invoice-payment">
-        <h3>Payment Inforomation:</h3>
+        <h3>Payment Information:</h3>
         <p><strong>Amount:</strong> &#8377;<?= number_format($grandTotal, 2) ?></p>
     </div>
 
     <div class="invoice-totals">
         <table>
             <tr>
-                <td>Total:</td>
+                <td>Total Amount :</td>
                 <td>&#8377;<?= number_format($invoice['subtotal'], 2) ?></td>
             </tr>
             <tr>
-                <td>Tax (<?= $invoice['tax_rate'] ?>%):</td>
+                <td>Tax Amount :</td>
                 <td>+&#8377;<?= number_format($invoice['tax_amount'], 2) ?></td>
             </tr>
             <tr class="grand-total">
-                <td>Grand Total:</td>
+                <td>Total:</td>
                 <td>&#8377;<?= number_format($invoice['total_amount'], 2) ?></td>
             </tr>
         </table>
@@ -98,10 +100,10 @@ use App\Helpers\Session;
 </div>
 <div class="invoice-actions">
     <a href="/invoice/pdf?id=<?= $invoice['id'] ?>" class="btn btn-download">
-         Download PDF
+        Download PDF
     </a>
     <a href="/invoice/send-email?id=<?= $invoice['id'] ?>" class="btn btn-email">
-         Send Email
+        Send Email
     </a>
 </div>
 

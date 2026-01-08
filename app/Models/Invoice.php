@@ -218,14 +218,15 @@ public function getAllInvoicesWithDetails(): array
         SELECT i.*, 
                u.name AS user_name,
                u.email AS user_email,
-               u.phone_no AS user_phone,
-               u.address AS user_address,
+               COALESCE(ua.phone, u.phone_no) AS user_phone,
+               COALESCE(CONCAT(ua.address, ua.pincode), u.address) AS user_address,
                it.id AS item_id,
                it.item_name AS item_name,
                it.price,
                it.quantity
         FROM invoices i
         LEFT JOIN users u ON i.created_by = u.id
+        LEFT JOIN user_addresses ua ON i.created_by = ua.user_id AND ua.is_default = 1
         LEFT JOIN invoice_items it ON i.id = it.invoice_id
         ORDER BY i.invoice_date DESC
     ");
@@ -241,26 +242,26 @@ public function getAllInvoicesWithDetails(): array
             $invoices[$invoiceId] = [
                 'id'             => $row['id'],
                 'invoice_number' => $row['invoice_number'],
-                'invoice_date'   => $row['invoice_date'],
-                'due_date'       => $row['due_date'],
-                'subtotal'       => $row['subtotal'],
-                'tax_rate'       => $row['tax_rate'],
-                'tax_type'       => $row['tax_type'],
-                'total_amount'   => $row['total_amount'],
-                'status'         => $row['status'],
-                'user_name'      => $row['user_name'],
-                'user_email'     => $row['user_email'],
-                'user_phone'     => $row['user_phone'],
-                'user_address'   => $row['user_address'],
-                'items'          => []
+                'invoice_date'=> $row['invoice_date'],
+                'due_date'=> $row['due_date'],
+                'subtotal'=> $row['subtotal'],
+                'tax_rate'=> $row['tax_rate'],
+                'tax_type'=> $row['tax_type'],
+                'total_amount'=> $row['total_amount'],
+                'status'=> $row['status'],
+                'user_name' => $row['user_name'],
+                'user_email'=> $row['user_email'],
+                'user_phone'=> $row['user_phone'],
+                'user_address'=> $row['user_address'],
+                'items'=> []
             ];
         }
 
         if ($row['item_id']) {
             $invoices[$invoiceId]['items'][] = [
-                'id'       => $row['item_id'],
-                'name'     => $row['item_name'],
-                'price'    => $row['price'],
+                'id'=> $row['item_id'],
+                'name'=> $row['item_name'],
+                'price'=> $row['price'],
                 'quantity' => $row['quantity']
             ];
         }
@@ -321,6 +322,24 @@ public function getCountByStatus(string $status): int
     $stmt->execute();
     $result = $stmt->get_result();
     return (int)$result->fetch_assoc()['count'];
+}
+
+/**
+ * Update invoice statuses to 'overdue' where due_date has passed and status is not 'paid'
+ */
+public function updateOverdueStatuses(): int
+{
+    $today = date('Y-m-d');
+    $stmt = $this->db->prepare("
+        UPDATE invoices 
+        SET status = 'overdue' 
+        WHERE due_date < ? 
+        AND LOWER(status) != 'paid'
+        AND LOWER(status) != 'overdue'
+    ");
+    $stmt->bind_param("s", $today);
+    $stmt->execute();
+    return $stmt->affected_rows;
 }
 
 /**
