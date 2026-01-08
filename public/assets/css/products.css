@@ -60,6 +60,7 @@ tbody img {
 
 tbody td:nth-child(2) {
     font-weight: 600;
+        max-width: 150px;
     color: #333;
 }
 
@@ -558,6 +559,10 @@ p {
     padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
+    height: auto;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 .product-view-description label {
@@ -716,6 +721,7 @@ p {
     background: linear-gradient(135deg, #2980b9 0%, #1f6dad 100%);
     transform: translateY(-1px);
 }
+
 /* Payment Modal Styles */
 .payment-modal-content {
     text-align: center;
@@ -938,7 +944,7 @@ p {
 
 .highlight-btn {
     animation: pulse 0.5s ease-in-out 3;
-    border-color:#3498db!important;
+    border-color: #3498db !important;
     background: #fff5f5 !important;
 }
 
@@ -963,7 +969,7 @@ p {
     background: #fff5f5;
     border: 1px solid #f8d7da;
     border-radius: 8px;
-    color:#3498db;
+    color: #3498db;
     font-size: 14px;
     margin-bottom: 15px;
 }
@@ -1028,7 +1034,7 @@ p {
 .address-form .error-msg {
     display: none;
     font-size: 12px;
-    color:#3498db;
+    color: #3498db;
     margin-top: 4px;
 }
 
@@ -1142,6 +1148,7 @@ p {
     background: #e74c3c;
     color: #fff;
 }
+
 @media (max-width: 768px) {
     table {
         width: 100%;

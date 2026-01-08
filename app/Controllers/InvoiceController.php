@@ -177,6 +177,36 @@ class InvoiceController
 
         require APP_ROOT . '/app/Views/user/my_invoices.php';
     }
+
+    public function fetchFilteredInvoices()
+    {
+        $status = $_GET['status'] ?? '';
+        $invoiceModel = new Invoice();
+
+        $invoices = $invoiceModel->getAllWithUsers($_SESSION['user_id']); // fetch all invoices
+
+        $filtered = [];
+        $today = strtotime(date('Y-m-d'));
+
+        foreach ($invoices as $invoice) {
+            $invoiceStatus = strtolower($invoice['status']);
+            $dueDate = strtotime($invoice['due_date']);
+
+            if ($status === 'paid' && $invoiceStatus === 'paid') {
+                $filtered[] = $invoice;
+            } elseif ($status === 'unpaid' && $invoiceStatus !== 'paid' && $dueDate >= $today) {
+                $filtered[] = $invoice;
+            } elseif ($status === 'overdue' && $invoiceStatus !== 'paid' && $dueDate < $today) {
+                $filtered[] = $invoice;
+            } elseif ($status === '') {
+                $filtered[] = $invoice; // all
+            }
+        }
+
+        // Return JSON
+        header('Content-Type: application/json');
+        echo json_encode($filtered);
+    }
     public function trackInvoices()
     {
         if (!Session::has('user_id') || Session::get('role') !== 'admin') {
