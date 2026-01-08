@@ -128,7 +128,7 @@ filterSelect.addEventListener('change', () => {
                 if (invoice.status.toLowerCase() === 'paid') {
                     paymentCell = `<span class="paid">Already Paid</span>`;
                 } else if (dueDate < today) {
-                    paymentCell = `<span class="overdue">Overdue</span>`;
+                    paymentCell = `<span class="overdue"><a href="/invoice/pay?id=${invoice.id}" class="btn-pay">Overdue Pay Now</a></span>`;
                 } else {
                     paymentCell = `<a href="/invoice/pay?id=${invoice.id}" class="btn-pay">Pay Now</a>`;
                 }

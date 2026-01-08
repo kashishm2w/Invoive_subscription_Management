@@ -1,237 +1,198 @@
-<?php 
-require APP_ROOT . '/app/Views/layouts/header.php';
-use App\Helpers\Session;
-?>
+<?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
+<link rel="stylesheet" href="/assets/css/track_invoices.css">
 
-<link rel="stylesheet" href="/assets/css/products.css">
-<style>
-/*  TRACK SUBSCRIPTIONS  */
+<main class="main-content">
+    <div class="dashboard-header">
+        <h2>Track Subscriptions</h2>
+    </div>
 
-.track-header {
-    max-width: 1100px;
-    margin: 32px auto 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Email</label>
+                <input type="text" id="filter_email" placeholder="Search by email...">
+            </div>
+            <div class="filter-group">
+                <label>Plan</label>
+                <select id="filter_plan">
+                    <option value="">All Plans</option>
+                    <?php
+                    $planModel = new \App\Models\SubscriptionPlan();
+                    $plans = $planModel->getAll();
+                    foreach ($plans as $plan): ?>
+                        <option value="<?= $plan['id'] ?>"><?= htmlspecialchars($plan['plan_name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Billing Cycle</label>
+                <select id="filter_billing_cycle">
+                    <option value="">All</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filter_status">
+                    <option value="">All</option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <button type="button" id="clear_filters" class="btn-clear">Clear</button>
+        </div>
+        
+    </div>
 
-.track-header h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-}
-
-/* TABLE WRAPPER */
-.product-table {
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto 40px;
-    border-collapse: collapse;
-    background: #ffffff;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
-    font-family: 'Inter', Arial, sans-serif;
-}
-
-/* TABLE HEADER */
-.product-table thead {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
-}
-
-.product-table th {
-    padding: 14px;
-    text-align: left;
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    white-space: nowrap;
-}
-
-/* TABLE BODY */
-.product-table td {
-    padding: 13px 14px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 14px;
-    color: #374151;
-    vertical-align: middle;
-}
-
-.product-table tbody tr:nth-child(even) {
-    background-color: #f9fafb;
-}
-
-.product-table tbody tr:hover {
-    background-color: #eef2ff;
-}
-
-/*  STATUS BADGES  */
-.status-badge {
-    display: inline-block;
-    padding: 5px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: capitalize;
-    min-width: 90px;
-    text-align: center;
-}
-
-/* Subscription Status */
-.status-active {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.status-expired {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-.status-cancelled {
-    background-color: #e5e7eb;
-    color: #374151;
-}
-
-.status-pending {
-    background-color: #fff7ed;
-    color: #9a3412;
-}
-
-/* Payment Status */
-.payment-paid {
-    background-color: #dcfce7;
-    color: #166534;
-}
-
-.payment-unpaid {
-    background-color: #fff7ed;
-    color: #9a3412;
-}
-
-.payment-overdue {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-/*  EMPTY STATE  */
-.no-data {
-    margin: 30px 0;
-    font-size: 15px;
-    color: #6b7280;
-    text-align: center;
-}
-
-/*  RESPONSIVE  */
-@media (max-width: 768px) {
-    .track-header {
-        padding: 0 16px;
-    }
-
-    .product-table {
-        font-size: 13px;
-    }
-
-    .product-table th,
-    .product-table td {
-        padding: 10px 8px;
-    }
-
-    .status-badge {
-        font-size: 11px;
-        min-width: 70px;
-        padding: 4px 10px;
-    }
-}
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 28px;
-     margin-bottom: 20px;
-}
-
-.pagination a {
-    display: inline-block;
-    padding: 8px 14px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: #374151;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-}
-
-.pagination a:hover {
-    background: #f3f4f6;
-}
-
-.pagination a.active {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
-    color: #fff;
-    border-color: transparent;
-}
-</style>
-
-<div class="track-header">
-    <h1>Track Subscriptions</h1>
-</div>
-
-<?php if (empty($subscriptions)): ?>
-    <p style="text-align: center; color: #666;">No subscriptions found.</p>
-<?php else: ?>
-    <table class="product-table">
+    <table class="invoice-table">
         <thead>
             <tr>
-                <th>Sr no.</th>
-                <th>User Name</th>
+                <th>User</th>
                 <th>Email</th>
                 <th>Plan</th>
-                <th>Price (&#8377;)</th>
                 <th>Billing Cycle</th>
                 <th>Start Date</th>
                 <th>End Date</th>
                 <th>Status</th>
-                <th>Payment Status</th>
-                <th>Auto Renew</th>
             </tr>
         </thead>
-        <tbody>
-            <?php $count = 1; ?>
-            <?php foreach ($subscriptions as $sub): ?>
-                <?php
-                    $statusClass = 'status-' . strtolower($sub['status']);
-                    
-                    // Determine payment status
-                    $paymentStatus = $sub['payment_status'] ?? 'paid';
-                    $paymentClass = 'payment-' . strtolower($paymentStatus);
-                ?>
-                <tr>
-                    <td><?= $count++ ?></td>
-                    <td><?= htmlspecialchars($sub['user_name']) ?></td>
-                    <td><?= htmlspecialchars($sub['user_email']) ?></td>
-                    <td><strong><?= htmlspecialchars($sub['plan_name']) ?></strong></td>
-                    <td>&#8377;<?= number_format($sub['price'], 2) ?></td>
-                    <td><?= ucfirst($sub['billing_cycle']) ?></td>
-                    <td><?= date('d M Y', strtotime($sub['start_date'])) ?></td>
-                    <td><?= date('d M Y', strtotime($sub['end_date'])) ?></td>
-                    <td><span class="status-badge <?= $statusClass ?>"><?= $sub['status'] ?></span></td>
-                    <td><span class="status-badge <?= $paymentClass ?>"><?= ucfirst($paymentStatus) ?></span></td>
-                    <td><?= $sub['auto_renew'] ? ' Yes' : ' No' ?></td>
-                </tr>
-            <?php endforeach; ?>
+        <tbody id="subscription-table-body">
+            <?php if (!empty($subscriptions)): ?>
+                <?php foreach ($subscriptions as $sub): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($sub['user_name'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($sub['user_email'] ?? '-') ?></td>
+                        <td><?= htmlspecialchars($sub['plan_name']) ?></td>
+                        <td><?= ucfirst($sub['billing_cycle']) ?></td>
+                        <td><?= date('d M Y', strtotime($sub['start_date'])) ?></td>
+                        <td><?= date('d M Y', strtotime($sub['end_date'])) ?></td>
+                        <td><span class="status <?= strtolower($sub['status']) ?>"><?= ucfirst($sub['status']) ?></span></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr><td colspan="7">No subscriptions found.</td></tr>
+            <?php endif; ?>
         </tbody>
     </table>
-    
-    <div class="pagination">
-        <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
-            <a href="?page=<?= $i ?>" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>>
-                <?= $i ?>
-            </a>
-        <?php endfor; ?>
+
+    <div class="pagination" id="pagination-container">
+        <?php if (isset($pagination)): ?>
+            <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                <a href="?page=<?= $i ?>" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>><?= $i ?></a>
+            <?php endfor; ?>
+        <?php endif; ?>
     </div>
-<?php endif; ?>
+</main>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
 
+<script>
+let filterTimeout;
+const tableBody = document.getElementById('subscription-table-body');
+const paginationContainer = document.getElementById('pagination-container');
+
+// Debounced search for text input
+document.getElementById('filter_email').addEventListener('input', function() {
+    clearTimeout(filterTimeout);
+    filterTimeout = setTimeout(() => filterSubscriptions(1), 300);
+});
+
+// Immediate filter for selects and dates
+['filter_plan', 'filter_billing_cycle', 'filter_status', 'filter_start_date', 'filter_end_date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.addEventListener('change', () => filterSubscriptions(1));
+    }
+});
+
+// Clear filters
+document.getElementById('clear_filters').addEventListener('click', function() {
+    document.getElementById('filter_email').value = '';
+    document.getElementById('filter_plan').value = '';
+    document.getElementById('filter_billing_cycle').value = '';
+    document.getElementById('filter_status').value = '';
+    document.getElementById('filter_start_date').value = '';
+    document.getElementById('filter_end_date').value = '';
+    filterSubscriptions(1);
+});
+
+function filterSubscriptions(page = 1) {
+    const params = new URLSearchParams({
+        email: document.getElementById('filter_email').value,
+        plan_id: document.getElementById('filter_plan').value,
+        billing_cycle: document.getElementById('filter_billing_cycle').value,
+        status: document.getElementById('filter_status').value,
+        start_date: document.getElementById('filter_start_date').value,
+        end_date: document.getElementById('filter_end_date').value,
+        page: page
+    });
+
+    fetch(`/admin/subscriptions/filter?${params}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            updateTable(data.subscriptions);
+            updatePagination(data.pagination);
+        })
+        .catch(err => console.error('Filter error:', err));
+}
+
+function updateTable(subscriptions) {
+    if (!subscriptions || subscriptions.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7">No subscriptions found.</td></tr>';
+        return;
+    }
+
+    tableBody.innerHTML = '';
+    subscriptions.forEach(sub => {
+        tableBody.innerHTML += `
+            <tr>
+                <td>${escapeHtml(sub.user_name || '-')}</td>
+                <td>${escapeHtml(sub.user_email || '-')}</td>
+                <td>${escapeHtml(sub.plan_name)}</td>
+                <td>${capitalize(sub.billing_cycle)}</td>
+                <td>${formatDate(sub.start_date)}</td>
+                <td>${formatDate(sub.end_date)}</td>
+                <td><span class="status ${sub.status.toLowerCase()}">${capitalize(sub.status)}</span></td>
+            </tr>
+        `;
+    });
+}
+
+function updatePagination(pagination) {
+    paginationContainer.innerHTML = '';
+    for (let i = 1; i <= pagination.total_pages; i++) {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = i;
+        link.className = i === pagination.current_page ? 'active' : '';
+        link.onclick = (e) => {
+            e.preventDefault();
+            filterSubscriptions(i);
+        };
+        paginationContainer.appendChild(link);
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+</script>

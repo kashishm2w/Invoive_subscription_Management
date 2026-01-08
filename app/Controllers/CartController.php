@@ -69,12 +69,12 @@ class CartController
                 }
             } else {
                 $cart[$productId] = [
-                    'id'          => $product['id'],
-                    'name'        => $product['name'],
-                    'price'       => $product['price'],
-                    'tax_percent' => $product['tax_percent'],
-                    'quantity'    => $quantity,
-                    'poster'      => $product['poster'] ?? 'default.png'
+                    'id'=> $product['id'],
+                    'name'=> $product['name'],
+                    'price'=> $product['price'],
+                    'tax_percent'=> $product['tax_percent'],
+                    'quantity'=> $quantity,
+                    'poster'=> $product['poster'] ?? 'default.png'
                 ];
             }
 

@@ -5,6 +5,10 @@
 <div class="dashboard-header">
     <h2>Product Listing</h2>
 
+    <div class="product-search">
+      <input type="text" id="product_search" placeholder="Search by product name.." autocomplete="off">
+    </div>
+
     <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
         <button type="button" class="btn-add-product" onclick="openAddProductModal()">+ Add Product</button>
     <?php endif; ?>
@@ -457,5 +461,106 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+// Product Search AJAX
+let searchTimeout;
+const searchInput = document.getElementById('product_search');
+const productTableBody = document.querySelector('.product-table tbody');
+const paginationContainer = document.querySelector('.pagination');
+const isAdmin = <?= \App\Helpers\Session::get('role') === 'admin' ? 'true' : 'false' ?>;
+
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchProducts(this.value, 1);
+        }, 300); // Debounce 300ms
+    });
+}
+
+function searchProducts(search, page = 1) {
+    const url = `/products/search?search=${encodeURIComponent(search)}&page=${page}`;
+    
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            updateProductTable(data.products, data.cartProductIds);
+            updatePagination(data.pagination, search);
+        })
+        .catch(err => {
+            console.error('Search error:', err);
+        });
+}
+
+function updateProductTable(products, cartProductIds) {
+    if (!productTableBody) return;
+    
+    if (!products || products.length === 0) {
+        productTableBody.innerHTML = `<tr><td colspan="${isAdmin ? 5 : 4}">No products found.</td></tr>`;
+        return;
+    }
+
+    productTableBody.innerHTML = '';
+    products.forEach(product => {
+        const price = parseFloat(product.price);
+        const tax = parseFloat(product.tax_percent);
+        const total = price + (price * tax / 100);
+        const isInCart = cartProductIds.includes(product.id);
+
+        let row = `<tr>
+            <td>
+                ${product.poster && product.poster !== 'default.png' 
+                    ? `<img src="/uploads/${product.poster}" alt="${product.name}" class="product-poster" style="width:60px; height:auto;">`
+                    : '<span>No Image</span>'}
+            </td>
+            <td>${escapeHtml(product.name)}</td>`;
+        
+        if (isAdmin) {
+            row += `<td>${parseFloat(product.price).toFixed(2)}</td>
+                    <td>${product.tax_percent}%</td>`;
+        } else {
+            row += `<td><strong>&#8377;${total.toFixed(2)}</strong></td>`;
+        }
+
+        row += `<td>
+            <button type="button" class="btn-view" onclick="openViewProductModal(${product.id})">View</button>`;
+        
+        if (isAdmin) {
+            row += ` <button type="button" onclick="openEditProductModal(${product.id})">Edit</button>
+                    | <a href="/dashboard/products/delete?id=${product.id}" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>`;
+        } else {
+            row += ` | <button id="cart-btn-${product.id}" onclick="addToCart(${product.id})" ${isInCart ? 'disabled' : ''}>
+                        ${isInCart ? 'Added' : 'Add to Cart'}
+                    </button>`;
+        }
+
+        row += `</td></tr>`;
+        productTableBody.innerHTML += row;
+    });
+}
+
+function updatePagination(pagination, search) {
+    if (!paginationContainer) return;
+    
+    paginationContainer.innerHTML = '';
+    for (let i = 1; i <= pagination.total_pages; i++) {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = i;
+        link.className = i === pagination.current_page ? 'active' : '';
+        link.onclick = (e) => {
+            e.preventDefault();
+            searchProducts(search, i);
+        };
+        paginationContainer.appendChild(link);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 </script>
+
 

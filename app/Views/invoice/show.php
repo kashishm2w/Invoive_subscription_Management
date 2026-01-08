@@ -6,7 +6,7 @@ use App\Helpers\Session;
 
 <link rel="stylesheet" href="/assets/css/invoice.css">
 <?php if (Session::has('success')): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success auto-hide">
         <?= Session::get('success') ?>
     </div>
 <?php endif; ?>
@@ -108,3 +108,12 @@ use App\Helpers\Session;
 </div>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
+<script>
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.auto-hide');
+        alerts.forEach(alert => {
+            alert.classList.add('hide');
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 3000); // 3 seconds
+</script>

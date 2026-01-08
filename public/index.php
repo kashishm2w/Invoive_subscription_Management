@@ -122,6 +122,19 @@ $router->get('/address/list', [AddressController::class, 'getAddresses']);
 $router->post('/address/add', [AddressController::class, 'addAddress']);
 $router->post('/address/set-default', [AddressController::class, 'setDefaultAddress']);
 
+// Product search 
+$router->get('/products/search', [ProductController::class, 'searchProducts']);
+
+// Admin: Invoice filters 
+$router->get('/admin/invoices/filter', [InvoiceController::class, 'fetchFilteredInvoicesAdmin']);
+
+// Admin: Subscription filters
+$router->get('/admin/subscriptions/filter', [SubscriptionController::class, 'fetchFilteredSubscriptions']);
+
+// Invoice Payment
+$router->get('/invoice/pay', [InvoiceController::class, 'showPaymentPage']);
+$router->post('/invoice/pay/process', [InvoiceController::class, 'processPayment']);
+
 $router->dispatch();
 
 

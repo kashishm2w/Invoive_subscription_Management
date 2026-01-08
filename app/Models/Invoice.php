@@ -359,4 +359,63 @@ public function getDashboardStats(): array
     ];
 }
 
+/**
+ * Get filtered invoices for admin with pagination support
+ */
+public function getFilteredInvoices(array $filters = []): array
+{
+    $sql = "
+        SELECT i.*, 
+               u.name AS user_name,
+               u.email AS user_email
+        FROM invoices i
+        LEFT JOIN users u ON i.created_by = u.id
+        WHERE 1=1
+    ";
+
+    $params = [];
+    $types = "";
+
+    if (!empty($filters['invoice_number'])) {
+        $sql .= " AND i.invoice_number LIKE ?";
+        $params[] = "%" . $filters['invoice_number'] . "%";
+        $types .= "s";
+    }
+
+    if (!empty($filters['email'])) {
+        $sql .= " AND u.email LIKE ?";
+        $params[] = "%" . $filters['email'] . "%";
+        $types .= "s";
+    }
+
+    if (!empty($filters['status'])) {
+        $sql .= " AND LOWER(i.status) = ?";
+        $params[] = strtolower($filters['status']);
+        $types .= "s";
+    }
+
+    $sql .= " ORDER BY i.invoice_date DESC";
+
+    if (!empty($params)) {
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param($types, ...$params);
+        $stmt->execute();
+        $result = $stmt->get_result();
+    } else {
+        $result = $this->db->query($sql);
+    }
+
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+/**
+ * Update invoice status
+ */
+public function updateStatus(int $id, string $status): bool
+{
+    $stmt = $this->db->prepare("UPDATE invoices SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $status, $id);
+    return $stmt->execute();
+}
+
 }

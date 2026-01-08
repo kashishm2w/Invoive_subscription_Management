@@ -3,11 +3,10 @@
     --border-color: #2d2d44;
     --success: #22c55e;
 }
-
 /* Main container */
 .payment-container {
     min-height: 100vh;
-    background:whitesmoke;
+     background: linear-gradient(135deg, #f5f7fa, #dfefff);
     padding: 40px 20px;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -50,7 +49,18 @@
     color: #94a3b8;
     font-size: 14px;
 }
+.invoice-info{
+    color: #ffffff;
+}
+.items-section
+{
+    color: #ffffff;
 
+}
+.item-qty{
+    color: #ffffff;
+
+}
 /* Credit Card Display */
 .card-display {
     background:  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -200,7 +210,7 @@
 }
 
 .item-qty {
-    color: #64748b;
+    color: #dddddd;
     font-size: 12px;
 }
 
@@ -220,7 +230,7 @@
 }
 
 .order-total span {
-    color: #94a3b8;
+    color: #ebebeb;
     font-size: 16px;
 }
 
@@ -249,7 +259,7 @@
 }
 
 #card-element {
-    background:  #f0f0f0;
+    background:  #000000d0;
     padding: 18px;
     border-radius: 12px;
     border: 1px solid #2d2d44;
@@ -331,7 +341,7 @@
     justify-content: center;
     gap: 8px;
     margin-top: 20px;
-    color: #64748b;
+    color: #09182c;
     font-size: 13px;
 }
 

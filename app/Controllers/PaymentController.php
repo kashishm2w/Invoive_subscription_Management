@@ -118,11 +118,11 @@ class PaymentController
             // Calculate end date based on billing cycle
             $billingCycle = strtolower($plan['billing_cycle']);
             if ($billingCycle === 'yearly') {
-                $end = date('Y-m-d', strtotime('+2 years '));
+                $end = date('Y-m-d', strtotime('+2 days '));
             } elseif ($billingCycle === 'weekly') {
                 $end = date('Y-m-d', strtotime('+1 week'));
             } else {
-                $end = date('Y-m-d', strtotime('+2 month'));
+                $end = date('Y-m-d', strtotime('+1 day'));
             }
 
             // Create subscription

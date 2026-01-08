@@ -5,6 +5,7 @@ use App\Helpers\Session;
 
 $currentSubscription = $currentSubscription ?? null;
 $cancelledSubscription = $cancelledSubscription ?? null;
+$expiredSubscription = $expiredSubscription ?? null;
 
 ?>
 <link rel="stylesheet" href="/assets/css/subscription.css">
@@ -17,7 +18,7 @@ $cancelledSubscription = $cancelledSubscription ?? null;
     <?php endif; ?>
 
     <?php if (Session::has('success')): ?>
-        <div class="alert alert-success">
+        <div class="alert alert-success auto-hide">
             <?= Session::get('success') ?>
         </div>
         <?php Session::remove('success'); ?>
@@ -48,6 +49,18 @@ $cancelledSubscription = $cancelledSubscription ?? null;
                 &#8377;<?= $cancelledSubscription['price'] ?> /
                 <?= ucfirst($cancelledSubscription['billing_cycle']) ?><br>
                 <span class="cancelled-text">This subscription has been cancelled.</span>
+            </p>
+        </div>
+
+    <?php elseif (Session::has('user_id') && is_array($expiredSubscription)): ?>
+        <div class="expired-plan">
+            <h3>Your Subscription</h3>
+            <span class="expired-badge">Expired</span>
+            <p>
+                <strong><?= htmlspecialchars($expiredSubscription['plan_name']) ?></strong><br>
+                &#8377;<?= $expiredSubscription['price'] ?> /
+                <?= ucfirst($expiredSubscription['billing_cycle']) ?><br>
+                <span class="expired-text">Expired on: <?= $expiredSubscription['end_date'] ?></span>
             </p>
         </div>
 
@@ -95,6 +108,16 @@ $cancelledSubscription = $cancelledSubscription ?? null;
                             <button class="btn-active" disabled>Active</button>
                             <button class="btn-cancel" onclick="cancelSubscription()">Cancel</button>
                         </div>
+
+                    <?php elseif (is_array($expiredSubscription) && $expiredSubscription['plan_id'] == $plan['id']): ?>
+                        <!-- Expired plan: Show Reactivate button -->
+                        <form method="POST" action="/subscribe">
+                            <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
+                            <label>
+                                <input type="checkbox" name="auto_renew"> Auto renew
+                            </label>
+                            <button type="submit" class="btn-reactivate">Reactivate</button>
+                        </form>
 
                     <?php else: ?>
                         <!-- Not active: Show Buy Now -->
@@ -266,4 +289,11 @@ $cancelledSubscription = $cancelledSubscription ?? null;
             });
         }, 2000); // 2 seconds
     });
+     setTimeout(() => {
+        const alerts = document.querySelectorAll('.auto-hide');
+        alerts.forEach(alert => {
+            alert.classList.add('hide');
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 3000); // 3 seconds
 </script>
