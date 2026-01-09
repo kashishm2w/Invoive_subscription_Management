@@ -1,3 +1,4 @@
+
 * {
     margin: 0;
     padding: 0;
@@ -16,8 +17,8 @@ body {
  */
 .hero-section {
     text-align: center;
-    padding: 60px 20px;
-    background: #2c3e50;
+    padding: 10px 20px 75px 20px;
+        background: #2c3e50;
     color: #fff;
 }
 
@@ -40,13 +41,13 @@ body {
 }
 
 .poster {
-    height: 700px;
+    height: 490px;
     width: 900px;
     display: block;
-    margin: 40px auto;
+    margin: -50px auto 25px;
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    object-fit: cover
+    object-fit: cover;
 }
 
 /* 

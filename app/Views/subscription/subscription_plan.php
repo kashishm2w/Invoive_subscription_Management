@@ -20,6 +20,7 @@
             <th>Price</th>
             <th>Billing Cycle</th>
             <th>Description</th>
+            <th>Discount</th>
         </tr>
         <?php foreach ($plans as $plan): ?>
             <tr>
@@ -28,6 +29,8 @@
                 <td>&#8377;<?= $plan['price'] ?></td>
                 <td><?= ucfirst($plan['billing_cycle']) ?></td>
                 <td><?= htmlspecialchars($plan['description']) ?></td>
+                <td><?= $plan['discount_percent'] ?>%</td>
+
             </tr>
         <?php endforeach; ?>
     </table>

@@ -1,6 +1,12 @@
 <?php 
 require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
+
+// Set defaults if not passed from controller
+$discountPercent = $discountPercent ?? 0;
+$discountAmount = $discountAmount ?? 0;
+$finalTotal = $finalTotal ?? 0;
+$subtotal = $subtotal ?? 0;
 ?>
 
 <link rel="stylesheet" href="/assets/css/payment.css">
@@ -55,9 +61,21 @@ use App\Helpers\Session;
                 </div>
             <?php endforeach; ?>
             
+            <div class="order-subtotal">
+                <span>Subtotal</span>
+                <span>&#8377;<?= number_format($grandTotal, 2) ?></span>
+            </div>
+            
+            <?php if ($discountPercent > 0): ?>
+            <div class="order-discount">
+                <span>Subscription Discount (<?= $discountPercent ?>%)</span>
+                <span class="discount-value">-&#8377;<?= number_format($discountAmount, 2) ?></span>
+            </div>
+            <?php endif; ?>
+            
             <div class="order-total">
                 <span>Total Amount</span>
-                <strong>&#8377;<?= number_format($grandTotal, 2) ?></strong>
+                <strong>&#8377;<?= number_format($finalTotal, 2) ?></strong>
             </div>
         </div>
 
@@ -71,7 +89,7 @@ use App\Helpers\Session;
             
             <button type="submit" class="pay-btn" id="submit-btn">
                 <span class="loading-spinner" id="spinner"></span>
-                <span id="btn-text">Pay &#8377;<?= number_format($grandTotal, 2) ?></span>
+                <span id="btn-text">Pay &#8377;<?= number_format($finalTotal, 2) ?></span>
             </button>
         </form>
         
@@ -140,7 +158,7 @@ form.addEventListener('submit', function(event) {
             
             submitBtn.disabled = false;
             spinner.style.display = 'none';
-            btnText.textContent = 'Pay &#8377;<?= number_format($grandTotal, 2) ?>';
+            btnText.textContent = 'Pay &#8377;<?= number_format($finalTotal, 2) ?>';
         } else {
             var hiddenInput = document.createElement('input');
             hiddenInput.setAttribute('type', 'hidden');

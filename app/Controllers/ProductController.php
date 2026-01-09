@@ -451,4 +451,39 @@ class ProductController
 
         require APP_ROOT . '/app/Views/admin/track_invoices.php';
     }
+
+    /**
+     * AJAX: Search products by name
+     */
+    public function searchProducts()
+    {
+        $search = $_GET['search'] ?? '';
+        $currentPage = (int)($_GET['page'] ?? 1);
+        $limit = 10;
+        $offset = ($currentPage - 1) * $limit;
+
+        $allProducts = $this->productModel->searchByName($search);
+        $totalItems = count($allProducts);
+
+        $products = array_slice($allProducts, $offset, $limit);
+
+        $cart = Session::get('cart') ?? [];
+        $cartProductIds = array_keys($cart);
+        $isAdmin = Session::get('role') === 'admin';
+
+        $pagination = [
+            'total' => $totalItems,
+            'per_page' => $limit,
+            'current_page' => $currentPage,
+            'total_pages' => ceil($totalItems / $limit),
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'products' => $products,
+            'pagination' => $pagination,
+            'cartProductIds' => $cartProductIds,
+            'isAdmin' => $isAdmin
+        ]);
+    }
 }

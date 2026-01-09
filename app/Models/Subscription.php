@@ -65,7 +65,8 @@ class Subscription extends Model
                 s.*,
                 p.plan_name,
                 p.price,
-                p.billing_cycle
+                p.billing_cycle,
+                p.discount_percent
             FROM subscriptions s
             JOIN subscription_plans p ON p.id = s.plan_id
             WHERE s.user_id = ?
@@ -141,14 +142,120 @@ class Subscription extends Model
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
- public function cancelByUser(int $userId)
-{
-    $stmt = $this->db->prepare(
-        "UPDATE subscriptions 
-         SET status = 'cancelled'
-         WHERE user_id = ? AND status = 'active'"
-    );
-    $stmt->bind_param("i", $userId);
-    return $stmt->execute();
-}
+    public function cancelByUser(int $userId)
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE subscriptions 
+             SET status = 'cancelled'
+             WHERE user_id = ? AND status = 'active'"
+        );
+        $stmt->bind_param("i", $userId);
+        return $stmt->execute();
+    }
+
+    /**
+     * Update subscriptions to 'expired' status when end_date has passed
+     */
+    public function updateExpiredSubscriptions(): void
+    {
+        $this->db->query("
+            UPDATE subscriptions 
+            SET status = 'expired' 
+            WHERE status = 'active' 
+              AND end_date < CURDATE()
+        ");
+    }
+
+    /**
+     * Get user's most recent expired subscription
+     */
+    public function getExpiredSubscription(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                s.*,
+                p.plan_name,
+                p.price,
+                p.billing_cycle
+            FROM subscriptions s
+            JOIN subscription_plans p ON p.id = s.plan_id
+            WHERE s.user_id = ?
+              AND s.status = 'expired'
+            ORDER BY s.end_date DESC
+            LIMIT 1
+        ");
+
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        return $result->num_rows
+            ? $result->fetch_assoc()
+            : null;
+    }
+
+    /**
+     * Get filtered subscriptions for admin with pagination support
+     */
+    public function getFilteredSubscriptions(array $filters = []): array
+    {
+        $sql = "
+            SELECT 
+                s.*,
+                u.name as user_name,
+                u.email as user_email,
+                p.plan_name,
+                p.price,
+                p.billing_cycle,
+                COALESCE(i.status, 'unpaid') as payment_status
+            FROM subscriptions s
+            JOIN users u ON u.id = s.user_id
+            JOIN subscription_plans p ON p.id = s.plan_id
+            LEFT JOIN invoices i ON i.client_id = s.user_id 
+                AND i.invoice_number LIKE 'SUB-%'
+                AND DATE(i.invoice_date) = DATE(s.start_date)
+            WHERE 1=1
+        ";
+
+        $params = [];
+        $types = "";
+
+        if (!empty($filters['email'])) {
+            $sql .= " AND u.email LIKE ?";
+            $params[] = "%" . $filters['email'] . "%";
+            $types .= "s";
+        }
+
+        if (!empty($filters['plan_id'])) {
+            $sql .= " AND s.plan_id = ?";
+            $params[] = $filters['plan_id'];
+            $types .= "i";
+        }
+
+        if (!empty($filters['billing_cycle'])) {
+            $sql .= " AND p.billing_cycle = ?";
+            $params[] = $filters['billing_cycle'];
+            $types .= "s";
+        }
+
+        if (!empty($filters['status'])) {
+            $sql .= " AND s.status = ?";
+            $params[] = $filters['status'];
+            $types .= "s";
+        }
+
+        $sql .= " ORDER BY s.created_at DESC";
+
+        if (!empty($params)) {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param($types, ...$params);
+            $stmt->execute();
+            $result = $stmt->get_result();
+        } else {
+            $result = $this->db->query($sql);
+        }
+
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
 }

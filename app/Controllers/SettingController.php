@@ -60,13 +60,13 @@ class SettingController
             $companyModel = new Company();
 
             $companyModel->save([
-                'user_id'      => Session::get('user_id'),
-                'company_name' => $_POST['company_name'],
-                'email'        => $_POST['email'],
-                'phone'        => $_POST['phone'],
-                'address'      => $_POST['address'],
-                'tax_number'   => $_POST['tax_number'] ?? '',
-                'logo'         => $logoName
+                'user_id'=> Session::get('user_id'),
+                'company_name'=> $_POST['company_name'],
+                'email'=> $_POST['email'],
+                'phone'=> $_POST['phone'],
+                'address'=> $_POST['address'],
+                'tax_number'=> $_POST['tax_number'] ?? '',
+                'logo'=> $logoName
             ]);
 
             Session::set('success', 'Company details saved');

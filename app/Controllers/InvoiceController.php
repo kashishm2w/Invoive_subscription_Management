@@ -400,4 +400,168 @@ class InvoiceController
         header("Location: /invoice/show?id=" . $invoiceId);
         exit;
     }
+
+    /**
+     * AJAX: Fetch filtered invoices for admin
+     */
+    public function fetchFilteredInvoicesAdmin()
+    {
+        if (!Session::has('user_id') || Session::get('role') !== 'admin') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Update overdue statuses
+        $this->invoiceModel->updateOverdueStatuses();
+
+        $filters = [
+            'invoice_number' => $_GET['invoice_number'] ?? '',
+            'email' => $_GET['email'] ?? '',
+            'status' => $_GET['status'] ?? '',
+        ];
+
+        $currentPage = (int)($_GET['page'] ?? 1);
+        $limit = 10;
+        $offset = ($currentPage - 1) * $limit;
+
+        $allInvoices = $this->invoiceModel->getFilteredInvoices($filters);
+        $totalItems = count($allInvoices);
+
+        $invoices = array_slice($allInvoices, $offset, $limit);
+
+        $pagination = [
+            'total' => $totalItems,
+            'per_page' => $limit,
+            'current_page' => $currentPage,
+            'total_pages' => ceil($totalItems / $limit),
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'invoices' => $invoices,
+            'pagination' => $pagination
+        ]);
+    }
+
+    /**
+     * Show payment page for invoice
+     */
+    public function showPaymentPage()
+    {
+        if (!Session::has('user_id')) {
+            header('Location: /login');
+            exit;
+        }
+
+        $invoiceId = (int)($_GET['id'] ?? 0);
+        if (!$invoiceId) {
+            Session::set('error', 'Invoice not found');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        $invoice = $this->invoiceModel->getById($invoiceId);
+
+        if (!$invoice) {
+            Session::set('error', 'Invoice not found');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        // Check if user owns this invoice
+        $userId = Session::get('user_id');
+        if ($invoice['created_by'] !== $userId && Session::get('role') !== 'admin') {
+            Session::set('error', 'Unauthorized');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        // Check if already paid
+        if (strtolower($invoice['status']) === 'paid') {
+            Session::set('error', 'This invoice is already paid');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        $items = $this->itemModel->getByInvoice($invoiceId);
+        $stripePublishableKey = \App\Helpers\StripeConfig::getPublishableKey();
+
+        require APP_ROOT . '/app/Views/invoice/invoice_payment.php';
+    }
+
+    /**
+     * Process invoice payment
+     */
+    public function processPayment()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        if (!Session::has('user_id')) {
+            header('Location: /login');
+            exit;
+        }
+
+        $invoiceId = (int)($_POST['invoice_id'] ?? 0);
+        $token = $_POST['stripeToken'] ?? null;
+
+        if (!$invoiceId || !$token) {
+            Session::set('error', 'Payment failed. Please try again.');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        $invoice = $this->invoiceModel->getById($invoiceId);
+
+        if (!$invoice) {
+            Session::set('error', 'Invoice not found');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        // Check ownership
+        $userId = Session::get('user_id');
+        if ($invoice['created_by'] !== $userId && Session::get('role') !== 'admin') {
+            Session::set('error', 'Unauthorized');
+            header('Location: /my_invoices');
+            exit;
+        }
+
+        // Initialize Stripe
+        \App\Helpers\StripeConfig::init();
+
+        try {
+            // Create Stripe charge
+            $charge = \Stripe\Charge::create([
+                'amount' => (int)($invoice['total_amount'] * 100), // Convert to paise
+                'currency' => 'inr',
+                'description' => 'Invoice Payment: ' . $invoice['invoice_number'],
+                'source' => $token,
+                'metadata' => [
+                    'user_id' => $userId,
+                    'invoice_id' => $invoiceId,
+                    'invoice_number' => $invoice['invoice_number']
+                ]
+            ]);
+
+            // Payment successful - update invoice status
+            $this->invoiceModel->updateStatus($invoiceId, 'Paid');
+
+            Session::set('success', 'Payment successful! Invoice has been marked as paid.');
+            header('Location: /my_invoices');
+            exit;
+
+        } catch (\Stripe\Exception\CardException $e) {
+            Session::set('error', 'Card declined: ' . $e->getMessage());
+            header('Location: /invoice/pay?id=' . $invoiceId);
+            exit;
+        } catch (\Exception $e) {
+            Session::set('error', 'Payment failed: ' . $e->getMessage());
+            header('Location: /invoice/pay?id=' . $invoiceId);
+            exit;
+        }
+    }
 }

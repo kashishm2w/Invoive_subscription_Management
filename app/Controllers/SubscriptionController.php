@@ -23,15 +23,25 @@ public function index()
 
     $currentSubscription = null;
     $cancelledSubscription = null;
+    $expiredSubscription = null;
 
     if (Session::has('user_id')) {
+        // Update expired subscriptions first
+        $this->subscriptionModel->updateExpiredSubscriptions();
+        
         $currentSubscription = $this->subscriptionModel
             ->getActiveSubscription(Session::get('user_id'));
         
-        // Only fetch cancelled subscription if there's no active one
+        // Only fetch cancelled/expired subscription if there's no active one
         if (!$currentSubscription) {
             $cancelledSubscription = $this->subscriptionModel
                 ->getCancelledSubscription(Session::get('user_id'));
+            
+            // Check for expired subscription if no cancelled one
+            if (!$cancelledSubscription) {
+                $expiredSubscription = $this->subscriptionModel
+                    ->getExpiredSubscription(Session::get('user_id'));
+            }
         }
     }
 
@@ -116,5 +126,49 @@ public function cancelSubscription()
 
         Session::set('success', 'Subscription cancelled successfully');
         header('Location: /subscriptions');
+    }
+
+    /**
+     * AJAX: Fetch filtered subscriptions for admin
+     */
+    public function fetchFilteredSubscriptions()
+    {
+        if (!Session::has('user_id') || Session::get('role') !== 'admin') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        // Update expired subscriptions
+        $this->subscriptionModel->updateExpiredSubscriptions();
+
+        $filters = [
+            'email' => $_GET['email'] ?? '',
+            'plan_id' => $_GET['plan_id'] ?? '',
+            'billing_cycle' => $_GET['billing_cycle'] ?? '',
+            'status' => $_GET['status'] ?? '',
+        ];
+
+        $currentPage = (int)($_GET['page'] ?? 1);
+        $limit = 10;
+        $offset = ($currentPage - 1) * $limit;
+
+        $allSubscriptions = $this->subscriptionModel->getFilteredSubscriptions($filters);
+        $totalItems = count($allSubscriptions);
+        
+        $subscriptions = array_slice($allSubscriptions, $offset, $limit);
+
+        $pagination = [
+            'total' => $totalItems,
+            'per_page' => $limit,
+            'current_page' => $currentPage,
+            'total_pages' => ceil($totalItems / $limit),
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode([
+            'subscriptions' => $subscriptions,
+            'pagination' => $pagination
+        ]);
     }
 }

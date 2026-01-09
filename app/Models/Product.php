@@ -98,4 +98,22 @@ class Product extends Model
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+
+    /**
+     * Search products by name
+     */
+    public function searchByName(string $search = ''): array
+    {
+        if (empty($search)) {
+            return $this->getAll();
+        }
+
+        $stmt = $this->db->prepare(
+            "SELECT * FROM products WHERE name LIKE ? ORDER BY id DESC"
+        );
+        $searchTerm = "%" . $search . "%";
+        $stmt->bind_param("s", $searchTerm);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
 }
