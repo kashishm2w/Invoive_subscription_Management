@@ -55,6 +55,10 @@
 
     <p>
         <strong>Date:</strong> <?= $invoice['invoice_date'] ?><br>
+        <strong>Subtotal:</strong> &#8377;<?= number_format($invoice['subtotal'], 2) ?><br>
+        <?php if (isset($invoice['discount']) && $invoice['discount'] > 0): ?>
+        <strong>Subscription Discount:</strong> <span style="color: #27ae60;">-&#8377;<?= number_format($invoice['discount'], 2) ?></span><br>
+        <?php endif; ?>
         <strong>Total:</strong> &#8377;<?= number_format($invoice['total_amount'], 2) ?>
     </p>
 

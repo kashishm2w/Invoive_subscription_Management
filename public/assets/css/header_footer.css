@@ -260,19 +260,17 @@ body {
 
 /*  Auth Buttons - Modern Pills  */
 .auth_btn {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
     padding: 10px 22px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
     color: #e2e8f0;
     transition: all 0.3s ease;
 }
 
 .auth_btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
     color: #fff;
 }
 
@@ -472,7 +470,7 @@ body {
     position: relative;
     background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
     color: #cbd5f5;
-    padding: 70px 0 40px;
+    padding: 20px 0 20px;
     overflow: hidden;
 }
 
@@ -508,15 +506,6 @@ body {
     padding-bottom: 12px;
 }
 
-.footer .footer__block h4::after {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40px;
-    height: 3px;
-    background: linear-gradient(90deg, #6366f1, #a78bfa);
-    border-radius: 2px;
-}
 
 .footer .footer__block p {
     font-size: 14px;

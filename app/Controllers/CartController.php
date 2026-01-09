@@ -29,6 +29,23 @@ class CartController
         }
         unset($item); // Break reference
 
+        // Check for subscription discount
+        $subscription = null;
+        $discountPercent = 0;
+        $discountAmount = 0;
+        $finalTotal = $totalAmount;
+
+        if (Session::has('user_id')) {
+            $subscriptionModel = new \App\Models\Subscription();
+            $subscription = $subscriptionModel->getActiveSubscription(Session::get('user_id'));
+            
+            if ($subscription && isset($subscription['discount_percent']) && $subscription['discount_percent'] > 0) {
+                $discountPercent = (float)$subscription['discount_percent'];
+                $discountAmount = $totalAmount * ($discountPercent / 100);
+                $finalTotal = $totalAmount - $discountAmount;
+            }
+        }
+
         require APP_ROOT . '/app/Views/cart/show.php';
     }
 
@@ -167,6 +184,26 @@ public function showPaymentPage()
         exit;
     }
 
+    // Calculate totals and subscription discount
+    $subtotal = 0;
+    foreach ($cart as $item) {
+        $subtotal += $item['price'] * $item['quantity'] + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
+    }
+
+    // Fetch subscription discount
+    $discountPercent = 0;
+    $discountAmount = 0;
+    $finalTotal = $subtotal;
+
+    $subscriptionModel = new \App\Models\Subscription();
+    $subscription = $subscriptionModel->getActiveSubscription(Session::get('user_id'));
+    
+    if ($subscription && isset($subscription['discount_percent']) && $subscription['discount_percent'] > 0) {
+        $discountPercent = (float)$subscription['discount_percent'];
+        $discountAmount = $subtotal * ($discountPercent / 100);
+        $finalTotal = $subtotal - $discountAmount;
+    }
+
     $stripePublishableKey = \App\Helpers\StripeConfig::getPublishableKey();
 
     require APP_ROOT . '/app/Views/cart/product_payment.php';
@@ -207,22 +244,38 @@ public function processPayment()
         $subtotal += $lineTotal;
         $taxAmount += $lineTax;
     }
-    $totalAmount = $subtotal + $taxAmount;
+    $totalBeforeDiscount = $subtotal + $taxAmount;
     $taxRate = $subtotal > 0 ? ($taxAmount / $subtotal) * 100 : 0;
+
+    // Apply subscription discount
+    $discountPercent = 0;
+    $discountAmount = 0;
+    $totalAmount = $totalBeforeDiscount;
+
+    $subscriptionModel = new \App\Models\Subscription();
+    $subscription = $subscriptionModel->getActiveSubscription(Session::get('user_id'));
+    
+    if ($subscription && isset($subscription['discount_percent']) && $subscription['discount_percent'] > 0) {
+        $discountPercent = (float)$subscription['discount_percent'];
+        $discountAmount = $totalBeforeDiscount * ($discountPercent / 100);
+        $totalAmount = $totalBeforeDiscount - $discountAmount;
+    }
 
     // Initialize Stripe
     \App\Helpers\StripeConfig::init();
 
     try {
-        // Create Stripe charge
+        // Create Stripe charge with discounted amount
         $charge = \Stripe\Charge::create([
             'amount' => (int)($totalAmount * 100), // Convert to paise
             'currency' => 'inr',
-            'description' => 'Product Purchase',
+            'description' => 'Product Purchase' . ($discountPercent > 0 ? ' (Subscription Discount: ' . $discountPercent . '%)' : ''),
             'source' => $token,
             'metadata' => [
                 'user_id' => Session::get('user_id'),
-                'type' => 'product_purchase'
+                'type' => 'product_purchase',
+                'discount_percent' => $discountPercent,
+                'original_amount' => $totalBeforeDiscount
             ]
         ]);
 
@@ -236,14 +289,14 @@ public function processPayment()
             'invoice_number' => 'INV-' . date('Ymd-His'),
             'invoice_date' => date('Y-m-d'),
             'due_date' => date('Y-m-d'),
-            'subtotal' => $subtotal,
+            'subtotal' => $subtotal + $taxAmount,
             'tax_type' => 'GST',
             'tax_rate' => round($taxRate, 2),
             'tax_amount' => $taxAmount,
-            'discount' => 0,
+            'discount' => $discountAmount,
             'total_amount' => $totalAmount,
             'status' => 'paid',
-            'notes' => 'Paid via Stripe | Transaction ID: ' . $charge->id
+            'notes' => 'Paid via Stripe | Transaction ID: ' . $charge->id . ($discountPercent > 0 ? ' | Subscription Discount: ' . $discountPercent . '%' : '')
         ]);
 
         // Add invoice items

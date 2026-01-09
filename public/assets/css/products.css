@@ -413,7 +413,7 @@ p {
 .modal-content {
     background: #fff;
     width: 550px;
-    margin: 5% auto;
+    margin: 10% auto;
     padding: 25px 30px;
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
@@ -765,6 +765,82 @@ p {
 .payment-summary strong {
     color: #27ae60;
     font-size: 22px;
+}
+
+/* Payment Summary Rows */
+.payment-summary .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 15px;
+    color: #2c3e50;
+}
+
+.payment-summary .summary-row.discount {
+    color: #e74c3c;
+}
+
+.payment-summary .summary-row.discount .discount-value {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.payment-summary .summary-row.total {
+    border-top: 2px solid #dee2e6;
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 18px;
+}
+
+.payment-summary .summary-row.total strong {
+    color: #27ae60;
+}
+
+/* Cart Totals Section */
+.cart-totals {
+    width: 90%;
+    margin: 20px auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 10px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e9ecef;
+}
+
+.cart-totals .totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 15px;
+    color: #2c3e50;
+}
+
+.cart-totals .subtotal-row {
+    color: #555;
+}
+
+.cart-totals .discount-row {
+    color: #27ae60;
+    background: #f0fff4;
+    margin: 5px -15px;
+    padding: 10px 15px;
+    border-radius: 6px;
+}
+
+.cart-totals .discount-row .discount-amount {
+    font-weight: 600;
+    color: #27ae60;
+}
+
+.cart-totals .final-total-row {
+    border-top: 2px solid #dee2e6;
+    margin-top: 10px;
+    padding-top: 15px;
+    font-size: 18px;
+}
+
+.cart-totals .final-total-row strong {
+    color: #27ae60;
 }
 
 .payment-options {

@@ -79,13 +79,19 @@ use App\Helpers\Session;
     <div class="invoice-totals">
         <table>
             <tr>
-                <td>Total Amount :</td>
+                <td>Subtotal :</td>
                 <td>&#8377;<?= number_format($invoice['subtotal'], 2) ?></td>
             </tr>
             <tr>
                 <td>Tax Amount :</td>
                 <td>+&#8377;<?= number_format($invoice['tax_amount'], 2) ?></td>
             </tr>
+            <?php if (isset($invoice['discount']) && $invoice['discount'] > 0): ?>
+            <tr class="discount-row">
+                <td>Subscription Discount :</td>
+                <td style="color: #27ae60;">-&#8377;<?= number_format($invoice['discount'], 2) ?></td>
+            </tr>
+            <?php endif; ?>
             <tr class="grand-total">
                 <td>Total:</td>
                 <td>&#8377;<?= number_format($invoice['total_amount'], 2) ?></td>

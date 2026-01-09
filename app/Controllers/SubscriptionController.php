@@ -146,8 +146,6 @@ public function cancelSubscription()
             'email' => $_GET['email'] ?? '',
             'plan_id' => $_GET['plan_id'] ?? '',
             'billing_cycle' => $_GET['billing_cycle'] ?? '',
-            'start_date' => $_GET['start_date'] ?? '',
-            'end_date' => $_GET['end_date'] ?? '',
             'status' => $_GET['status'] ?? '',
         ];
 

@@ -65,7 +65,8 @@ class Subscription extends Model
                 s.*,
                 p.plan_name,
                 p.price,
-                p.billing_cycle
+                p.billing_cycle,
+                p.discount_percent
             FROM subscriptions s
             JOIN subscription_plans p ON p.id = s.plan_id
             WHERE s.user_id = ?

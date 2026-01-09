@@ -3,10 +3,11 @@
     --border-color: #2d2d44;
     --success: #22c55e;
 }
+
 /* Main container */
 .payment-container {
     min-height: 100vh;
-     background: linear-gradient(135deg, #f5f7fa, #dfefff);
+    background: linear-gradient(135deg, #f5f7fa, #dfefff);
     padding: 40px 20px;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -49,21 +50,24 @@
     color: #94a3b8;
     font-size: 14px;
 }
-.invoice-info{
+
+.invoice-info {
     color: #ffffff;
 }
-.items-section
-{
+
+.items-section {
     color: #ffffff;
 
 }
-.item-qty{
+
+.item-qty {
     color: #ffffff;
 
 }
+
 /* Credit Card Display */
 .card-display {
-    background:  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 20px;
     padding: 28px;
     margin-bottom: 28px;
@@ -194,8 +198,7 @@
 .item-icon {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #8b5cf6
-, #06b6d4);
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -220,6 +223,37 @@
     font-size: 15px;
 }
 
+.order-subtotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    color: #ebebeb;
+    font-size: 14px;
+    border-top: 1px solid #2d2d44;
+    margin-top: 10px;
+}
+
+.order-discount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(34, 197, 94, 0.1);
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.order-discount span {
+    color: #22c55e;
+    font-size: 14px;
+}
+
+.order-discount .discount-value {
+    color: #22c55e;
+    font-weight: 600;
+}
+
 .order-total {
     display: flex;
     justify-content: space-between;
@@ -235,8 +269,7 @@
 }
 
 .order-total strong {
-    color: #8b5cf6
-;
+    color: #8b5cf6;
     font-size: 24px;
     font-weight: 700;
 }
@@ -259,7 +292,7 @@
 }
 
 #card-element {
-    background:  #000000d0;
+    background: #000000d0;
     padding: 18px;
     border-radius: 12px;
     border: 1px solid #2d2d44;
@@ -267,13 +300,12 @@
 }
 
 #card-element:focus-within {
-    border-color: #8b5cf6
-;
+    border-color: #8b5cf6;
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
 #card-errors {
-    color:  #ef4444;
+    color: #ef4444;
     font-size: 13px;
     margin-top: 10px;
     font-weight: 500;
@@ -285,7 +317,7 @@
     padding: 18px 24px;
     border-radius: 14px;
     border: none;
-    background:  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #ffffff;
     font-size: 17px;
     font-weight: 600;
@@ -319,6 +351,7 @@
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
+
 .plan-description {
     color: whitesmoke;
     font-size: 13px;

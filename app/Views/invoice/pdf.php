@@ -100,6 +100,12 @@
         <td class="right">GST (<?= $invoice['tax_rate'] ?>%)</td>
         <td class="right">&#8377;<?= number_format($invoice['tax_amount'], 2) ?></td>
     </tr>
+    <?php if (isset($invoice['discount']) && $invoice['discount'] > 0): ?>
+    <tr>
+        <td class="right">Subscription Discount</td>
+        <td class="right" style="color: green;">-&#8377;<?= number_format($invoice['discount'], 2) ?></td>
+    </tr>
+    <?php endif; ?>
     <tr>
         <td class="right"><strong>Grand Total</strong></td>
         <td class="right"><strong>&#8377;<?= number_format($invoice['total_amount'], 2) ?></strong></td>
