@@ -29,8 +29,9 @@
             </div>
             <div class="stat-info">
                 <h3>Paid</h3>
-                <p class="stat-value">&#36;<?= number_format($stats['paid_amount'] ?? 0, 2) ?></p>
-                <span class="stat-count"><?= $stats['paid_count'] ?? 0 ?> invoices</span>
+                <p class="stat-value">&#36;<?= number_format($stats['total_received'] ?? 0, 2) ?></p>
+                                <span class="stat-count"><?= $stats['paid_count'] ?? 0 ?> invoices</span>
+
             </div>
         </div>
         <!-- Unpaid Card -->
@@ -43,11 +44,14 @@
                 </svg>
             </div>
             <div class="stat-info">
-                <h3>Unpaid</h3>
-                <p class="stat-value">&#36;<?= number_format($stats['unpaid_amount'] ?? 0, 2) ?></p>
-                <span class="stat-count"><?= $stats['unpaid_count'] ?? 0 ?> invoices</span>
+                <h3>Unpaid </h3>
+                <p class="stat-value">&#36;<?= number_format($stats['total_outstanding'] ?? 0, 2) ?></p>
+                                <span class="stat-count"><?= $stats['unpaid_count'] ?? 0 ?> invoices</span>
+
+                
             </div>
         </div>
+        
 
     </div>
     <!-- Chart Section -->
@@ -159,11 +163,11 @@
     const invoicePieChart = new Chart(pieCtx, {
         type: 'pie',
         data: {
-            labels: ['Paid', 'Unpaid'],
+            labels: ['Total Received (Paid + Partial)', 'Total Outstanding (Unpaid + Partial)'],
             datasets: [{
                 data: [
-                    <?= $stats['paid_amount'] ?? 0 ?>,
-                    <?= $stats['unpaid_amount'] ?? 0 ?>,
+                    <?= $stats['total_received'] ?? 0 ?>,
+                    <?= $stats['total_outstanding'] ?? 0 ?>,
                 ],
                 backgroundColor: [
                     'rgba(39, 174, 96, 0.85)',
@@ -181,7 +185,7 @@
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return context.label + ':' + context.raw.toLocaleString();
+                            return context.label + ': $' + context.raw.toLocaleString();
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Helpers\Session;
@@ -17,8 +18,7 @@ class SubscriptionPlanController
         }
 
         $this->planModel = new SubscriptionPlan();
-                $this->subscriptionModel = new Subscription();
-
+        $this->subscriptionModel = new Subscription();
     }
 
     // List all plans (for admin)
@@ -41,24 +41,65 @@ class SubscriptionPlanController
     // Save plan (add or edit)
     public function save()
     {
-        $id = $_POST['plan_id'] ?? null;
-        $planName = trim($_POST['plan_name'] ?? '');
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
         
-        // Validate plan name is not empty
-        if (empty($planName)) {
-            Session::set('error', 'Plan name is required');
+        $id = $_POST['plan_id'] ?? null;
+        // Trim inputs
+        $planName = trim($_POST['plan_name'] ?? '');
+        $price = trim($_POST['price'] ?? '');
+        $billingCycle = trim($_POST['billing_cycle'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $discount = trim($_POST['discount_percent'] ?? '');
+
+        // Helper function for error response
+        $sendError = function($message) use ($isAjax) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => $message]);
+                exit;
+            }
+            Session::set('error', $message);
             header('Location: /subscriptions');
             exit;
+        };
+
+        //  validation
+        if (empty($planName)) {
+            $sendError('Plan name is required');
+        }
+
+        if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9\s\-()]{2,100}$/', $planName)) {
+            $sendError('Plan name contains invalid characters');
+        }
+
+        // Price must be positive number
+        if (!is_numeric($price) || $price <= 0) {
+            $sendError('Price must be a valid number greater than 0');
+        }
+
+        // Billing cycle allow only fixed values
+        $allowedCycles = ['monthly', 'yearly'];
+        if (!in_array($billingCycle, $allowedCycles, true)) {
+            $sendError('Invalid billing cycle selected');
+        }
+
+        // Discount 0–100
+        if ($discount !== '' && (!is_numeric($discount) || $discount < 0 || $discount > 100)) {
+            $sendError('Discount must be between 0 and 100');
+        }
+
+        // Description length 
+        if (!empty($description) && strlen($description) > 500) {
+            $sendError('Description must be less than 500 characters');
         }
         
         // Check for duplicate plan name
         $excludeId = $id ? (int)$id : null;
         if ($this->planModel->existsByName($planName, $excludeId)) {
-            Session::set('error', 'A plan with the name "' . htmlspecialchars($planName) . '" already exists. Please choose a different name.');
-            header('Location: /subscriptions');
-            exit;
+            $sendError('A plan with the name "' . htmlspecialchars($planName) . '" already exists. Please choose a different name.');
         }
-        
+
         $data = [
             'plan_name' => $planName,
             'price' => $_POST['price'],
@@ -67,14 +108,21 @@ class SubscriptionPlanController
             'discount_percent' => $_POST['discount_percent']
         ];
 
+        $successMessage = $id ? 'Plan updated successfully!' : 'Plan added successfully!';
+        
         if ($id) {
             $this->planModel->update($id, $data);
-            Session::set('success', 'Plan updated successfully!');
         } else {
             $this->planModel->create($data);
-            Session::set('success', 'Plan added successfully!');
         }
 
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => $successMessage]);
+            exit;
+        }
+
+        Session::set('success', $successMessage);
         header('Location: /subscriptions');
         exit;
     }

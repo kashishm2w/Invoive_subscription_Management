@@ -329,8 +329,8 @@ class ProductController
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
                 $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
             }
-            if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
-                $errors[] = "Description must be 10-1000 characters";
+            if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,3000}$/s', $description)) {
+                $errors[] = "Description must be 10-3000 characters";
             }
             if (!preg_match('/^\d+(\.\d{1,2})?$/', $price) || $price <= 0) {
                 $errors[] = "Price must be a valid number with up to 2 decimal places.";
@@ -416,10 +416,37 @@ class ProductController
     public function deleteProduct()
     {
         $this->checkAdmin();
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        
         $id = $_GET['id'] ?? null;
-        if ($id) {
-            $this->productModel->delete($id);
+        
+        if (!$id) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Product ID is required']);
+                exit;
+            }
+            header("Location:/products");
+            exit;
         }
+        
+        try {
+            $this->productModel->delete($id);
+            
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => 'Product deleted successfully!']);
+                exit;
+            }
+        } catch (\Exception $e) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Failed to delete product']);
+                exit;
+            }
+        }
+        
         header("Location:/products");
         exit;
     }

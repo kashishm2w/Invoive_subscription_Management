@@ -120,6 +120,15 @@
     color: #f39c12;
 }
 
+.stat-card.partial .stat-icon {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    color: #fff;
+}
+
+.stat-card.partial .stat-value {
+    color: #e67e22;
+}
+
 /* Chart Section */
 .charts-row {
     display: flex;

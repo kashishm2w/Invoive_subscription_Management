@@ -65,9 +65,13 @@ class AddressController
                 $errors[$field] = ucfirst(str_replace('_', ' ', $field)) . ' is required';
             }
         }
-        if (!empty($_POST['full_name']) && !preg_match('/^[a-zA-Z]{2,100}$/', $_POST['full_name'])) {
+        if (
+            !empty($_POST['full_name']) &&
+            !preg_match('/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/', $_POST['full_name'])
+        ) {
             $errors['full_name'] = 'Invalid Name';
         }
+
         // Validate phone number (10 digits)
         if (!empty($_POST['phone']) && !preg_match('/^[0-9]{10}$/', $_POST['phone'])) {
             $errors['phone'] = 'Phone must be 10 digits';

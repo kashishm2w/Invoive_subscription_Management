@@ -129,13 +129,19 @@ class Subscription extends Model
                 p.plan_name,
                 p.price,
                 p.billing_cycle,
-                COALESCE(i.status, 'unpaid') as payment_status
+                COALESCE(
+                    (SELECT i.status 
+                     FROM invoices i 
+                     WHERE i.client_id = s.user_id 
+                       AND i.invoice_number LIKE 'SUB-%'
+                       AND DATE(i.invoice_date) = DATE(s.start_date)
+                     ORDER BY i.id DESC
+                     LIMIT 1), 
+                    'unpaid'
+                ) as payment_status
             FROM subscriptions s
             JOIN users u ON u.id = s.user_id
             JOIN subscription_plans p ON p.id = s.plan_id
-            LEFT JOIN invoices i ON i.client_id = s.user_id 
-                AND i.invoice_number LIKE 'SUB-%'
-                AND DATE(i.invoice_date) = DATE(s.start_date)
             ORDER BY s.created_at DESC
         ");
 
@@ -208,13 +214,19 @@ class Subscription extends Model
                 p.plan_name,
                 p.price,
                 p.billing_cycle,
-                COALESCE(i.status, 'unpaid') as payment_status
+                COALESCE(
+                    (SELECT i.status 
+                     FROM invoices i 
+                     WHERE i.client_id = s.user_id 
+                       AND i.invoice_number LIKE 'SUB-%'
+                       AND DATE(i.invoice_date) = DATE(s.start_date)
+                     ORDER BY i.id DESC
+                     LIMIT 1), 
+                    'unpaid'
+                ) as payment_status
             FROM subscriptions s
             JOIN users u ON u.id = s.user_id
             JOIN subscription_plans p ON p.id = s.plan_id
-            LEFT JOIN invoices i ON i.client_id = s.user_id 
-                AND i.invoice_number LIKE 'SUB-%'
-                AND DATE(i.invoice_date) = DATE(s.start_date)
             WHERE 1=1
         ";
 

@@ -338,13 +338,21 @@ class InvoiceController
         require APP_ROOT . '/app/Views/invoice/pdf.php';
         $html = ob_get_clean();
 
+        // Load CSS content for mPDF (mPDF cannot resolve relative CSS URLs)
+        $cssPath = APP_ROOT . '/public/assets/css/email_pdf.css';
+        $cssContent = file_exists($cssPath) ? file_get_contents($cssPath) : '';
+
         $mpdf = new Mpdf([
             'format' => 'A4',
             'margin_top' => 15,
             'margin_bottom' => 20,
         ]);
 
-        $mpdf->WriteHTML($html);
+        // Write CSS first, then HTML content
+        if ($cssContent) {
+            $mpdf->WriteHTML('<style>' . $cssContent . '</style>', \Mpdf\HTMLParserMode::HEADER_CSS);
+        }
+        $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
         $mpdf->Output(
             'Invoice-' . $invoice['invoice_number'] . '.pdf',
             'D'
