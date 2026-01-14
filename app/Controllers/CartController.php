@@ -261,21 +261,33 @@ public function processPayment()
         $totalAmount = $totalBeforeDiscount - $discountAmount;
     }
 
+    // Get payment amount (for partial payments)
+    $paymentAmount = (float)($_POST['payment_amount'] ?? $totalAmount);
+    if ($paymentAmount <= 0) {
+        $paymentAmount = $totalAmount;
+    }
+    if ($paymentAmount > $totalAmount) {
+        $paymentAmount = $totalAmount;
+    }
+
+    $isPartialPayment = $paymentAmount < $totalAmount;
+
     // Initialize Stripe
     \App\Helpers\StripeConfig::init();
 
     try {
-        // Create Stripe charge with discounted amount
+        // Create Stripe charge with the payment amount
         $charge = \Stripe\Charge::create([
-            'amount' => (int)($totalAmount * 100), // Convert to paise
-            'currency' => 'inr',
-            'description' => 'Product Purchase' . ($discountPercent > 0 ? ' (Subscription Discount: ' . $discountPercent . '%)' : ''),
+            'amount' => (int)($paymentAmount * 100), // Convert to paise
+            'currency' =>'usd',
+            'description' => 'Product Purchase' . ($isPartialPayment ? ' (Partial Payment)' : '') . ($discountPercent > 0 ? ' (Subscription Discount: ' . $discountPercent . '%)' : ''),
             'source' => $token,
             'metadata' => [
                 'user_id' => Session::get('user_id'),
                 'type' => 'product_purchase',
                 'discount_percent' => $discountPercent,
-                'original_amount' => $totalBeforeDiscount
+                'original_amount' => $totalAmount,
+                'payment_type' => $isPartialPayment ? 'partial' : 'full'
             ]
         ]);
 
@@ -283,20 +295,24 @@ public function processPayment()
         $invoiceModel = new \App\Models\Invoice();
         $itemModel = new \App\Models\InvoiceItem();
 
+        // Determine invoice status
+        $invoiceStatus = $isPartialPayment ? 'Partial' : 'Paid';
+        $dueDate = $isPartialPayment ? date('Y-m-d', strtotime('+7 days')) : date('Y-m-d');
+
         $invoiceId = $invoiceModel->create([
             'created_by' => Session::get('user_id'),
             'client_id' => Session::get('user_id'),
             'invoice_number' => 'INV-' . date('Ymd-His'),
             'invoice_date' => date('Y-m-d'),
-            'due_date' => date('Y-m-d'),
+            'due_date' => $dueDate,
             'subtotal' => $subtotal + $taxAmount,
             'tax_type' => 'GST',
             'tax_rate' => round($taxRate, 2),
             'tax_amount' => $taxAmount,
             'discount' => $discountAmount,
             'total_amount' => $totalAmount,
-            'status' => 'paid',
-            'notes' => 'Paid via Stripe | Transaction ID: ' . $charge->id . ($discountPercent > 0 ? ' | Subscription Discount: ' . $discountPercent . '%' : '')
+            'status' => $invoiceStatus,
+            'notes' => ($isPartialPayment ? 'Partial payment' : 'Paid') . ' via Stripe | Transaction ID: ' . $charge->id . ($discountPercent > 0 ? ' | Subscription Discount: ' . $discountPercent . '%' : '')
         ]);
 
         // Add invoice items
@@ -309,14 +325,34 @@ public function processPayment()
             ]);
         }
 
+        // Record payment in payments table
+        $paymentModel = new \App\Models\Payment();
+        $paymentModel->create([
+            'invoice_id' => $invoiceId,
+            'user_id' => Session::get('user_id'),
+            'amount' => $paymentAmount,
+            'payment_method' => 'stripe',
+            'transaction_id' => $charge->id,
+            'status' => 'completed',
+            'notes' => $isPartialPayment ? 'Partial payment via Stripe' : 'Full payment via Stripe'
+        ]);
+
+        // Update invoice amount_paid
+        $invoiceModel->updateAmountPaid($invoiceId, $paymentAmount);
+
         // Send invoice email to user
         \App\Helpers\Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
 
         // Clear cart
         Session::remove('cart');
 
-        Session::set('success', 'Payment successful! Your order has been placed.');
-        header("Location: /invoice/show?id=" . $invoiceId);
+        if ($isPartialPayment) {
+            $remainingAmount = $totalAmount - $paymentAmount;
+            Session::set('success', 'Partial payment of ₹' . number_format($paymentAmount, 2) . ' successful! Remaining ₹' . number_format($remainingAmount, 2) . ' is due on the invoice.');
+        } else {
+            Session::set('success', 'Payment successful! Your order has been placed.');
+        }
+        header("Location: /");
         exit;
 
     } catch (\Stripe\Exception\CardException $e) {

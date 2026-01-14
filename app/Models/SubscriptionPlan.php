@@ -58,6 +58,29 @@ class SubscriptionPlan extends Model
         $result = $stmt->get_result()->fetch_assoc();
         return $result['count'] > 0;
     }
+
+    /**
+     * Check if a plan with the given name already exists
+     * @param string $name Plan name to check
+     * @param int|null $excludeId Optional ID to exclude (for updates)
+     * @return bool True if a plan with this name exists
+     */
+    public function existsByName(string $name, ?int $excludeId = null): bool
+    {
+        $name = strtolower(trim($name));
+        
+        if ($excludeId) {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM subscription_plans WHERE LOWER(TRIM(plan_name)) = ? AND id != ?");
+            $stmt->bind_param("si", $name, $excludeId);
+        } else {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM subscription_plans WHERE LOWER(TRIM(plan_name)) = ?");
+            $stmt->bind_param("s", $name);
+        }
+        
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        return $result['count'] > 0;
+    }
     
 
 }

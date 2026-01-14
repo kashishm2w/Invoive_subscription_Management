@@ -18,7 +18,7 @@
     $tax   = (float)$product['tax_percent'];
     $total = $price + ($price * $tax / 100);
     ?>
-    <p><strong></strong> &#8377;<?= number_format($total, 2) ?></p>
+    <p><strong></strong> &#36;<?= number_format($total, 2) ?></p>
 
     <?php if (\App\Helpers\Session::get('role') !== 'admin'): ?>
         <div style="margin-top:15px;">

@@ -26,7 +26,7 @@
             <tr>
                 <td><?= $plan['id'] ?></td>
                 <td><?= htmlspecialchars($plan['plan_name']) ?></td>
-                <td>&#8377;<?= $plan['price'] ?></td>
+                <td>&#36;<?= $plan['price'] ?></td>
                 <td><?= ucfirst($plan['billing_cycle']) ?></td>
                 <td><?= htmlspecialchars($plan['description']) ?></td>
                 <td><?= $plan['discount_percent'] ?>%</td>

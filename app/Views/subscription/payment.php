@@ -44,7 +44,7 @@ use App\Helpers\Session;
                         <div class="item-qty"><?= ucfirst($plan['billing_cycle']) ?> Billing</div>
                     </div>
                 </div>
-                <div class="item-price">&#8377;<?= number_format($plan['price'], 2) ?></div>
+                <div class="item-price">&#36;<?= number_format($plan['price'], 2) ?></div>
             </div>
             
             <?php if (!empty($plan['description'])): ?>
@@ -55,7 +55,7 @@ use App\Helpers\Session;
             
             <div class="order-total">
                 <span>Total Amount</span>
-                <strong>&#8377;<?= number_format($plan['price'], 2) ?></strong>
+                <strong>&#36;<?= number_format($plan['price'], 2) ?></strong>
             </div>
         </div>
 
@@ -72,7 +72,7 @@ use App\Helpers\Session;
             
             <button type="submit" class="pay-btn" id="submit-btn">
                 <span class="loading-spinner" id="spinner"></span>
-                <span id="btn-text">Pay &#8377;<?= number_format($plan['price'], 2) ?></span>
+                <span id="btn-text">Pay &#36;<?= number_format($plan['price'], 2) ?></span>
             </button>
         </form>
         
@@ -125,7 +125,7 @@ form.addEventListener('submit', function(event) {
             document.getElementById('card-errors').textContent = result.error.message;
             submitBtn.disabled = false;
             spinner.style.display = 'none';
-            btnText.textContent = 'Pay &#8377;<?= number_format($plan['price'], 2) ?>';
+            btnText.textContent = 'Pay &#36;<?= number_format($plan['price'], 2) ?>';
         } else {
             var hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';

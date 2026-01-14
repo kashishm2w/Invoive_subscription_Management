@@ -42,8 +42,25 @@ class SubscriptionPlanController
     public function save()
     {
         $id = $_POST['plan_id'] ?? null;
+        $planName = trim($_POST['plan_name'] ?? '');
+        
+        // Validate plan name is not empty
+        if (empty($planName)) {
+            Session::set('error', 'Plan name is required');
+            header('Location: /subscriptions');
+            exit;
+        }
+        
+        // Check for duplicate plan name
+        $excludeId = $id ? (int)$id : null;
+        if ($this->planModel->existsByName($planName, $excludeId)) {
+            Session::set('error', 'A plan with the name "' . htmlspecialchars($planName) . '" already exists. Please choose a different name.');
+            header('Location: /subscriptions');
+            exit;
+        }
+        
         $data = [
-            'plan_name' => $_POST['plan_name'],
+            'plan_name' => $planName,
             'price' => $_POST['price'],
             'billing_cycle' => $_POST['billing_cycle'],
             'description' => $_POST['description'],

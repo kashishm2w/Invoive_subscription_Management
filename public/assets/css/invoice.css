@@ -237,9 +237,25 @@
     color: #991b1b;
 }
 
+.status.partial {
+    background-color: #fef7e2;
+    color: #c7991c;
+}
+
 .status.cancelled {
     background-color: #e5e7eb;
     color: #374151;
+}
+
+/* Due Amount styling */
+.due-amount {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
 /*  Invoice From / To Grid  */

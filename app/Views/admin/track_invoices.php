@@ -24,6 +24,7 @@
                     <option value="paid">Paid</option>
                     <option value="unpaid">Unpaid</option>
                     <option value="overdue">Overdue</option>
+                    <option value="partial">Partial</option>
                 </select>
             </div>
             <button type="button" id="clear_filters" class="btn-clear">Clear</button>
@@ -52,7 +53,7 @@
                         <td><?= htmlspecialchars($invoice['user_email'] ?? '-') ?></td>
                         <td><?= date('d M Y', strtotime($invoice['invoice_date'])) ?></td>
                         <td><?= date('d M Y', strtotime($invoice['due_date'])) ?></td>
-                        <td>&#8377;<?= number_format($invoice['total_amount'], 2) ?></td>
+                        <td>&#36;<?= number_format($invoice['total_amount'], 2) ?></td>
                         <td><span class="status <?= strtolower($invoice['status']) ?>"><?= ucfirst($invoice['status']) ?></span></td>
                         <td>
                             <a href="/invoice/show?id=<?= $invoice['id'] ?>" class="btn-view">View</a>

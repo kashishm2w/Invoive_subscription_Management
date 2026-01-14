@@ -8,6 +8,7 @@ use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Payment;
 
 class PaymentController
 {
@@ -100,8 +101,8 @@ class PaymentController
         try {
             // Create Stripe charge
             $charge = \Stripe\Charge::create([
-                'amount' => (int)($plan['price'] * 100), // Convert to paise
-                'currency' => 'inr',
+                'amount' => (int) round($plan['price'] * 100),
+                'currency' => 'usd',
                 'description' => 'Subscription: ' . $plan['plan_name'],
                 'source' => $token,
                 'metadata' => [
@@ -114,7 +115,7 @@ class PaymentController
             // Payment successful - activate subscription
             $userId = Session::get('user_id');
             $start = date('Y-m-d');
-            
+
             // Calculate end date based on billing cycle
             $billingCycle = strtolower($plan['billing_cycle']);
             if ($billingCycle === 'yearly') {
@@ -122,7 +123,7 @@ class PaymentController
             } elseif ($billingCycle === 'weekly') {
                 $end = date('Y-m-d', strtotime('+1 week'));
             } else {
-                $end = date('Y-m-d', strtotime('+1 day'));
+                $end = date('Y-m-d', strtotime('+1 month'));
             }
 
             // Create subscription
@@ -149,10 +150,21 @@ class PaymentController
                 exit;
             }
 
+            // Record payment in payments table
+            $paymentModel = new Payment();
+            $paymentModel->create([
+                'invoice_id' => $invoiceId,
+                'user_id' => $userId,
+                'amount' => $plan['price'],
+                'payment_method' => 'stripe',
+                'transaction_id' => $charge->id,
+                'status' => 'completed',
+                'notes' => 'Subscription Payment - ' . $plan['plan_name']
+            ]);
+
             Session::set('success', 'Payment successful! Your subscription is now active.');
             header('Location: /subscriptions');
             exit;
-
         } catch (\Stripe\Exception\CardException $e) {
             Session::set('error', 'Card declined: ' . $e->getMessage());
             header('Location: /subscriptions');
@@ -164,9 +176,7 @@ class PaymentController
         }
     }
 
-    /**
-     * Create invoice for subscription payment
-     */
+    /*   Create invoice for subscription payment */
     private function createSubscriptionInvoice($userId, $plan, $transactionId)
     {
         $invoiceModel = new Invoice();
@@ -189,9 +199,12 @@ class PaymentController
             'tax_amount' => $taxAmount,
             'discount' => 0,
             'total_amount' => $totalAmount,
-            'status' => 'paid',
+            'status' => 'Paid',
             'notes' => 'Subscription Payment - ' . $plan['plan_name'] . ' | Transaction ID: ' . $transactionId
         ]);
+
+        // Set amount_paid and due_amount for fully paid subscription
+        $invoiceModel->updatePaymentStatus($invoiceId, $totalAmount, 'Paid');
 
         // Add invoice item
         $itemModel->addItem($invoiceId, [

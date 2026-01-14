@@ -135,6 +135,14 @@ $router->get('/admin/subscriptions/filter', [SubscriptionController::class, 'fet
 $router->get('/invoice/pay', [InvoiceController::class, 'showPaymentPage']);
 $router->post('/invoice/pay/process', [InvoiceController::class, 'processPayment']);
 
+// Payment History
+require_once APP_ROOT . '/app/Controllers/PaymentHistoryController.php';
+use App\Controllers\PaymentHistoryController;
+$router->get('/payment-history', [PaymentHistoryController::class, 'index']);
+$router->get('/admin/payments', [PaymentHistoryController::class, 'adminIndex']);
+$router->get('/payment-history/ajax', [PaymentHistoryController::class, 'fetchPaymentsAjax']);
+$router->get('/admin/payments/ajax', [PaymentHistoryController::class, 'fetchPaymentsAdminAjax']);
+
 $router->dispatch();
 
 

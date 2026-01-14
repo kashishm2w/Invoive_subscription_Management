@@ -128,9 +128,6 @@ public function cancelSubscription()
         header('Location: /subscriptions');
     }
 
-    /**
-     * AJAX: Fetch filtered subscriptions for admin
-     */
     public function fetchFilteredSubscriptions()
     {
         if (!Session::has('user_id') || Session::get('role') !== 'admin') {

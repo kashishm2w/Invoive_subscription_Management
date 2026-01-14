@@ -1,0 +1,104 @@
+/* Base */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+/* Container */
+.email-container {
+    max-width: 700px;
+    margin: auto;
+    background: #ffffff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.company-info h2 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.company-info p {
+    margin: 3px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+/* Status badge */
+.status {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.paid    { background-color: #27ae60; }
+.partial { background-color: #f39c12; }
+.unpaid  { background-color: #e74c3c; }
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 13px;
+}
+
+th {
+    background: #f5f5f5;
+    font-weight: bold;
+}
+
+.right {
+    text-align: right;
+}
+
+/* Summary */
+.summary {
+    margin-top: 15px;
+    width: 100%;
+}
+
+.summary td {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+.summary .total {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Notes */
+.note {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #555;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+    margin-top: 30px;
+}

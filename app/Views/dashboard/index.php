@@ -11,11 +11,11 @@
         <div class="stat-card total">
             <div class="stat-icon">
 
-                <span style="font-size: 32px; font-weight: bold;">&#8377;</span>
+                <span style="font-size: 32px; font-weight: bold;">&#36;</span>
             </div>
             <div class="stat-info">
                 <h3>Total Amount</h3>
-                <p class="stat-value">&#8377;<?= number_format($stats['total_amount'] ?? 0, 2) ?></p>
+                <p class="stat-value">&#36;<?= number_format($stats['total_amount'] ?? 0, 2) ?></p>
                 <span class="stat-count"><?= $stats['total_invoices'] ?? 0 ?> invoices</span>
             </div>
         </div>
@@ -29,7 +29,7 @@
             </div>
             <div class="stat-info">
                 <h3>Paid</h3>
-                <p class="stat-value">&#8377;<?= number_format($stats['paid_amount'] ?? 0, 2) ?></p>
+                <p class="stat-value">&#36;<?= number_format($stats['paid_amount'] ?? 0, 2) ?></p>
                 <span class="stat-count"><?= $stats['paid_count'] ?? 0 ?> invoices</span>
             </div>
         </div>
@@ -44,7 +44,7 @@
             </div>
             <div class="stat-info">
                 <h3>Unpaid</h3>
-                <p class="stat-value">&#8377;<?= number_format($stats['unpaid_amount'] ?? 0, 2) ?></p>
+                <p class="stat-value">&#36;<?= number_format($stats['unpaid_amount'] ?? 0, 2) ?></p>
                 <span class="stat-count"><?= $stats['unpaid_count'] ?? 0 ?> invoices</span>
             </div>
         </div>

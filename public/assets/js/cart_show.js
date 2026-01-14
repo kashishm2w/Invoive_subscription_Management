@@ -49,7 +49,7 @@ function updateQty(productId, qty, inputElement) {
 
                 // Update item total display
                 const itemTotalCell = document.getElementById('item-total-' + productId);
-                itemTotalCell.innerHTML = '&#8377;' + itemTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                itemTotalCell.innerHTML = '&#36;' + itemTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
                 // Recalculate and update grand total
                 recalculateGrandTotal();
@@ -121,11 +121,11 @@ function recalculateGrandTotal() {
     const modalFinalTotal = document.querySelector('.payment-summary .summary-row.total span:last-child strong');
 
     if (modalSubtotal) {
-        modalSubtotal.innerHTML = '&#8377;' + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        modalSubtotal.innerHTML = '&#36;' + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     if (modalFinalTotal) {
-        modalFinalTotal.innerHTML = '&#8377;' + finalTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        modalFinalTotal.innerHTML = '&#36;' + finalTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 }
 
@@ -149,14 +149,48 @@ function removeItem(productId) {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Remove the row from the table without page refresh
+                        const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+                        if (row) {
+                            row.remove();
+                        }
+
+                        // Recalculate totals
+                        recalculateGrandTotal();
+
+                        // Check if cart is now empty
+                        const remainingRows = document.querySelectorAll('tbody tr[data-product-id]');
+                        if (remainingRows.length === 0) {
+                            // Cart is empty - show empty cart message
+                            const mainContent = document.querySelector('main') || document.body;
+                            const table = document.querySelector('table');
+                            const cartTotals = document.getElementById('cart-totals');
+                            const checkoutContainer = document.querySelector('.checkout-container');
+
+                            if (table) table.remove();
+                            if (cartTotals) cartTotals.remove();
+                            if (checkoutContainer) checkoutContainer.remove();
+
+                            // Add empty cart message
+                            const emptyMsg = document.createElement('div');
+                            emptyMsg.innerHTML = `
+                                <p>Your cart is empty.</p>
+                                <div class="blank-cart">
+                                    <img src="/uploads/blank-cart.png" alt="Empty cart">
+                                </div>
+                            `;
+                            const h2 = document.querySelector('h2');
+                            if (h2) {
+                                h2.insertAdjacentElement('afterend', emptyMsg);
+                            }
+                        }
+
                         Swal.fire({
                             title: 'Removed!',
                             text: 'Item has been removed from your cart.',
                             icon: 'success',
                             timer: 1500,
                             showConfirmButton: false
-                        }).then(() => {
-                            location.reload();
                         });
                     } else {
                         Swal.fire({
@@ -166,8 +200,13 @@ function removeItem(productId) {
                         });
                     }
                 })
-                .catch(() => {
-                    location.reload();
+                .catch((error) => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to remove item. Please try again.',
+                        icon: 'error'
+                    });
                 });
         }
     });

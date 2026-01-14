@@ -413,7 +413,7 @@ p {
 .modal-content {
     background: #fff;
     width: 550px;
-    margin: 10% auto;
+    margin: 70px auto;
     padding: 25px 30px;
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
@@ -821,7 +821,6 @@ p {
 
 .cart-totals .discount-row {
     color: #27ae60;
-    background: #f0fff4;
     margin: 5px -15px;
     padding: 10px 15px;
     border-radius: 6px;

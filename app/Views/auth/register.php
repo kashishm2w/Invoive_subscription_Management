@@ -13,7 +13,7 @@
     <?php endif; ?>
 
     <form method="POST" action="/register" class="register-form">
-        <input type="text" name="name" id="name" placeholder="Name" class="form-input">
+        <input type="text" name="name" id="name" placeholder="Name" maxlength="50"class="form-input">
         <input type="email" name="email" id="email" placeholder="Email" class="form-input">
         <input type="password" name="password" id="password" placeholder="Password" class="form-input">
         <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" class="form-input">

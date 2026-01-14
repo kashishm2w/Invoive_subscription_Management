@@ -1,92 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .box {
-            border: 1px solid #ddd;
-            padding: 20px;
-            max-width: 600px;
-        }
-        .company-header {
-            background: #f8f9fa;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .company-header h3 {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        .company-header p {
-            margin: 3px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-        th { background: #f5f5f5; }
-    </style>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="/assets/css/email_pdf.css">
 </head>
 <body>
 
-<div class="box">
-    <!-- Company Header -->
-    <div class="company-header">
-        <h3><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></h3>
-        <?php if (!empty($company['address'])): ?>
-            <p><?= htmlspecialchars($company['address']) ?></p>
-        <?php endif; ?>
-        <?php if (!empty($company['phone'])): ?>
-            <p>Phone: <?= htmlspecialchars($company['phone']) ?></p>
-        <?php endif; ?>
-        <?php if (!empty($company['tax_number'])): ?>
-            <p>GST: <?= htmlspecialchars($company['tax_number']) ?></p>
-        <?php endif; ?>
+<?php
+$amountPaid = $invoice['amount_paid'] ?? 0;
+$balanceDue = $invoice['total_amount'] - $amountPaid;
+$statusClass = strtolower($invoice['status']);
+?>
+
+<div class="invoice-container">
+
+    <!-- Header -->
+    <div class="header">
+        <div class="company-info">
+            <h2><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></h2>
+            <?php if(!empty($company['address'])): ?><p><?= htmlspecialchars($company['address']) ?></p><?php endif; ?>
+            <?php if(!empty($company['email'])): ?><p>Email: <?= htmlspecialchars($company['email']) ?></p><?php endif; ?>
+            <?php if(!empty($company['phone'])): ?><p>Phone: <?= htmlspecialchars($company['phone']) ?></p><?php endif; ?>
+            <?php if(!empty($company['tax_number'])): ?><p>GST: <?= htmlspecialchars($company['tax_number']) ?></p><?php endif; ?>
+        </div>
+        <div>
+            <span class="status <?= $statusClass ?>">
+                <?= ucfirst($invoice['status']) ?>
+            </span>
+        </div>
     </div>
 
-    <h2>Invoice <?= htmlspecialchars($invoice['invoice_number']) ?></h2>
+    <!-- Invoice Info -->
+    <div class="invoice-details">
+        <p><strong>Invoice No:</strong> <?= htmlspecialchars($invoice['invoice_number']) ?></p>
+        <p><strong>Invoice Date:</strong> <?= date('d M Y', strtotime($invoice['invoice_date'])) ?></p>
+        <p><strong>Due Date:</strong> <?= date('d M Y', strtotime($invoice['due_date'])) ?></p>
+    </div>
 
-    <p>
-        <strong>Date:</strong> <?= $invoice['invoice_date'] ?><br>
-        <strong>Subtotal:</strong> &#8377;<?= number_format($invoice['subtotal'], 2) ?><br>
-        <?php if (isset($invoice['discount']) && $invoice['discount'] > 0): ?>
-        <strong>Subscription Discount:</strong> <span style="color: #27ae60;">-&#8377;<?= number_format($invoice['discount'], 2) ?></span><br>
-        <?php endif; ?>
-        <strong>Total:</strong> &#8377;<?= number_format($invoice['total_amount'], 2) ?>
-    </p>
-
+    <!-- Items Table -->
     <table>
         <thead>
             <tr>
+                <th>#</th>
                 <th>Item</th>
                 <th>Qty</th>
                 <th>Price</th>
+                <th>Total</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($items as $item): ?>
+            <?php foreach($items as $index => $item): ?>
             <tr>
+                <td><?= $index+1 ?></td>
                 <td><?= htmlspecialchars($item['item_name']) ?></td>
                 <td><?= $item['quantity'] ?></td>
-                <td>&#8377;<?= number_format($item['price'], 2) ?></td>
+                <td>&#36;<?= number_format($item['price'], 2) ?></td>
+                <td>&#36;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
             </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 
-    <p>
-        Thank you for shopping.<br>
-        <strong><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></strong>
-    </p>
+    <!-- Summary Table -->
+    <table class="summary-table">
+        <tr>
+            <td>Subtotal:</td>
+            <td class="right">&#36;<?= number_format($invoice['subtotal'], 2) ?></td>
+        </tr>
+        <?php if (!empty($invoice['discount'])): ?>
+        <tr>
+            <td>Discount:</td>
+            <td class="right" style="color:green;">-&#36;<?= number_format($invoice['discount'], 2) ?></td>
+        </tr>
+        <?php endif; ?>
+        <tr>
+            <td class="total">Total Amount:</td>
+            <td class="right total">&#36;<?= number_format($invoice['total_amount'], 2) ?></td>
+        </tr>
+        <tr>
+            <td>Amount Paid:</td>
+            <td class="right" style="color:green;">&#36;<?= number_format($amountPaid, 2) ?></td>
+        </tr>
+        <tr>
+            <td>Balance Due:</td>
+            <td class="right" style="color:<?= $balanceDue>0?'red':'green' ?>;">&#36;<?= number_format($balanceDue, 2) ?></td>
+        </tr>
+    </table>
+
+    <!-- Notes -->
+    <div class="note">
+        <?= htmlspecialchars($invoice['notes'] ?? 'Thank you for your business. Payment is due within 30 days.') ?>
+    </div>
+
+    <div class="footer">
+        Invoice generated by Invoice and Sub &copy; <?= date('Y') ?>
+    </div>
+
 </div>
 
 </body>
 </html>
-
