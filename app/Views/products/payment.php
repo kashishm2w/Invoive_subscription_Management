@@ -11,7 +11,7 @@ use App\Helpers\Session;
     
     <div class="plan-summary">
         <h3><?= htmlspecialchars($plan['plan_name']) ?></h3>
-        <div class="price">&#8377;<?= number_format($plan['price'], 2) ?></div>
+        <div class="price">&#36;<?= number_format($plan['price'], 2) ?></div>
         <div class="billing"><?= ucfirst($plan['billing_cycle']) ?> Billing</div>
     </div>
 
@@ -28,7 +28,7 @@ use App\Helpers\Session;
         
         <button type="submit" class="pay-btn" id="submit-btn">
             <span class="loading-spinner" id="spinner"></span>
-            <span id="btn-text">Pay &#8377;<?= number_format($plan['price'], 2) ?></span>
+            <span id="btn-text">Pay &#36;<?= number_format($plan['price'], 2) ?></span>
         </button>
     </form>
 
@@ -94,7 +94,7 @@ form.addEventListener('submit', function(event) {
             // Re-enable button
             submitBtn.disabled = false;
             spinner.style.display = 'none';
-            btnText.textContent = 'Pay &#8377;<?= number_format($plan['price'], 2) ?>';
+            btnText.textContent = 'Pay &#36;<?= number_format($plan['price'], 2) ?>';
         } else {
             // Add token to form and submit
             var hiddenInput = document.createElement('input');

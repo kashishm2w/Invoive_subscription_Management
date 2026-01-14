@@ -28,14 +28,12 @@ class SettingController
         if ($user['role'] !== 'admin') {
 
             require APP_ROOT . '/app/Views/user/setting.php';
-        }
-        else{
+        } else {
             // Fetch company data from database for admin
             $companyModel = new Company();
             $company = $companyModel->getFirst();
-            
-            require APP_ROOT . '/app/Views/admin/setting.php';
 
+            require APP_ROOT . '/app/Views/admin/setting.php';
         }
     }
     public function company()
@@ -60,13 +58,13 @@ class SettingController
             $companyModel = new Company();
 
             $companyModel->save([
-                'user_id'=> Session::get('user_id'),
-                'company_name'=> $_POST['company_name'],
-                'email'=> $_POST['email'],
-                'phone'=> $_POST['phone'],
-                'address'=> $_POST['address'],
-                'tax_number'=> $_POST['tax_number'] ?? '',
-                'logo'=> $logoName
+                'user_id' => Session::get('user_id'),
+                'company_name' => $_POST['company_name'],
+                'email' => $_POST['email'],
+                'phone' => $_POST['phone'],
+                'address' => $_POST['address'],
+                'tax_number' => $_POST['tax_number'] ?? '',
+                'logo' => $logoName
             ]);
 
             Session::set('success', 'Company details saved');
@@ -79,36 +77,79 @@ class SettingController
     public function update()
     {
         $userId = Session::get('user_id');
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         $name     = trim($_POST['name'] ?? '');
         $email    = trim($_POST['email'] ?? '');
-        $phoneNo  = trim($_POST['phone'] ?? '');
-        $address  = trim($_POST['address'] ?? '');
         $password = trim($_POST['password'] ?? '');
+        $errors = [];
 
-        if (!$name || !$email) {
+        if ($name === '') {
+            $errors['name'] = 'Name is required';
+        } elseif (strlen($name) > 50) {
+            $errors['name'] = 'Name must not exceed 50 characters';
+        } elseif (!preg_match('/^[a-zA-Z\s]+$/', $name)) {
+            $errors['name'] = 'Name can contain only letters and spaces';
+        }
+
+        if ($email === '') {
+            $errors['email'] = 'Email is required';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Invalid email address';
+        }
+
+        // Only validate password if it's provided
+        if ($password !== '') {
+            if (strlen($password) < 8) {
+                $errors['password'] = 'Password must be at least 8 characters';
+            } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $password)) {
+                $errors['password'] = 'Password must have at least 8 characters including uppercase, lowercase, and number.';
+            }
+        }
+
+        if (!empty($errors)) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'errors' => $errors]);
+                exit;
+            }
+            Session::set('errors', $errors);
+            Session::set('old', $_POST);
             header("Location: /settings");
             exit;
         }
 
-        $this->settingModel->updateUser(
-            $userId,
-            $name,
-            $email,
-            $phoneNo,
-            $address,
-            $password ?: null
-        );
+        try {
+            $this->settingModel->updateUser(
+                $userId,
+                $name,
+                $email,
+                $password ?: null
+            );
 
-        // Update session values
-        Session::set('name', $name);
-        Session::set('email', $email);
-        Session::set('phone', $phoneNo);
-        Session::set('address', $address);
+            // Update session values
+            Session::set('name', $name);
+            Session::set('email', $email);
 
-        Session::set('success', 'Settings updated successfully!');
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                $message = $password !== '' ? 'Password and settings updated successfully!' : 'Settings updated successfully!';
+                echo json_encode(['success' => true, 'message' => $message]);
+                exit;
+            }
 
-        header("Location: /products");
-        exit;
+            Session::set('success', 'Settings updated successfully!');
+            header("Location: /products");
+            exit;
+        } catch (\Exception $e) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'errors' => ['general' => 'An error occurred while updating settings. Please try again.']]);
+                exit;
+            }
+            Session::set('errors', ['general' => 'An error occurred while updating settings.']);
+            header("Location: /settings");
+            exit;
+        }
     }
 }

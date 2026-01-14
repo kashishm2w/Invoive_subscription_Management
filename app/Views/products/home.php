@@ -43,7 +43,7 @@ use App\Helpers\Session;
                         </div>
                         <div class="product-info">
                             <h3 class="product-name"><?= htmlspecialchars($product['name']) ?></h3>
-                            <p class="product-price">&#8377;<?= number_format($total, 2) ?></p>
+                            <p class="product-price">&#36;<?= number_format($total, 2) ?></p>
 
                             <?php if (Session::has('user_id') && Session::get('role') !== 'admin'): ?>
                                 <?php if ($isInCart): ?>

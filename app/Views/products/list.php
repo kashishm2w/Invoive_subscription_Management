@@ -21,10 +21,10 @@
                 <th>Poster</th>
                 <th>Product Name</th>
                 <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
-                    <th>Price (&#8377;)</th>
+                    <th>Price (&#36;)</th>
                     <th>Tax %</th>
                 <?php else: ?>
-                    <th>Total Price (&#8377;)</th>
+                    <th>Total Price (&#36;)</th>
                 <?php endif; ?>
                 <th>Action</th>
             </tr>
@@ -50,7 +50,7 @@
                         $tax   = (float)$product['tax_percent'];
                         $total = $price + ($price * $tax / 100);
                         ?>
-                        <td><strong>&#8377;<?= number_format($total, 2) ?></strong></td>
+                        <td><strong>&#36;<?= number_format($total, 2) ?></strong></td>
                     <?php endif; ?>
 
                     <td>

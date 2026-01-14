@@ -24,7 +24,7 @@
         <?php if (\App\Helpers\Session::get('role') === 'admin'): ?>
             <div class="price-row">
                 <span class="price-label">Base Price:</span>
-                <span class="price-value">&#8377;<?= number_format($price, 2) ?></span>
+                <span class="price-value">&#36;<?= number_format($price, 2) ?></span>
             </div>
             <div class="price-row">
                 <span class="price-label">Tax:</span>
@@ -33,7 +33,7 @@
         <?php endif; ?>
         <div class="price-row total">
             <span class="price-label">Total Price:</span>
-            <span class="price-value">&#8377;<?= number_format($total, 2) ?></span>
+            <span class="price-value">&#36;<?= number_format($total, 2) ?></span>
         </div>
     </div>
 

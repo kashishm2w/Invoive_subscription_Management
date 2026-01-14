@@ -47,7 +47,7 @@ $expiredSubscription = $expiredSubscription ?? null;
             <p>
                 <strong><?= htmlspecialchars($currentSubscription['plan_name']) ?></strong><br>
 
-                &#8377;<?= $currentSubscription['price'] ?> /
+                &#36;<?= $currentSubscription['price'] ?> /
                 <?= ucfirst($currentSubscription['billing_cycle']) ?><br>
                 Valid till: <?= $currentSubscription['end_date'] ?>
             </p>
@@ -59,7 +59,7 @@ $expiredSubscription = $expiredSubscription ?? null;
             <span class="cancelled-badge">Cancelled</span>
             <p>
                 <strong><?= htmlspecialchars($cancelledSubscription['plan_name']) ?></strong><br>
-                &#8377;<?= $cancelledSubscription['price'] ?> /
+                &#36;<?= $cancelledSubscription['price'] ?> /
                 <?= ucfirst($cancelledSubscription['billing_cycle']) ?><br>
                 <span class="cancelled-text">This subscription has been cancelled.</span>
             </p>
@@ -74,7 +74,7 @@ $expiredSubscription = $expiredSubscription ?? null;
             </div>
             <p>
                 <strong><?= htmlspecialchars($expiredSubscription['plan_name']) ?></strong><br>
-                &#8377;<?= $expiredSubscription['price'] ?> /
+                &#36;<?= $expiredSubscription['price'] ?> /
                 <?= ucfirst($expiredSubscription['billing_cycle']) ?><br>
                 <span class="expired-text">Expired on: <?= $expiredSubscription['end_date'] ?></span>
             </p>
@@ -122,7 +122,7 @@ $expiredSubscription = $expiredSubscription ?? null;
 
                 <p><?= htmlspecialchars($plan['description']) ?></p>
                 <p class="price">
-                    &#8377;<?= $plan['price'] ?>
+                    &#36;<?= $plan['price'] ?>
                     <span class="billing-badge"><?= ucfirst($plan['billing_cycle']) ?></span>
                 </p>
 
@@ -304,9 +304,20 @@ $expiredSubscription = $expiredSubscription ?? null;
 
         document.querySelectorAll('.deletePlanBtn').forEach(btn => {
             btn.addEventListener('click', () => {
-                if (confirm('Are you sure you want to delete this plan?')) {
-                    window.location = `/admin/plan/delete?id=${btn.dataset.id}`;
-                }
+                Swal.fire({
+                    title: 'Delete Plan?',
+                    text: 'Are you sure you want to delete this plan? This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location = `/admin/plan/delete?id=${btn.dataset.id}`;
+                    }
+                });
             });
         });
     });

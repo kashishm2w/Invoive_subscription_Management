@@ -134,11 +134,24 @@ class InvoiceController
             ]);
         }
 
+        // Record COD payment in payments table (pending status)
+        $paymentModel = new \App\Models\Payment();
+        $paymentModel->create([
+            'invoice_id' => $invoiceId,
+            'user_id' => Session::get('user_id'),
+            'amount' => $totalAmount,
+            'payment_method' => 'cod',
+            'transaction_id' => null,
+            'status' => 'pending',
+            'notes' => 'Cash on Delivery - Payment pending'
+        ]);
+
         // Send invoice email to user for COD orders
         \App\Helpers\Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
 
         Session::remove('cart');
-        header("Location: /invoice/show?id=" . $invoiceId);
+        Session::set('success', 'Order placed successfully! Invoice has been sent to your email.');
+        header("Location: /");
         exit;
     }
     public function myInvoices()
@@ -157,6 +170,9 @@ class InvoiceController
 
         // Update overdue statuses before fetching
         $this->invoiceModel->updateOverdueStatuses();
+        
+        // Fix any invoices with incorrect status based on due_amount
+        $this->invoiceModel->fixIncorrectStatuses();
 
         if ($role !== 'admin') {
             $allInvoices = $this->invoiceModel->getAllWithUsers();
@@ -181,6 +197,10 @@ class InvoiceController
     public function fetchFilteredInvoices()
     {
         $status = $_GET['status'] ?? '';
+        $page = (int)($_GET['page'] ?? 1);
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+        
         $invoiceModel = new Invoice();
 
         $invoices = $invoiceModel->getAllWithUsers($_SESSION['user_id']); // fetch all invoices
@@ -198,14 +218,31 @@ class InvoiceController
                 $filtered[] = $invoice;
             } elseif ($status === 'overdue' && $invoiceStatus !== 'paid' && $dueDate < $today) {
                 $filtered[] = $invoice;
+            } elseif ($status === 'partial' && $invoiceStatus === 'partial') {
+                $filtered[] = $invoice;
             } elseif ($status === '') {
                 $filtered[] = $invoice; // all
             }
         }
 
+        // Pagination
+        $totalItems = count($filtered);
+        $totalPages = max(1, ceil($totalItems / $limit));
+        $paginatedData = array_slice($filtered, $offset, $limit);
+        
+        $pagination = [
+            'total' => $totalItems,
+            'per_page' => $limit,
+            'current_page' => $page,
+            'total_pages' => $totalPages,
+        ];
+
         // Return JSON
         header('Content-Type: application/json');
-        echo json_encode($filtered);
+        echo json_encode([
+            'invoices' => $paginatedData,
+            'pagination' => $pagination
+        ]);
     }
     public function trackInvoices()
     {
@@ -490,9 +527,7 @@ class InvoiceController
         require APP_ROOT . '/app/Views/invoice/invoice_payment.php';
     }
 
-    /**
-     * Process invoice payment
-     */
+    /* Process invoice payment*/
     public function processPayment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -507,6 +542,7 @@ class InvoiceController
 
         $invoiceId = (int)($_POST['invoice_id'] ?? 0);
         $token = $_POST['stripeToken'] ?? null;
+        $paymentAmount = (float)($_POST['payment_amount'] ?? 0);
 
         if (!$invoiceId || !$token) {
             Session::set('error', 'Payment failed. Please try again.');
@@ -530,27 +566,60 @@ class InvoiceController
             exit;
         }
 
+        // Calculate remaining amount
+        $currentPaid = (float)($invoice['amount_paid'] ?? 0);
+        $totalAmount = (float)$invoice['total_amount'];
+        $remainingAmount = $totalAmount - $currentPaid;
+
+        // Validate payment amount
+        if ($paymentAmount <= 0) {
+            $paymentAmount = $remainingAmount; // Full payment if not specified
+        }
+        if ($paymentAmount > $remainingAmount) {
+            $paymentAmount = $remainingAmount; // Cap at remaining
+        }
+
         // Initialize Stripe
         \App\Helpers\StripeConfig::init();
 
         try {
-            // Create Stripe charge
+            // Create Stripe charge for the payment amount
             $charge = \Stripe\Charge::create([
-                'amount' => (int)($invoice['total_amount'] * 100), // Convert to paise
-                'currency' => 'inr',
-                'description' => 'Invoice Payment: ' . $invoice['invoice_number'],
+                'amount' => (int)($paymentAmount * 100), // Convert to paise
+                'currency' => 'usd',
+                'description' => 'Invoice Payment: ' . $invoice['invoice_number'] . ($paymentAmount < $remainingAmount ? ' (Partial)' : ''),
                 'source' => $token,
                 'metadata' => [
                     'user_id' => $userId,
                     'invoice_id' => $invoiceId,
-                    'invoice_number' => $invoice['invoice_number']
+                    'invoice_number' => $invoice['invoice_number'],
+                    'payment_type' => $paymentAmount < $remainingAmount ? 'partial' : 'full'
                 ]
             ]);
 
-            // Payment successful - update invoice status
-            $this->invoiceModel->updateStatus($invoiceId, 'Paid');
+            // Record payment in payments table
+            $paymentModel = new \App\Models\Payment();
+            $paymentModel->create([
+                'invoice_id' => $invoiceId,
+                'user_id' => $userId,
+                'amount' => $paymentAmount,
+                'payment_method' => 'stripe',
+                'transaction_id' => $charge->id,
+                'status' => 'completed',
+                'notes' => $paymentAmount < $remainingAmount ? 'Partial payment' : 'Full payment'
+            ]);
 
-            Session::set('success', 'Payment successful! Invoice has been marked as paid.');
+            // Update invoice amount_paid and status
+            $newAmountPaid = $currentPaid + $paymentAmount;
+            $newStatus = ($newAmountPaid >= $totalAmount) ? 'Paid' : 'Partial';
+            $this->invoiceModel->updatePaymentStatus($invoiceId, $newAmountPaid, $newStatus);
+
+            if ($newStatus === 'Paid') {
+                Session::set('success', 'Payment successful! Invoice has been marked as paid.');
+            } else {
+                $remaining = $totalAmount - $newAmountPaid;
+                Session::set('success', 'Partial payment of ₹' . number_format($paymentAmount, 2) . ' received. Remaining: ₹' . number_format($remaining, 2));
+            }
             header('Location: /my_invoices');
             exit;
 

@@ -18,9 +18,7 @@ class Company extends Model
         return $res->num_rows ? $res->fetch_assoc() : null;
     }
 
-    /**
-     * Get the first/default company (admin's company settings)
-     */
+ 
     public function getFirst(): ?array
     {
         $stmt = $this->db->prepare(
@@ -72,23 +70,7 @@ public function save(array $data): bool
 
    $companySaved = $stmt->execute();
 
-    if ($companySaved) {
-        $this->updateUserContact(
-            $data['user_id'],
-            $data['phone'],
-            $data['address']
-        );
-    }
-
     return $companySaved;
-}
-public function updateUserContact(int $userId, string $phone, string $address): bool
-{
-    $stmt = $this->db->prepare(
-        "UPDATE users SET phone_no = ?, address = ? WHERE id = ?"
-    );
-    $stmt->bind_param("ssi", $phone, $address, $userId);
-    return $stmt->execute();
 }
 
 }

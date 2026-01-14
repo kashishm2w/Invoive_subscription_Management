@@ -400,7 +400,7 @@ function updateProductTable(products, cartProductIds) {
             row += `<td>${parseFloat(product.price).toFixed(2)}</td>
                     <td>${product.tax_percent}%</td>`;
         } else {
-            row += `<td><strong>&#8377;${total.toFixed(2)}</strong></td>`;
+            row += `<td><strong>&#36;${total.toFixed(2)}</strong></td>`;
         }
 
         row += `<td>

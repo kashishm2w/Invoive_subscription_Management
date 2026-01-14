@@ -218,8 +218,8 @@ public function getAllInvoicesWithDetails(): array
         SELECT i.*, 
                u.name AS user_name,
                u.email AS user_email,
-               COALESCE(ua.phone, u.phone_no) AS user_phone,
-               COALESCE(CONCAT(ua.address, ua.pincode), u.address) AS user_address,
+               ua.phone AS user_phone,
+               CONCAT(ua.address, ' ', COALESCE(ua.pincode, '')) AS user_address,
                it.id AS item_id,
                it.item_name AS item_name,
                it.price,
@@ -312,9 +312,6 @@ public function getPendingAmount(): float
     return (float)$result->fetch_assoc()['total'];
 }
 
-/**
- * Get count of invoices by status
- */
 public function getCountByStatus(string $status): int
 {
     $stmt = $this->db->prepare("SELECT COUNT(*) AS count FROM invoices WHERE status = ?");
@@ -324,9 +321,7 @@ public function getCountByStatus(string $status): int
     return (int)$result->fetch_assoc()['count'];
 }
 
-/**
- * Update invoice statuses to 'overdue' where due_date has passed and status is not 'paid'
- */
+
 public function updateOverdueStatuses(): int
 {
     $today = date('Y-m-d');
@@ -342,9 +337,6 @@ public function updateOverdueStatuses(): int
     return $stmt->affected_rows;
 }
 
-/**
- * Get all dashboard statistics at once
- */
 public function getDashboardStats(): array
 {
     return [
@@ -358,10 +350,6 @@ public function getDashboardStats(): array
         'pending_count' => $this->getCountByStatus('pending')
     ];
 }
-
-/**
- * Get filtered invoices for admin with pagination support
- */
 public function getFilteredInvoices(array $filters = []): array
 {
     $sql = "
@@ -408,14 +396,88 @@ public function getFilteredInvoices(array $filters = []): array
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-/**
- * Update invoice status
- */
 public function updateStatus(int $id, string $status): bool
 {
     $stmt = $this->db->prepare("UPDATE invoices SET status = ? WHERE id = ?");
     $stmt->bind_param("si", $status, $id);
     return $stmt->execute();
+}
+
+
+public function updateAmountPaid(int $id, float $amountPaid): bool
+{
+    $invoice = $this->getById($id);
+    if (!$invoice) {
+        return false;
+    }
+    $totalAmount = (float)$invoice['total_amount'];
+    $dueAmount = max(0, $totalAmount - $amountPaid);
+    
+    $stmt = $this->db->prepare("UPDATE invoices SET amount_paid = ?, due_amount = ? WHERE id = ?");
+    $stmt->bind_param("ddi", $amountPaid, $dueAmount, $id);
+    return $stmt->execute();
+}
+
+public function updatePaymentStatus(int $id, float $amountPaid, string $status): bool
+{
+    $invoice = $this->getById($id);
+    if (!$invoice) {
+        return false;
+    }
+    $totalAmount = (float)$invoice['total_amount'];
+    $dueAmount = max(0, $totalAmount - $amountPaid);
+    
+    // Auto-correct status based on actual payment
+    if ($dueAmount <= 0) {
+        $status = 'Paid';
+    } elseif ($amountPaid > 0 && $dueAmount > 0) {
+        $status = 'Partial';
+    }
+    
+    $stmt = $this->db->prepare("UPDATE invoices SET amount_paid = ?, due_amount = ?, status = ? WHERE id = ?");
+    $stmt->bind_param("ddsi", $amountPaid, $dueAmount, $status, $id);
+    return $stmt->execute();
+}
+
+public function getRemainingAmount(int $id): float
+{
+    $invoice = $this->getById($id);
+    if (!$invoice) {
+        return 0;
+    }
+    $amountPaid = (float)($invoice['amount_paid'] ?? 0);
+    $totalAmount = (float)$invoice['total_amount'];
+    return max(0, $totalAmount - $amountPaid);
+}
+
+public function fixIncorrectStatuses(): int
+{
+    // First, update all due_amounts based on total_amount - amount_paid
+    $this->db->query("
+        UPDATE invoices 
+        SET due_amount = GREATEST(0, total_amount - amount_paid)
+    ");
+    
+    // Fix invoices marked as 'Paid' but have due_amount > 0
+    $stmt = $this->db->query("
+        UPDATE invoices 
+        SET status = 'Partial' 
+        WHERE LOWER(status) = 'paid' 
+        AND due_amount > 0
+    ");
+    $fixedPartial = $this->db->affected_rows;
+    
+    // Fix invoices with due_amount = 0 but not marked as Paid (and amount_paid > 0)
+    $stmt = $this->db->query("
+        UPDATE invoices 
+        SET status = 'Paid' 
+        WHERE due_amount <= 0 
+        AND amount_paid > 0
+        AND LOWER(status) != 'paid'
+    ");
+    $fixedPaid = $this->db->affected_rows;
+    
+    return $fixedPartial + $fixedPaid;
 }
 
 }

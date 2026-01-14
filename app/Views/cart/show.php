@@ -17,10 +17,10 @@ $grandTotal = 0;
         <tr>
             <th>Poster</th>
             <th>Name</th>
-            <th>Price (&#8377;)</th>
+            <th>Price (&#36;)</th>
             <th>Tax %</th>
             <th>Quantity</th>
-            <th>Total (&#8377;)</th>
+            <th>Total (&#36;)</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -45,7 +45,7 @@ $grandTotal = 0;
 
                 <td><?= htmlspecialchars($item['name']) ?></td>
 
-                <td>&#8377;<?= number_format($item['price'], 2) ?></td>
+                <td>&#36;<?= number_format($item['price'], 2) ?></td>
 
                 <td><?= $item['tax_percent'] ?>%</td>
 
@@ -61,7 +61,7 @@ $grandTotal = 0;
                     <span class="stock-error" id="error-<?= $item['id'] ?>"></span>
                 </td>
 
-                <td id="item-total-<?= $item['id'] ?>">&#8377;<?= number_format($itemTotal, 2) ?></td>
+                <td id="item-total-<?= $item['id'] ?>">&#36;<?= number_format($itemTotal, 2) ?></td>
 
                 <td>
                     <button onclick="removeItem(<?= $item['id'] ?>)">Remove</button>
@@ -86,19 +86,19 @@ if ($discountPercent > 0) {
 <div class="cart-totals" data-discount-percent="<?= $discountPercent ?>" id="cart-totals">
     <div class="totals-row subtotal-row">
         <span>Subtotal:</span>
-        <span>&#8377;<span id="subtotal"><?= number_format($grandTotal, 2) ?></span></span>
+        <span>&#36;<span id="subtotal"><?= number_format($grandTotal, 2) ?></span></span>
     </div>
     
     <?php if ($discountPercent > 0): ?>
     <div class="totals-row discount-row">
         <span>Subscription Discount (<?= $discountPercent ?>%):</span>
-        <span class="discount-amount">-&#8377;<span id="discount-amount"><?= number_format($discountAmount, 2) ?></span></span>
+        <span class="discount-amount">-&#36;<span id="discount-amount"><?= number_format($discountAmount, 2) ?></span></span>
     </div>
     <?php endif; ?>
     
     <div class="totals-row final-total-row">
         <span><strong>Total to Pay:</strong></span>
-        <span><strong>&#8377;<span id="final-total"><?= number_format($finalTotal, 2) ?></span></strong></span>
+        <span><strong>&#36;<span id="final-total"><?= number_format($finalTotal, 2) ?></span></strong></span>
     </div>
 </div>
 
@@ -143,17 +143,17 @@ if ($discountPercent > 0) {
         <div class="payment-summary">
             <div class="summary-row">
                 <span>Subtotal:</span>
-                <span>&#8377;<?= number_format($grandTotal, 2) ?></span>
+                <span>&#36;<?= number_format($grandTotal, 2) ?></span>
             </div>
             <?php if ($discountPercent > 0): ?>
             <div class="summary-row discount">
                 <span>Subscription Discount (<?= $discountPercent ?>%):</span>
-                <span class="discount-value">-&#8377;<?= number_format($discountAmount, 2) ?></span>
+                <span class="discount-value">-&#36;<?= number_format($discountAmount, 2) ?></span>
             </div>
             <?php endif; ?>
             <div class="summary-row total">
                 <span><strong>Amount to Pay:</strong></span>
-                <span><strong>&#8377;<?= number_format($finalTotal, 2) ?></strong></span>
+                <span><strong>&#36;<?= number_format($finalTotal, 2) ?></strong></span>
             </div>
         </div>
         

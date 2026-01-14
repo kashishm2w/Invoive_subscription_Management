@@ -65,7 +65,7 @@ function updateTable(invoices) {
                 <td>${escapeHtml(invoice.user_email || '-')}</td>
                 <td>${formatDate(invoice.invoice_date)}</td>
                 <td>${formatDate(invoice.due_date)}</td>
-                <td>&#8377;${parseFloat(invoice.total_amount).toFixed(2)}</td>
+                <td>&#36;${parseFloat(invoice.total_amount).toFixed(2)}</td>
                 <td><span class="status ${invoice.status.toLowerCase()}">${capitalize(invoice.status)}</span></td>
                 <td><a href="/invoice/show?id=${invoice.id}" class="btn-view">View</a></td>
             </tr>

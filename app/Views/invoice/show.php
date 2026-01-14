@@ -1,6 +1,10 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php';
 
 use App\Helpers\Session;
+
+$amountPaid = $invoice['amount_paid'] ?? 0;
+$remaining  = $invoice['total_amount'] - $amountPaid;
+
 ?>
 <a href="/home" class="back">&#8592; Back</a>
 
@@ -12,6 +16,7 @@ use App\Helpers\Session;
 <?php endif; ?>
 <div class="invoice-wrapper">
     <div class="invoice-header">
+
         <div class="invoice-info">
             <h1>Invoice</h1>
             <p><strong>Invoice No:</strong><?= htmlspecialchars($invoice['invoice_number']) ?></p>
@@ -39,7 +44,14 @@ use App\Helpers\Session;
             <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
         </div>
     </div>
-
+    <div class="invoice-info">
+        <p>
+            <strong>Status:</strong>
+            <span class="status <?= strtolower($invoice['status']) ?>">
+                <?= htmlspecialchars($invoice['status']) ?>
+            </span>
+        </p>
+    </div>
     <table class="invoice-items">
         <thead>
             <tr>
@@ -62,42 +74,57 @@ use App\Helpers\Session;
                 <tr>
                     <td><?= $index + 1 ?></td>
                     <td><?= htmlspecialchars($item['item_name']) ?></td>
-                    <td>&#8377;<?= number_format($item['price'], 2) ?></td>
+                    <td>&#36;<?= number_format($item['price'], 2) ?></td>
                     <td><?= $item['quantity'] ?></td>
-                    <td>&#8377;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
+                    <td>&#36;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
 
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
-
-    <div class="invoice-payment">
-        <h3>Payment Information:</h3>
-        <p><strong>Amount:</strong> &#8377;<?= number_format($grandTotal, 2) ?></p>
-    </div>
-
     <div class="invoice-totals">
         <table>
             <tr>
                 <td>Subtotal :</td>
-                <td>&#8377;<?= number_format($invoice['subtotal'], 2) ?></td>
+                <td>&#36;<?= number_format($invoice['subtotal'], 2) ?></td>
             </tr>
             <tr>
                 <td>Tax Amount :</td>
-                <td>+&#8377;<?= number_format($invoice['tax_amount'], 2) ?></td>
+                <td>+&#36;<?= number_format($invoice['tax_amount'], 2) ?></td>
             </tr>
             <?php if (isset($invoice['discount']) && $invoice['discount'] > 0): ?>
-            <tr class="discount-row">
-                <td>Subscription Discount :</td>
-                <td style="color: #27ae60;">-&#8377;<?= number_format($invoice['discount'], 2) ?></td>
-            </tr>
+                <tr class="discount-row">
+                    <td>Subscription Discount :</td>
+                    <td style="color: #27ae60;">-&#36;<?= number_format($invoice['discount'], 2) ?></td>
+                </tr>
             <?php endif; ?>
             <tr class="grand-total">
                 <td>Total:</td>
-                <td>&#8377;<?= number_format($invoice['total_amount'], 2) ?></td>
+                <td>&#36;<?= number_format($invoice['total_amount'], 2) ?></td>
             </tr>
         </table>
     </div>
+  <div class="invoice-payment">
+    <h3>Payment Information:</h3>
+
+    <p><strong>Total Amount:</strong> &#36;<?= number_format($invoice['total_amount'], 2) ?></p>
+
+    <p><strong>Amount Paid:</strong>
+        <span style="color: green;">
+            &#36;<?= number_format($amountPaid, 2) ?>
+        </span>
+    </p>
+
+    <?php if ($remaining > 0): ?>
+        <p><strong>Balance Due:</strong>
+            <span style="color: red;">
+                &#36;<?= number_format($remaining, 2) ?>
+            </span>
+        </p>
+    <?php else: ?>
+        <p style="color: green;"><strong>Invoice Fully Paid</strong></p>
+    <?php endif; ?>
+</div>
 
     <div class="invoice-terms">
         <h3>Terms & Conditions:</h3>

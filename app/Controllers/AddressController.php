@@ -114,9 +114,7 @@ class AddressController
         exit;
     }
 
-    /**
-     * Set an address as default (AJAX POST)
-     */
+    /* Set an address as default */
     public function setDefaultAddress()
     {
         header('Content-Type: application/json');
