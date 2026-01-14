@@ -312,6 +312,39 @@ public function getPendingAmount(): float
     return (float)$result->fetch_assoc()['total'];
 }
 
+/**
+ * Get total amount already paid for partial invoices
+ */
+public function getPartialPaidAmount(): float
+{
+    $stmt = $this->db->prepare("SELECT COALESCE(SUM(amount_paid), 0) AS total FROM invoices WHERE LOWER(status) = 'partial'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (float)$result->fetch_assoc()['total'];
+}
+
+/**
+ * Get total remaining amount for partial invoices
+ */
+public function getPartialRemainingAmount(): float
+{
+    $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_amount - COALESCE(amount_paid, 0)), 0) AS total FROM invoices WHERE LOWER(status) = 'partial'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (float)$result->fetch_assoc()['total'];
+}
+
+/**
+ * Get total amount for partial invoices
+ */
+public function getPartialTotalAmount(): float
+{
+    $stmt = $this->db->prepare("SELECT COALESCE(SUM(total_amount), 0) AS total FROM invoices WHERE LOWER(status) = 'partial'");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return (float)$result->fetch_assoc()['total'];
+}
+
 public function getCountByStatus(string $status): int
 {
     $stmt = $this->db->prepare("SELECT COUNT(*) AS count FROM invoices WHERE status = ?");
@@ -339,15 +372,27 @@ public function updateOverdueStatuses(): int
 
 public function getDashboardStats(): array
 {
+    $paidAmount = $this->getPaidAmount();
+    $unpaidAmount = $this->getUnpaidAmount();
+    $partialPaidAmount = $this->getPartialPaidAmount();
+    $partialRemainingAmount = $this->getPartialRemainingAmount();
+    
     return [
         'total_amount' => $this->getTotalAmount(),
-        'paid_amount' => $this->getPaidAmount(),
-        'unpaid_amount' => $this->getUnpaidAmount(),
+        'paid_amount' => $paidAmount,
+        'unpaid_amount' => $unpaidAmount,
         'pending_amount' => $this->getPendingAmount(),
+        'partial_paid_amount' => $partialPaidAmount,
+        'partial_remaining_amount' => $partialRemainingAmount,
+        'partial_total_amount' => $this->getPartialTotalAmount(),
+        // Combined amounts: paid + partial received, unpaid + partial remaining
+        'total_received' => $paidAmount + $partialPaidAmount,
+        'total_outstanding' => $unpaidAmount + $partialRemainingAmount,
         'total_invoices' => $this->countAll(),
         'paid_count' => $this->getCountByStatus('paid'),
         'unpaid_count' => $this->getCountByStatus('unpaid'),
-        'pending_count' => $this->getCountByStatus('pending')
+        'pending_count' => $this->getCountByStatus('pending'),
+        'partial_count' => $this->getCountByStatus('partial')
     ];
 }
 public function getFilteredInvoices(array $filters = []): array

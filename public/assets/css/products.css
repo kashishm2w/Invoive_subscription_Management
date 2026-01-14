@@ -946,6 +946,27 @@ p {
     border-color: transparent;
 }
 
+.pagination span,
+.pagination .ellipsis {
+    display: inline-block;
+    padding: 8px 10px;
+    color: #6b7280;
+    border: none;
+    background: transparent;
+    cursor: default;
+}
+
+.pagination .nav-btn {
+    background-color: #f3f4f6;
+    font-weight: 600;
+}
+
+.pagination .nav-btn:hover {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #fff;
+    border-color: transparent;
+}
+
 /* Address Management Styles */
 .address-section {
     margin-bottom: 20px;

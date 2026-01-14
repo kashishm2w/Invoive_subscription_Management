@@ -42,8 +42,8 @@ class AuthController
             // Name
             elseif (!preg_match("/^[a-zA-Z ]+$/", $name)) {
                 $errors[] = "Name can only contain letters and spaces.";
-            } elseif (strlen($name) < 2 || strlen($name) > 50) {
-                $errors[] = "Name should contain 2 to 50 characters.";
+            } elseif (strlen($name) < 2 || strlen($name) > 100) {
+                $errors[] = "Name should contain 2 to 100 characters.";
             }
             // Email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

@@ -3,7 +3,7 @@ const tableBody = document.getElementById('subscription-table-body');
 const paginationContainer = document.getElementById('pagination-container');
 
 // Debounced search for text input
-document.getElementById('filter_email').addEventListener('input', function() {
+document.getElementById('filter_email').addEventListener('input', function () {
     clearTimeout(filterTimeout);
     filterTimeout = setTimeout(() => filterSubscriptions(1), 300);
 });
@@ -17,7 +17,7 @@ document.getElementById('filter_email').addEventListener('input', function() {
 });
 
 // Clear filters
-document.getElementById('clear_filters').addEventListener('click', function() {
+document.getElementById('clear_filters').addEventListener('click', function () {
     document.getElementById('filter_email').value = '';
     document.getElementById('filter_plan').value = '';
     document.getElementById('filter_billing_cycle').value = '';
@@ -71,16 +71,65 @@ function updateTable(subscriptions) {
 
 function updatePagination(pagination) {
     paginationContainer.innerHTML = '';
-    for (let i = 1; i <= pagination.total_pages; i++) {
+
+    if (pagination.total_pages <= 1) return;
+
+    const currentPage = pagination.current_page;
+    const totalPages = pagination.total_pages;
+    const range = 2; // Pages to show around current page
+
+    // Helper to create page link
+    const createLink = (page, text, isActive = false, isNav = false) => {
         const link = document.createElement('a');
         link.href = '#';
-        link.textContent = i;
-        link.className = i === pagination.current_page ? 'active' : '';
+        link.textContent = text || page;
+        link.className = isActive ? 'active' : (isNav ? 'nav-btn' : '');
         link.onclick = (e) => {
             e.preventDefault();
-            filterSubscriptions(i);
+            filterSubscriptions(page);
         };
-        paginationContainer.appendChild(link);
+        return link;
+    };
+
+    // Helper to create ellipsis span
+    const createEllipsis = () => {
+        const span = document.createElement('span');
+        span.className = 'ellipsis';
+        span.textContent = '...';
+        return span;
+    };
+
+    // Previous button
+    if (currentPage > 1) {
+        paginationContainer.appendChild(createLink(currentPage - 1, '« Previous', false, true));
+    }
+
+    // First page
+    paginationContainer.appendChild(createLink(1, '1', currentPage === 1));
+
+    // Ellipsis after first page if needed
+    if (currentPage > range + 2) {
+        paginationContainer.appendChild(createEllipsis());
+    }
+
+    // Pages around current page
+    for (let i = Math.max(2, currentPage - range); i <= Math.min(totalPages - 1, currentPage + range); i++) {
+        paginationContainer.appendChild(createLink(i, i.toString(), i === currentPage));
+    }
+
+    // Ellipsis before last page if needed
+    if (currentPage < totalPages - range - 1) {
+        paginationContainer.appendChild(createEllipsis());
+    }
+
+    // Last page (if more than 1 page)
+    if (totalPages > 1) {
+        paginationContainer.appendChild(createLink(totalPages, totalPages.toString(), currentPage === totalPages));
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        paginationContainer.appendChild(createLink(currentPage + 1, 'Next »', false, true));
     }
 }
 

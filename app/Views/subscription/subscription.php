@@ -278,12 +278,71 @@ $expiredSubscription = $expiredSubscription ?? null;
         addBtn?.addEventListener('click', () => {
             document.getElementById('modalTitle').innerText = 'Add Plan';
             form.reset();
+            document.getElementById('plan_id').value = '';
             modal.style.display = 'flex';
         });
 
         closeModal?.addEventListener('click', () => {
             modal.style.display = 'none';
         });
+
+        // AJAX form submission for Add/Edit Plan
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                const isEdit = document.getElementById('plan_id').value !== '';
+                
+                submitBtn.disabled = true;
+                submitBtn.textContent = isEdit ? 'Updating...' : 'Adding...';
+                
+                fetch('/admin/plan/save', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        modal.style.display = 'none';
+                        Swal.fire({
+                            icon: 'success',
+                            title: isEdit ? 'Plan Updated!' : 'Plan Added!',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error || 'Failed to save plan',
+                            confirmButtonColor: '#d33'
+                        });
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to save plan. Please try again.',
+                        confirmButtonColor: '#d33'
+                    });
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                });
+            });
+        }
 
         document.querySelectorAll('.editPlanBtn').forEach(btn => {
             btn.addEventListener('click', () => {

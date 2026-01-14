@@ -79,10 +79,45 @@
     </table>
 
     <div class="pagination" id="pagination-container">
-        <?php if (isset($pagination)): ?>
-            <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
-                <a href="?page=<?= $i ?>" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>><?= $i ?></a>
+        <?php if (isset($pagination) && $pagination['total_pages'] > 1): ?>
+            <?php 
+            $currentPage = $pagination['current_page'];
+            $totalPages = $pagination['total_pages'];
+            $range = 2; // Number of pages to show around current page
+            ?>
+            
+            <!-- Previous Button -->
+            <?php if ($currentPage > 1): ?>
+                <a href="?page=<?= $currentPage - 1 ?>" class="nav-btn">&laquo; Previous</a>
+            <?php endif; ?>
+            
+            <!-- First page -->
+            <a href="?page=1" <?= $currentPage === 1 ? 'class="active"' : '' ?>>1</a>
+            
+            <!-- Ellipsis after first page if needed -->
+            <?php if ($currentPage > $range + 2): ?>
+                <span class="ellipsis">...</span>
+            <?php endif; ?>
+            
+            <!-- Pages around current page -->
+            <?php for ($i = max(2, $currentPage - $range); $i <= min($totalPages - 1, $currentPage + $range); $i++): ?>
+                <a href="?page=<?= $i ?>" <?= $i === $currentPage ? 'class="active"' : '' ?>><?= $i ?></a>
             <?php endfor; ?>
+            
+            <!-- Ellipsis before last page if needed -->
+            <?php if ($currentPage < $totalPages - $range - 1): ?>
+                <span class="ellipsis">...</span>
+            <?php endif; ?>
+            
+            <!-- Last page (if more than 1 page) -->
+            <?php if ($totalPages > 1): ?>
+                <a href="?page=<?= $totalPages ?>" <?= $currentPage === $totalPages ? 'class="active"' : '' ?>><?= $totalPages ?></a>
+            <?php endif; ?>
+            
+            <!-- Next Button -->
+            <?php if ($currentPage < $totalPages): ?>
+                <a href="?page=<?= $currentPage + 1 ?>" class="nav-btn">Next &raquo;</a>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </main>

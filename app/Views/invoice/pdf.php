@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Invoice Email</title>
+<title></title>
 <link rel="stylesheet" href="/assets/css/email_pdf.css">
 </head>
 <body>
