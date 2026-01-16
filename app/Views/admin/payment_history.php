@@ -59,99 +59,11 @@
         <!-- Pagination -->
         <?php if ($pagination['total_pages'] > 1): ?>
             <div class="pagination" id="pagination-container">
-                <?php if ($pagination['total_pages'] > 1): ?>
-                    <?php
-                    $currentPage = (int)$pagination['current_page'];
-                    $totalPages  = (int)$pagination['total_pages'];
-                    ?>
-
-                    <!-- Previous -->
-                    <?php if ($currentPage > 1): ?>
-                        <a href="?page=<?= $currentPage - 1 ?>" class="nav-btn">&laquo; Previous</a>
-                    <?php endif; ?>
-
-                    <?php
-                    /* PAGE 1 */
-                    if ($currentPage === 1):
-                    ?>
-                        <a href="?page=1" class="active">1</a>
-
-                        <?php if ($totalPages >= 2): ?>
-                            <a href="?page=2">2</a>
-                        <?php endif; ?>
-
-                        <?php if ($totalPages > 3): ?>
-                            <span class="ellipsis">...</span>
-                        <?php endif; ?>
-
-                        <?php if ($totalPages > 2): ?>
-                            <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-                        <?php endif; ?>
-
-                    <?php
-                    /* PAGE 2 */
-                    elseif ($currentPage === 2):
-                    ?>
-                        <a href="?page=1">1</a>
-                        <a href="?page=2" class="active">2</a>
-
-                        <?php if ($totalPages > 3): ?>
-                            <span class="ellipsis">...</span>
-                        <?php endif; ?>
-
-                        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-
-                    <?php
-                    /* PAGE 3 */
-                    elseif ($currentPage === 3):
-                    ?>
-                        <span class="ellipsis">...</span>
-                        <a href="?page=3" class="active">3</a>
-
-                        <?php if ($totalPages >= 4): ?>
-                            <a href="?page=4">4</a>
-                        <?php endif; ?>
-
-                        <?php if ($totalPages >= 5): ?>
-                            <a href="?page=5">5</a>
-                        <?php endif; ?>
-
-                    <?php
-                    /* PAGE ≥ 4 */
-                    else:
-                    ?>
-                        <a href="?page=1">1</a>
-                        <span class="ellipsis">...</span>
-
-                        <a href="?page=<?= $currentPage - 1 ?>">
-                            <?= $currentPage - 1 ?>
-                        </a>
-
-                        <a href="?page=<?= $currentPage ?>" class="active">
-                            <?= $currentPage ?>
-                        </a>
-
-                        <?php if ($currentPage + 1 <= $totalPages): ?>
-                            <a href="?page=<?= $currentPage + 1 ?>">
-                                <?= $currentPage + 1 ?>
-                            </a>
-                        <?php endif; ?>
-
-                        <?php if ($currentPage + 1 < $totalPages): ?>
-                            <span class="ellipsis">...</span>
-                            <a href="?page=<?= $totalPages ?>">
-                                <?= $totalPages ?>
-                            </a>
-                        <?php endif; ?>
-
-                    <?php endif; ?>
-
-                    <!-- Next -->
-                    <?php if ($currentPage < $totalPages): ?>
-                        <a href="?page=<?= $currentPage + 1 ?>" class="nav-btn">Next &raquo;</a>
-                    <?php endif; ?>
-
-                <?php endif; ?>
+                <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $i ?>)" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>>
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
             </div>
         <?php endif; ?>
     <?php else: ?>
@@ -222,13 +134,31 @@
             });
     }
 
-    function renderPagination(pagination) {
-        if (!paginationContainer || pagination.total_pages <= 1) return;
-        let html = '';
-        for (let i = 1; i <= pagination.total_pages; i++) {
-            const activeClass = i === pagination.current_page ? 'class="active"' : '';
-            html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${activeClass}>${i}</a>`;
-        }
-        paginationContainer.innerHTML = html;
+   function renderPagination(pagination) {
+    if (!paginationContainer || pagination.total_pages <= 1) return;
+
+    let html = '';
+
+    // Previous button
+    if (pagination.current_page > 1) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${pagination.current_page - 1})">Previous</a>`;
+    } else {
+        html += `<span class="disabled">Previous</span>`;
     }
+
+    // Page numbers
+    for (let i = 1; i <= pagination.total_pages; i++) {
+        const activeClass = i === pagination.current_page ? 'class="active"' : '';
+        html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${activeClass}>${i}</a>`;
+    }
+
+    // Next button
+    if (pagination.current_page < pagination.total_pages) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${pagination.current_page + 1})">Next</a>`;
+    } else {
+        html += `<span class="disabled">Next</span>`;
+    }
+
+    paginationContainer.innerHTML = html;
+}
 </script>

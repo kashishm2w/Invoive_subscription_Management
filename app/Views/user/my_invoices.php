@@ -114,25 +114,28 @@
                     <a href="?page=1">1</a>
                     <a href="?page=2" class="active">2</a>
 
-                    <?php if ($totalPages > 3): ?>
-                        <span class="ellipsis">...</span>
+                    <?php if ($totalPages > 2): ?>
+                        <?php if ($totalPages > 3): ?>
+                            <span class="ellipsis">...</span>
+                        <?php endif; ?>
+                        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
                     <?php endif; ?>
-
-                    <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
 
                 <?php
                 /* PAGE 3 */
                 elseif ($currentPage === 3):
                 ?>
-                    <span class="ellipsis">...</span>
+                    <a href="?page=1">1</a>
+                    <a href="?page=2">2</a>
                     <a href="?page=3" class="active">3</a>
 
                     <?php if ($totalPages >= 4): ?>
                         <a href="?page=4">4</a>
                     <?php endif; ?>
 
-                    <?php if ($totalPages >= 5): ?>
-                        <a href="?page=5">5</a>
+                    <?php if ($totalPages > 4): ?>
+                        <span class="ellipsis">...</span>
+                        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
                     <?php endif; ?>
 
                 <?php
@@ -268,15 +271,82 @@
             });
     }
 
-    // Render pagination links
+    // Render pagination links with ellipsis pattern
     function renderPagination(pagination) {
         if (!paginationContainer) return;
 
-        let html = '';
-        for (let i = 1; i <= pagination.total_pages; i++) {
-            const activeClass = i === pagination.current_page ? 'class="active"' : '';
-            html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${activeClass}>${i}</a>`;
+        const currentPage = pagination.current_page;
+        const totalPages = pagination.total_pages;
+
+        if (totalPages <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
         }
+
+        let html = '';
+
+        // Previous button
+        if (currentPage > 1) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})" class="nav-btn">&laquo; Previous</a>`;
+        }
+
+        // Page 1 logic
+        if (currentPage === 1) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(1)" class="active">1</a>`;
+            if (totalPages >= 2) {
+                html += `<a href="javascript:void(0)" onclick="loadPage(2)">2</a>`;
+            }
+            if (totalPages > 3) {
+                html += `<span class="ellipsis">...</span>`;
+            }
+            if (totalPages > 2) {
+                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
+            }
+        }
+        // Page 2 logic
+        else if (currentPage === 2) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(1)">1</a>`;
+            html += `<a href="javascript:void(0)" onclick="loadPage(2)" class="active">2</a>`;
+            if (totalPages > 2) {
+                if (totalPages > 3) {
+                    html += `<span class="ellipsis">...</span>`;
+                }
+                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
+            }
+        }
+        // Page 3 logic
+        else if (currentPage === 3) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(1)">1</a>`;
+            html += `<a href="javascript:void(0)" onclick="loadPage(2)">2</a>`;
+            html += `<a href="javascript:void(0)" onclick="loadPage(3)" class="active">3</a>`;
+            if (totalPages >= 4) {
+                html += `<a href="javascript:void(0)" onclick="loadPage(4)">4</a>`;
+            }
+            if (totalPages > 4) {
+                html += `<span class="ellipsis">...</span>`;
+                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
+            }
+        }
+        // Page >= 4 logic
+        else {
+            html += `<a href="javascript:void(0)" onclick="loadPage(1)">1</a>`;
+            html += `<span class="ellipsis">...</span>`;
+            html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})">${currentPage - 1}</a>`;
+            html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage})" class="active">${currentPage}</a>`;
+            if (currentPage + 1 <= totalPages) {
+                html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage + 1})">${currentPage + 1}</a>`;
+            }
+            if (currentPage + 1 < totalPages) {
+                html += `<span class="ellipsis">...</span>`;
+                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
+            }
+        }
+
+        // Next button
+        if (currentPage < totalPages) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage + 1})" class="nav-btn">Next &raquo;</a>`;
+        }
+
         paginationContainer.innerHTML = html;
     }
 

@@ -756,3 +756,14 @@
     border-color: #667eea;
     pointer-events: none;
 }
+
+.active {
+    font-weight: bold;
+    background: #007bff;
+    color: #fff;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

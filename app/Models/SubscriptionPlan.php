@@ -81,6 +81,4 @@ class SubscriptionPlan extends Model
         $result = $stmt->get_result()->fetch_assoc();
         return $result['count'] > 0;
     }
-    
-
 }

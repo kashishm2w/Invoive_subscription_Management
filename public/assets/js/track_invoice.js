@@ -8,7 +8,7 @@ const paginationContainer = document.getElementById('pagination-container');
 filterInputs.forEach(id => {
     const input = document.getElementById(id);
     if (input) {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             clearTimeout(filterTimeout);
             filterTimeout = setTimeout(() => filterInvoices(1), 300);
         });
@@ -21,7 +21,7 @@ if (filterSelect) {
 }
 
 // Clear filters
-document.getElementById('clear_filters').addEventListener('click', function() {
+document.getElementById('clear_filters').addEventListener('click', function () {
     filterInputs.forEach(id => {
         document.getElementById(id).value = '';
     });
@@ -74,17 +74,96 @@ function updateTable(invoices) {
 }
 
 function updatePagination(pagination) {
+    if (!paginationContainer) return;
+
+    const currentPage = pagination.current_page;
+    const totalPages = pagination.total_pages;
+
     paginationContainer.innerHTML = '';
-    for (let i = 1; i <= pagination.total_pages; i++) {
+
+    if (totalPages <= 1) return;
+
+    // Helper to create page link
+    const createLink = (page, text, isActive = false, isNav = false) => {
         const link = document.createElement('a');
         link.href = '#';
-        link.textContent = i;
-        link.className = i === pagination.current_page ? 'active' : '';
+        link.textContent = text || page;
+        link.className = isActive ? 'active' : (isNav ? 'nav-btn' : '');
         link.onclick = (e) => {
             e.preventDefault();
-            filterInvoices(i);
+            filterInvoices(page);
         };
-        paginationContainer.appendChild(link);
+        return link;
+    };
+
+    // Helper to create ellipsis span
+    const createEllipsis = () => {
+        const span = document.createElement('span');
+        span.className = 'ellipsis';
+        span.textContent = '...';
+        return span;
+    };
+
+    // Previous button
+    if (currentPage > 1) {
+        paginationContainer.appendChild(createLink(currentPage - 1, '« Previous', false, true));
+    }
+
+    // Page 1 logic
+    if (currentPage === 1) {
+        paginationContainer.appendChild(createLink(1, '1', true));
+        if (totalPages >= 2) {
+            paginationContainer.appendChild(createLink(2, '2'));
+        }
+        if (totalPages > 3) {
+            paginationContainer.appendChild(createEllipsis());
+        }
+        if (totalPages > 2) {
+            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
+        }
+    }
+    // Page 2 logic
+    else if (currentPage === 2) {
+        paginationContainer.appendChild(createLink(1, '1'));
+        paginationContainer.appendChild(createLink(2, '2', true));
+        if (totalPages > 2) {
+            if (totalPages > 3) {
+                paginationContainer.appendChild(createEllipsis());
+            }
+            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
+        }
+    }
+    // Page 3 logic
+    else if (currentPage === 3) {
+        paginationContainer.appendChild(createLink(1, '1'));
+        paginationContainer.appendChild(createLink(2, '2'));
+        paginationContainer.appendChild(createLink(3, '3', true));
+        if (totalPages >= 4) {
+            paginationContainer.appendChild(createLink(4, '4'));
+        }
+        if (totalPages > 4) {
+            paginationContainer.appendChild(createEllipsis());
+            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
+        }
+    }
+    // Page >= 4 logic
+    else {
+        paginationContainer.appendChild(createLink(1, '1'));
+        paginationContainer.appendChild(createEllipsis());
+        paginationContainer.appendChild(createLink(currentPage - 1, (currentPage - 1).toString()));
+        paginationContainer.appendChild(createLink(currentPage, currentPage.toString(), true));
+        if (currentPage + 1 <= totalPages) {
+            paginationContainer.appendChild(createLink(currentPage + 1, (currentPage + 1).toString()));
+        }
+        if (currentPage + 1 < totalPages) {
+            paginationContainer.appendChild(createEllipsis());
+            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
+        }
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+        paginationContainer.appendChild(createLink(currentPage + 1, 'Next »', false, true));
     }
 }
 
