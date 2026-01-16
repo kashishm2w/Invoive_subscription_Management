@@ -32,15 +32,19 @@ public function index()
         $currentSubscription = $this->subscriptionModel
             ->getActiveSubscription(Session::get('user_id'));
         
-        // Only fetch cancelled/expired subscription if there's no active one
+        // Only fetch expired/cancelled subscription if there's no active one
         if (!$currentSubscription) {
-            $cancelledSubscription = $this->subscriptionModel
-                ->getCancelledSubscription(Session::get('user_id'));
+            // Get the most recent non-active subscription
+            $recentSubscription = $this->subscriptionModel
+                ->getMostRecentInactiveSubscription(Session::get('user_id'));
             
-            // Check for expired subscription if no cancelled one
-            if (!$cancelledSubscription) {
-                $expiredSubscription = $this->subscriptionModel
-                    ->getExpiredSubscription(Session::get('user_id'));
+            // Set the appropriate variable based on actual status
+            if ($recentSubscription) {
+                if ($recentSubscription['status'] === 'expired') {
+                    $expiredSubscription = $recentSubscription;
+                } elseif ($recentSubscription['status'] === 'cancelled') {
+                    $cancelledSubscription = $recentSubscription;
+                }
             }
         }
     }

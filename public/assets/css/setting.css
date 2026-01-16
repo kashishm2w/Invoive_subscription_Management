@@ -1,81 +1,386 @@
-.settings-container {
-    width: 600px;
-    margin: 40px auto;
-    padding: 30px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+/* Company Profile Settings - Modern Teal Theme */
+
+.settings-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: calc(100vh - 150px);
+    padding: 40px 20px;
+}
+
+.settings-container.company-form {
+    width: 100%;
+    max-width: 800px;
+        background: linear-gradient(135deg, #303d50 0%, #10182b 100%);    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.settings-container h1 {
-    font-size: 26px;
-    color: #1f2937;
-    margin-bottom: 25px;
+.settings-container.company-form h1 {
+    font-size: 32px;
+    color: #ffffff;
+    margin-bottom: 35px;
     text-align: center;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    font-style: italic;
+    letter-spacing: 1px;
 }
 
-.settings-container label {
+/* Form Row - Two Columns */
+.form-row {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.form-row.full-width {
     display: block;
-    font-weight: 600;
-    margin-top: 15px;
-    color: #374151;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row.full-width .form-group {
+    width: 100%;
+}
+
+/* Labels */
+.settings-container.company-form label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #b8d4e3;
+    font-size: 14px;
+    text-transform: capitalize;
 }
 
 /* Input Fields */
-.settings-container input[type="text"],
-.settings-container input[type="email"],
-.settings-container input[type="password"],
-.settings-container textarea {
+.settings-container.company-form input[type="text"],
+.settings-container.company-form input[type="email"],
+.settings-container.company-form input[type="password"],
+.settings-container.company-form textarea,
+.settings-container.company-form select {
     width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
     font-size: 14px;
-    color: #111827;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
+    transition: all 0.3s ease;
 }
-.settings-container textarea {
+
+.settings-container.company-form input::placeholder,
+.settings-container.company-form textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-container.company-form input:focus,
+.settings-container.company-form textarea:focus,
+.settings-container.company-form select:focus {
+    outline: none;
+    border-color: #4ecdc4;
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+}
+
+.settings-container.company-form textarea {
     resize: vertical;
     min-height: 80px;
 }
 
-.settings-container button {
-    margin-top: 25px;
-    padding: 12px 25px;
-    background-color:#2c3e50;
-    color: #fff;
+/* Select Dropdown */
+.settings-container.company-form select {
+    cursor: pointer;
+    appearance: none;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+.settings-container.company-form select option {
+    background-color: #1a5f7a;
+    color: #ffffff;
+}
+
+/* Info Box */
+.tax-info {
+    justify-content: center;
+}
+
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(78, 205, 196, 0.15);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-top: 24px;
+}
+
+.info-box .info-icon {
+    font-size: 18px;
+}
+
+.info-box span {
+    color: #b8d4e3;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-container.company-form .btn-save,
+.settings-container.company-form .btn-reset {
+    padding: 14px 40px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.settings-container button:hover {
-    background-color: #4338ca;
+.settings-container.company-form .btn-save {
+    background: linear-gradient(135deg, #10182b 0%, #2f3d51 100%);    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
 }
 
+.settings-container.company-form .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+}
+
+.settings-container.company-form .btn-reset {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.settings-container.company-form .btn-reset:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .settings-container {
-        padding: 20px;
-        margin: 20px auto;
+    .settings-wrapper {
+        padding: 20px 15px;
     }
 
-    .settings-container h1 {
+    .settings-container.company-form {
+        padding: 25px 20px;
+    }
+
+    .settings-container.company-form h1 {
+        font-size: 24px;
+        margin-bottom: 25px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .info-box {
+        margin-top: 10px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .settings-container.company-form .btn-save,
+    .settings-container.company-form .btn-reset {
+        width: 100%;
+        padding: 12px 25px;
+    }
+}
+
+/* Override default settings-container styles */
+.settings-container.company-form label {
+    margin-top: 0;
+}
+
+.settings-container.company-form button {
+    margin-top: 0;
+}
+
+/* Session
+   USER SETTINGS FORM STYLES
+   Session */
+
+.settings-container.user-form {
+    width: 100%;
+    max-width: 500px;
+background: linear-gradient(135deg, #303e51 0%, #10182b 100%);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.settings-container.user-form h1 {
+    font-size: 28px;
+    color: #ffffff;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* User Avatar Section */
+.user-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10182b 0%, #2f3d51 100%);    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+    margin-bottom: 12px;
+}
+
+.user-email {
+    color: #b8d4e3;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* User Form Labels */
+.settings-container.user-form label {
+     display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #b8d4e3;
+    font-size: 14px;
+}
+
+/* User Form Input Fields */
+.settings-container.user-form input[type="text"],
+.settings-container.user-form input[type="email"],
+.settings-container.user-form input[type="password"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 15px;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.settings-container.user-form input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-container.user-form input:focus {
+    outline: none;
+    border-color: #4ecdc4;
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(78, 205, 196, 0.3);
+}
+
+/* Field Hint */
+.field-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(184, 212, 227, 0.7);
+    font-style: italic;
+}
+
+/* User Form Actions */
+.settings-container.user-form .form-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-container.user-form .btn-save {
+    width: 100%;
+    padding: 16px 40px;
+    background: linear-gradient(135deg, #10182b 0%, #2f3d51 100%);  
+      color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.settings-container.user-form .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.5);
+}
+
+.settings-container.user-form .btn-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon {
+    font-size: 18px;
+}
+
+/* User Form Responsive */
+@media (max-width: 768px) {
+    .settings-container.user-form {
+        padding: 25px 20px;
+        max-width: 100%;
+    }
+
+    .settings-container.user-form h1 {
         font-size: 22px;
     }
 
-    .settings-container input,
-    .settings-container textarea {
-        font-size: 13px;
-        padding: 10px;
+    .avatar-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
     }
 
-    .settings-container button {
-        font-size: 15px;
-        padding: 10px 20px;
+    .settings-container.user-form .btn-save {
+        padding: 14px 30px;
+        font-size: 14px;
     }
 }

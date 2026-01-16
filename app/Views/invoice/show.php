@@ -27,22 +27,24 @@ $remaining  = $invoice['total_amount'] - $amountPaid;
     <div class="invoice-parties">
         <div class="pay-to">
             <h3>Invoice From:</h3>
-            <p><?= htmlspecialchars($company['company_name'] ?? 'Invoice and Sub') ?></p>
-            <p><?= htmlspecialchars($company['address'] ?? '') ?></p>
-            <?php if (!empty($company['phone'])): ?>
-                <p>Phone: <?= htmlspecialchars($company['phone']) ?></p>
-            <?php endif; ?>
-            <p><?= htmlspecialchars($company['email'] ?? '') ?></p>
-            <?php if (!empty($company['tax_number'])): ?>
-                <p><strong>GST:</strong> <?= htmlspecialchars($company['tax_number']) ?></p>
-            <?php endif; ?>
+            <?php if (!empty($company['address'])): ?><p><?= htmlspecialchars($company['address']) ?></p><?php endif; ?>
+            <?php if (!empty($company['email'])): ?><p>Email: <?= htmlspecialchars($company['email']) ?></p><?php endif; ?>
+            <?php if (!empty($company['phone'])): ?><p>Phone: <?= htmlspecialchars($company['phone']) ?></p><?php endif; ?>
+            <?php if (!empty($company['tax_number'])): ?><p>GST: <?= htmlspecialchars($company['tax_number']) ?></p><?php endif; ?>
         </div>
 
         <div class="invoice-to">
             <h3>Invoice To:</h3>
-            <p><?= htmlspecialchars($client['name'] ?? 'Customer Name') ?></p>
-            <p><?= htmlspecialchars($client['email'] ?? '') ?></p>
+            <?php if (!empty($deliveryAddress)): ?>
+                <p><?= htmlspecialchars($deliveryAddress['full_name']) ?></p>
+                <p><?= htmlspecialchars($deliveryAddress['address']) ?></p>
+                <p><?= htmlspecialchars($deliveryAddress['state']) ?></p>
+                <p><?= htmlspecialchars($deliveryAddress['city']) ?>,<?= htmlspecialchars($deliveryAddress['pincode']) ?></p>
+                <p>Phone: <?= htmlspecialchars($deliveryAddress['phone']) ?></p>
+
+            <?php endif; ?>
         </div>
+
     </div>
     <div class="invoice-info">
         <p>
@@ -63,30 +65,34 @@ $remaining  = $invoice['total_amount'] - $amountPaid;
             </tr>
         </thead>
         <tbody>
-            <?php $grandTotal = 0; ?>
+            <?php
+            $subTotal = 0;
+            $taxTotal = 0;
+            ?>
             <?php foreach ($items as $index => $item): ?>
                 <?php
-                $lineTotal = $item['price'] * $item['quantity'];
-                $lineTax   = $lineTotal * ($invoice['tax_rate'] / 100);
-                $total     = $lineTotal + $lineTax;
-                $grandTotal += $total;
+                $lineSubTotal = $item['price'] * $item['quantity'];
+                $lineTax      = $lineSubTotal * ($invoice['tax_rate'] / 100);
+
+                $subTotal += $lineSubTotal;
+                $taxTotal += $lineTax;
                 ?>
                 <tr>
                     <td><?= $index + 1 ?></td>
                     <td><?= htmlspecialchars($item['item_name']) ?></td>
                     <td>&#36;<?= number_format($item['price'], 2) ?></td>
                     <td><?= $item['quantity'] ?></td>
-                    <td>&#36;<?= number_format($item['price'] * $item['quantity'], 2) ?></td>
-
+                    <td>&#36;<?= number_format($lineSubTotal, 2) ?></td>
                 </tr>
             <?php endforeach; ?>
+
         </tbody>
     </table>
     <div class="invoice-totals">
         <table>
             <tr>
                 <td>Subtotal :</td>
-                <td>&#36;<?= number_format($invoice['subtotal'], 2) ?></td>
+                <td>&#36;<?= number_format($subTotal, 2) ?></td>
             </tr>
             <tr>
                 <td>Tax Amount :</td>
@@ -104,27 +110,27 @@ $remaining  = $invoice['total_amount'] - $amountPaid;
             </tr>
         </table>
     </div>
-  <div class="invoice-payment">
-    <h3>Payment Information:</h3>
+    <div class="invoice-payment">
+        <h3>Payment Information:</h3>
 
-    <p><strong>Total Amount:</strong> &#36;<?= number_format($invoice['total_amount'], 2) ?></p>
+        <p><strong>Total Amount:</strong> &#36;<?= number_format($invoice['total_amount'], 2) ?></p>
 
-    <p><strong>Amount Paid:</strong>
-        <span style="color: green;">
-            &#36;<?= number_format($amountPaid, 2) ?>
-        </span>
-    </p>
-
-    <?php if ($remaining > 0): ?>
-        <p><strong>Balance Due:</strong>
-            <span style="color: red;">
-                &#36;<?= number_format($remaining, 2) ?>
+        <p><strong>Amount Paid:</strong>
+            <span style="color: green;">
+                &#36;<?= number_format($amountPaid, 2) ?>
             </span>
         </p>
-    <?php else: ?>
-        <p style="color: green;"><strong>Invoice Fully Paid</strong></p>
-    <?php endif; ?>
-</div>
+
+        <?php if ($remaining > 0): ?>
+            <p><strong>Balance Due:</strong>
+                <span style="color: red;">
+                    &#36;<?= number_format($remaining, 2) ?>
+                </span>
+            </p>
+        <?php else: ?>
+            <p style="color: green;"><strong>Invoice Fully Paid</strong></p>
+        <?php endif; ?>
+    </div>
 
     <div class="invoice-terms">
         <h3>Terms & Conditions:</h3>

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Helpers\Session;
 use App\Models\Product;
+use App\Models\Company;
 
 class CartController
 {
@@ -21,11 +22,19 @@ class CartController
         $cart = Session::get('cart') ?? [];
         $totalAmount = 0;
 
-        // Add current stock info to each cart item
+        // Get global tax rate from company settings
+        $companyModel = new Company();
+        $globalTaxRate = $companyModel->getGlobalTaxRate();
+
+        // Add current stock info to each cart item and calculate tax
         foreach ($cart as $productId => &$item) {
             $product = $this->productModel->getById($productId);
             $item['available_stock'] = $product ? $product['quantity'] : 0;
-            $totalAmount += $item['price'] * $item['quantity'] + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
+            
+            // Apply global tax rate unless product is tax-free
+            $taxRate = (!empty($item['is_tax_free'])) ? 0 : $globalTaxRate;
+            $item['tax_percent'] = $taxRate;
+            $totalAmount += $item['price'] * $item['quantity'] + ($item['price'] * $taxRate / 100) * $item['quantity'];
         }
         unset($item); // Break reference
 
@@ -89,7 +98,7 @@ class CartController
                     'id'=> $product['id'],
                     'name'=> $product['name'],
                     'price'=> $product['price'],
-                    'tax_percent'=> $product['tax_percent'],
+                    'is_tax_free'=> !empty($product['is_tax_free']),
                     'quantity'=> $quantity,
                     'poster'=> $product['poster'] ?? 'default.png'
                 ];
@@ -186,9 +195,17 @@ public function showPaymentPage()
 
     // Calculate totals and subscription discount
     $subtotal = 0;
-    foreach ($cart as $item) {
-        $subtotal += $item['price'] * $item['quantity'] + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
+    
+    // Get global tax rate
+    $companyModel = new Company();
+    $globalTaxRate = $companyModel->getGlobalTaxRate();
+    
+    foreach ($cart as &$item) {
+        $taxRate = (!empty($item['is_tax_free'])) ? 0 : $globalTaxRate;
+        $item['tax_percent'] = $taxRate;
+        $subtotal += $item['price'] * $item['quantity'] + ($item['price'] * $taxRate / 100) * $item['quantity'];
     }
+    unset($item);
 
     // Fetch subscription discount
     $discountPercent = 0;
@@ -236,11 +253,16 @@ public function processPayment()
         exit;
     }
 
+    // Get global tax rate
+    $companyModel = new Company();
+    $globalTaxRate = $companyModel->getGlobalTaxRate();
+
     // Calculate totals
     $subtotal = $taxAmount = 0;
     foreach ($cart as $item) {
         $lineTotal = $item['price'] * $item['quantity'];
-        $lineTax = $lineTotal * $item['tax_percent'] / 100;
+        $taxRate = (!empty($item['is_tax_free'])) ? 0 : $globalTaxRate;
+        $lineTax = $lineTotal * $taxRate / 100;
         $subtotal += $lineTotal;
         $taxAmount += $lineTax;
     }
@@ -299,9 +321,13 @@ public function processPayment()
         $invoiceStatus = $isPartialPayment ? 'Partial' : 'Paid';
         $dueDate = $isPartialPayment ? date('Y-m-d', strtotime('+7 days')) : date('Y-m-d');
 
+        // Get address_id for delivery address
+        $addressId = (int)($_POST['address_id'] ?? 0) ?: null;
+
         $invoiceId = $invoiceModel->create([
             'created_by' => Session::get('user_id'),
             'client_id' => Session::get('user_id'),
+            'address_id' => $addressId,
             'invoice_number' => 'INV-' . date('Ymd-His'),
             'invoice_date' => date('Y-m-d'),
             'due_date' => $dueDate,

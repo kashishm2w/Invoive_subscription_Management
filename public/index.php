@@ -50,6 +50,7 @@ $router = new Router();
 //Dashboard/*  */
 $router->get('/', [DashboardController::class, 'index']);
 $router->get('/dashboard', [DashboardController::class, 'index']);
+$router->get('/dashboard/chart-data', [DashboardController::class, 'getChartData']);
 
 // Auth
 $router->get('/register', [AuthController::class, 'showRegister']);

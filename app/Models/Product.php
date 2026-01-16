@@ -49,20 +49,20 @@ class Product extends Model
     {
         $stmt = $this->db->prepare(
             "INSERT INTO products 
-            (name, description, price, tax_percent, quantity, poster) 
+            (name, description, price, is_tax_free, quantity, poster) 
             VALUES (?, ?, ?, ?, ?, ?)"
         );
 
         $price       = (float)$data['price'];
-        $tax_percent = (float)$data['tax_percent'];
+        $is_tax_free = (int)($data['is_tax_free'] ?? 0);
         $quantity    = (int)$data['quantity'];
 
         $stmt->bind_param(
-            "ssddis",
+            "ssdiis",
             $data['name'],
             $data['description'],
             $price,
-            $tax_percent,
+            $is_tax_free,
             $quantity,
             $data['poster']
         );
@@ -74,16 +74,18 @@ class Product extends Model
     {
         $stmt = $this->db->prepare(
             "UPDATE products 
-             SET name = ?, description = ?, price = ?, tax_percent = ?, quantity = ?, poster = ?, updated_at = NOW() 
+             SET name = ?, description = ?, price = ?, is_tax_free = ?, quantity = ?, poster = ?, updated_at = NOW() 
              WHERE id = ?"
         );
 
+        $is_tax_free = (int)($data['is_tax_free'] ?? 0);
+
         $stmt->bind_param(
-            "ssddisi",
+            "ssdiisi",
             $data['name'],
             $data['description'],
             $data['price'],
-            $data['tax_percent'],
+            $is_tax_free,
             $data['quantity'],
             $data['poster'],
             $id

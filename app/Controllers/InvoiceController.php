@@ -9,6 +9,7 @@ use Mpdf\Mpdf;
 use \App\Models\User;
 use \App\Models\Company;
 use App\Helpers\Mailer;
+use App\Models\UserAddress;
 
 Session::start();
 
@@ -72,6 +73,13 @@ class InvoiceController
             $grandTotal += $lineTotal + $lineTax;
         }
 
+        // Fetch delivery address if address_id is set
+        $deliveryAddress = null;
+        if (!empty($invoice['address_id'])) {
+            $addressModel = new UserAddress();
+            $deliveryAddress = $addressModel->getById($invoice['address_id']);
+        }
+
         require APP_ROOT . '/app/Views/invoice/show.php';
     }
 
@@ -91,10 +99,16 @@ class InvoiceController
             exit;
         }
 
+        // Get global tax rate from company settings
+        $companyModel = new Company();
+        $globalTaxRate = $companyModel->getGlobalTaxRate();
+
         $subtotal = $taxAmount = 0;
         foreach ($cart as $item) {
             $lineTotal = $item['price'] * $item['quantity'];
-            $lineTax   = $lineTotal * $item['tax_percent'] / 100;
+            // Apply global tax rate unless product is tax-free (is_tax_free = 1)
+            $taxRate = (!empty($item['is_tax_free'])) ? 0 : $globalTaxRate;
+            $lineTax   = $lineTotal * $taxRate / 100;
             $subtotal += $lineTotal;
             $taxAmount += $lineTax;
         }
@@ -108,9 +122,13 @@ class InvoiceController
             $status = 'pending';
         }
 
+        // Get address_id for delivery address
+        $addressId = (int)($_POST['address_id'] ?? 0) ?: null;
+
         $invoiceId = $this->invoiceModel->create([
             'created_by'=> Session::get('user_id'),
             'client_id' => Session::get('user_id'),
+            'address_id' => $addressId,
             'invoice_number'=> 'INV-' . date('Ymd-His'),
             'invoice_date'=> date('Y-m-d'),
             'due_date'=> date('Y-m-d', strtotime('+7 days')),
@@ -334,6 +352,13 @@ class InvoiceController
             ];
         }
 
+        // Fetch delivery address if address_id is set
+        $deliveryAddress = null;
+        if (!empty($invoice['address_id'])) {
+            $addressModel = new UserAddress();
+            $deliveryAddress = $addressModel->getById($invoice['address_id']);
+        }
+
         ob_start();
         require APP_ROOT . '/app/Views/invoice/pdf.php';
         $html = ob_get_clean();
@@ -423,6 +448,13 @@ class InvoiceController
                 'address' => '',
                 'tax_number' => ''
             ];
+        }
+
+        // Fetch delivery address if address_id is set
+        $deliveryAddress = null;
+        if (!empty($invoice['address_id'])) {
+            $addressModel = new UserAddress();
+            $deliveryAddress = $addressModel->getById($invoice['address_id']);
         }
 
         ob_start();

@@ -273,6 +273,28 @@
     margin-bottom: 10px;
 }
 
+/* Delivery Address Section */
+.delivery-to {
+    margin-top: 10px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 10px;
+    border-left: 4px solid #0284c7;
+}
+
+.delivery-to h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0369a1;
+    margin-bottom: 10px;
+}
+
+.delivery-to p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #374151;
+}
+
 /*  Invoice Payment / Totals  */
 .invoice-payment,
 .invoice-totals,

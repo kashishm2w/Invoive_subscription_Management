@@ -98,7 +98,10 @@
     color: #991b1b;
 
 }
-
+.status.partial {
+    background-color: #fef7e2;
+    color: #991b1b;
+}
 .status.cancelled {
     background-color: #e5e7eb;
     color: #374151;

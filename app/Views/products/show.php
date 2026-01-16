@@ -42,7 +42,7 @@
     <?php endif; ?>
 
         <br>
-        <a href="/products">← Back to Products</a>
+        <a href="/products">Back to Products</a>
 </div>
 
 <script>

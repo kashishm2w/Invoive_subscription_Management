@@ -53,6 +53,22 @@ $expiredSubscription = $expiredSubscription ?? null;
             </p>
         </div>
 
+    <?php elseif (Session::has('user_id') && is_array($expiredSubscription)): ?>
+        <div class="expired-plan">
+            <h3>Your Subscription</h3>
+            <span class="expired-badge">Expired</span>
+            <p>
+                <strong><?= htmlspecialchars($expiredSubscription['plan_name']) ?></strong><br>
+                &#36;<?= $expiredSubscription['price'] ?> /
+                <?= ucfirst($expiredSubscription['billing_cycle']) ?><br>
+                <span class="expired-text">This subscription has expired.</span>
+            </p>
+            <form method="POST" action="/subscribe" class="reactivate-form">
+                <input type="hidden" name="plan_id" value="<?= $expiredSubscription['plan_id'] ?>">
+                <button type="submit" class="btn-reactivate">Reactivate Now</button>
+            </form>
+        </div>
+
     <?php elseif (Session::has('user_id') && is_array($cancelledSubscription)): ?>
         <div class="cancelled-plan">
             <h3>Your Subscription</h3>
@@ -63,25 +79,6 @@ $expiredSubscription = $expiredSubscription ?? null;
                 <?= ucfirst($cancelledSubscription['billing_cycle']) ?><br>
                 <span class="cancelled-text">This subscription has been cancelled.</span>
             </p>
-        </div>
-
-    <?php elseif (Session::has('user_id') && is_array($expiredSubscription)): ?>
-        <div class="expired-plan">
-            <h3>Your Subscription</h3>
-            <div class="expired-warning">
-                <i class="warning-icon"></i>
-                <span>Your plan is expired! Please reactivate or choose a new plan.</span>
-            </div>
-            <p>
-                <strong><?= htmlspecialchars($expiredSubscription['plan_name']) ?></strong><br>
-                &#36;<?= $expiredSubscription['price'] ?> /
-                <?= ucfirst($expiredSubscription['billing_cycle']) ?><br>
-                <span class="expired-text">Expired on: <?= $expiredSubscription['end_date'] ?></span>
-            </p>
-            <form method="POST" action="/subscribe" class="reactivate-form">
-                <input type="hidden" name="plan_id" value="<?= $expiredSubscription['plan_id'] ?>">
-                <button type="submit" class="btn-reactivate">Reactivate Now</button>
-            </form>
         </div>
 
     <?php elseif (
@@ -115,21 +112,33 @@ $expiredSubscription = $expiredSubscription ?? null;
                 $expiredSubscription['plan_id'] == $plan['id'];
             
             $hasExpiredSubscription = Session::has('user_id') && is_array($expiredSubscription);
+            
+            // Add status flags to the plan data for the modal
+            $planWithStatus = $plan;
+            $planWithStatus['isActivePlan'] = $isActivePlan;
+            $planWithStatus['isExpiredPlan'] = $isExpiredPlan;
+            $planWithStatus['hasExpiredSubscription'] = $hasExpiredSubscription;
+            $planWithStatus['isLoggedIn'] = Session::has('user_id');
+            $planWithStatus['isAdmin'] = Session::get('role') === 'admin';
             ?>
-            <div class="plan-card <?= $isActivePlan ? 'active-plan-card' : '' ?> <?= $isExpiredPlan ? 'expired-plan-card' : '' ?>">
+            <div class="plan-card <?= $isActivePlan ? 'active-plan-card' : '' ?> <?= $isExpiredPlan ? 'expired-plan-card' : '' ?>" 
+                 onclick="openViewPlanModal(<?= htmlspecialchars(json_encode($planWithStatus), ENT_QUOTES, 'UTF-8') ?>)">
 
                 <h3><?= htmlspecialchars($plan['plan_name']) ?></h3>
 
-                <p><?= htmlspecialchars($plan['description']) ?></p>
                 <p class="price">
                     &#36;<?= $plan['price'] ?>
                     <span class="billing-badge"><?= ucfirst($plan['billing_cycle']) ?></span>
                 </p>
 
+                <?php if (Session::get('role') === 'admin'): ?>
+                    <p class="discount-info">Discount: <?= (int)$plan['discount_percent'] ?>%</p>
+                <?php endif; ?>
+
                 <?php if (Session::has('user_id') && Session::get('role') !== 'admin'): ?>
                     <?php if ($isActivePlan): ?>
                         <!-- Active plan: Show Active button -->
-                        <div class="plan-actions">
+                        <div class="plan-actions" onclick="event.stopPropagation();">
                             <button class="btn-active" disabled>Active</button>
                             <button class="btn-cancel" onclick="cancelSubscription()">Cancel</button>
                         </div>
@@ -137,7 +146,7 @@ $expiredSubscription = $expiredSubscription ?? null;
                     <?php elseif ($isExpiredPlan): ?>
                         <!-- Expired plan: Show Reactivate button -->
                         <div class="expired-plan-message">Your plan is expired!</div>
-                        <form method="POST" action="/subscribe">
+                        <form method="POST" action="/subscribe" onclick="event.stopPropagation();">
                             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
                             <label>
                                 <input type="checkbox" name="auto_renew"> Auto renew
@@ -147,7 +156,7 @@ $expiredSubscription = $expiredSubscription ?? null;
 
                     <?php elseif ($hasExpiredSubscription): ?>
                         <!-- Has expired subscription but this is a different plan: Show Buy Now -->
-                        <form method="POST" action="/subscribe">
+                        <form method="POST" action="/subscribe" onclick="event.stopPropagation();">
                             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
                             <label>
                                 <input type="checkbox" name="auto_renew"> Auto renew
@@ -157,7 +166,7 @@ $expiredSubscription = $expiredSubscription ?? null;
 
                     <?php else: ?>
                         <!-- No subscription: Show Buy Now -->
-                        <form method="POST" action="/subscribe">
+                        <form method="POST" action="/subscribe" onclick="event.stopPropagation();">
                             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
                             <label>
                                 <input type="checkbox" name="auto_renew"> Auto renew
@@ -167,15 +176,50 @@ $expiredSubscription = $expiredSubscription ?? null;
                     <?php endif; ?>
 
                 <?php elseif (!Session::has('user_id')): ?>
-                    <button class="checkout-btn" onclick="openLoginModal()">Subscribe</button>
+                    <button class="checkout-btn" onclick="event.stopPropagation(); openLoginModal()">Subscribe</button>
                 <?php endif; ?>
 
                 <?php if (Session::get('role') === 'admin'): ?>
-                    <button class="editPlanBtn" data-id="<?= $plan['id'] ?>">Edit</button>
-                    <button class="deletePlanBtn" data-id="<?= $plan['id'] ?>">Delete</button>
+                    <div class="admin-actions" onclick="event.stopPropagation();">
+                        <button class="editPlanBtn" data-id="<?= $plan['id'] ?>">Edit</button>
+                        <button class="deletePlanBtn" data-id="<?= $plan['id'] ?>">Delete</button>
+                    </div>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
+    </div>
+
+    <!-- = VIEW PLAN DETAILS MODAL = -->
+    <div id="viewPlanModal" class="modal">
+        <div class="modal-content view-plan-modal-content">
+            <span class="close" onclick="closeViewPlanModal()">&times;</span>
+            <h2 id="viewPlanTitle"></h2>
+            <div class="view-plan-details">
+                <div class="detail-row">
+                    <span class="detail-label">Price:</span>
+                    <span id="viewPlanPrice" class="detail-value"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Billing Cycle:</span>
+                    <span id="viewPlanBillingCycle" class="detail-value"></span>
+                </div>
+                <?php if (Session::get('role') === 'admin'): ?>
+                <div class="detail-row">
+                    <span class="detail-label">Discount:</span>
+                    <span id="viewPlanDiscount" class="detail-value"></span>
+                </div>
+                <?php endif; ?>
+                <div class="detail-row description-row">
+                    <span class="detail-label">Description:</span>
+                    <p id="viewPlanDescription" class="detail-description"></p>
+                </div>
+            </div>
+            
+            <!-- Action Buttons Section -->
+            <div id="viewPlanActions" class="view-plan-actions">
+                <!-- Buttons will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
     </div>
 
     <!-- = ADD / EDIT PLAN MODAL = -->
@@ -206,6 +250,90 @@ $expiredSubscription = $expiredSubscription ?? null;
     <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
 </div>
 <script>
+    /*  VIEW PLAN MODAL  */
+    function openViewPlanModal(plan) {
+        document.getElementById('viewPlanTitle').textContent = plan.plan_name;
+        document.getElementById('viewPlanPrice').textContent = '$' + parseFloat(plan.price).toFixed(2);
+        document.getElementById('viewPlanBillingCycle').textContent = plan.billing_cycle.charAt(0).toUpperCase() + plan.billing_cycle.slice(1);
+        document.getElementById('viewPlanDescription').textContent = plan.description || 'No description available';
+        
+        // Admin-only field
+        const discountEl = document.getElementById('viewPlanDiscount');
+        if (discountEl) {
+            discountEl.textContent = (plan.discount_percent || 0) + '%';
+        }
+        
+        // Render action buttons based on status
+        const actionsContainer = document.getElementById('viewPlanActions');
+        actionsContainer.innerHTML = ''; // Clear previous buttons
+        actionsContainer.style.display = 'block';
+        
+        if (plan.isAdmin) {
+            // Admin: Show Edit and Delete buttons
+            actionsContainer.innerHTML = `
+                <div class="modal-plan-actions admin-modal-actions">
+                    <button class="editPlanBtn" onclick="closeViewPlanModal(); openEditPlanModal(${plan.id});">Edit</button>
+                    <button class="deletePlanBtn" onclick="closeViewPlanModal(); confirmDeletePlan(${plan.id});">Delete</button>
+                </div>
+            `;
+        } else if (plan.isLoggedIn) {
+            actionsContainer.style.display = 'block';
+            
+            if (plan.isActivePlan) {
+                // Active plan: Show Active + Cancel buttons
+                actionsContainer.innerHTML = `
+                    <div class="modal-plan-actions">
+                        <button class="btn-active" disabled>Active</button>
+                        <button class="btn-cancel" onclick="cancelSubscription(); closeViewPlanModal();">Cancel</button>
+                    </div>
+                `;
+            } else if (plan.isExpiredPlan) {
+                // Expired plan: Show Reactivate with auto-renew
+                actionsContainer.innerHTML = `
+                    <div class="expired-plan-message">Your plan is expired!</div>
+                    <form method="POST" action="/subscribe" class="modal-subscribe-form">
+                        <input type="hidden" name="plan_id" value="${plan.id}">
+                        <label class="auto-renew-checkbox">
+                            <input type="checkbox" name="auto_renew"> Auto renew
+                        </label>
+                        <button type="submit" class="btn-reactivate">Reactivate</button>
+                    </form>
+                `;
+            } else {
+                // No subscription or different plan: Show Buy Now with auto-renew
+                actionsContainer.innerHTML = `
+                    <form method="POST" action="/subscribe" class="modal-subscribe-form">
+                        <input type="hidden" name="plan_id" value="${plan.id}">
+                        <label class="auto-renew-checkbox">
+                            <input type="checkbox" name="auto_renew"> Auto renew
+                        </label>
+                        <button type="submit" class="btn-buy-now">Buy Now</button>
+                    </form>
+                `;
+            }
+        } else {
+            // Not logged in: Show Subscribe button
+            actionsContainer.style.display = 'block';
+            actionsContainer.innerHTML = `
+                <button class="btn-subscribe" onclick="closeViewPlanModal(); openLoginModal();">Subscribe</button>
+            `;
+        }
+        
+        document.getElementById('viewPlanModal').style.display = 'flex';
+    }
+
+    function closeViewPlanModal() {
+        document.getElementById('viewPlanModal').style.display = 'none';
+    }
+
+    // Close view modal on outside click
+    window.addEventListener('click', function(event) {
+        const viewModal = document.getElementById('viewPlanModal');
+        if (event.target === viewModal) {
+            closeViewPlanModal();
+        }
+    });
+
     /*  CANCEL SUBSCRIPTION  */
     function cancelSubscription() {
         Swal.fire({
@@ -265,6 +393,40 @@ $expiredSubscription = $expiredSubscription ?? null;
 
     function closePlanModal() {
         document.getElementById('planModal').style.display = 'none';
+    }
+
+    // Helper function to open edit plan modal (called from view modal)
+    function openEditPlanModal(planId) {
+        fetch(`/admin/plan/get?id=${planId}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('modalTitle').innerText = 'Edit Plan';
+                document.getElementById('plan_id').value = data.id;
+                document.getElementById('plan_name').value = data.plan_name;
+                document.getElementById('price').value = data.price;
+                document.getElementById('billing_cycle').value = data.billing_cycle;
+                document.getElementById('description').value = data.description;
+                document.getElementById('discount_percent').value = data.discount_percent || 0;
+                document.getElementById('planModal').style.display = 'flex';
+            });
+    }
+
+    // Helper function to confirm delete plan (called from view modal)
+    function confirmDeletePlan(planId) {
+        Swal.fire({
+            title: 'Delete Plan?',
+            text: 'Are you sure you want to delete this plan? This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location = `/admin/plan/delete?id=${planId}`;
+            }
+        });
     }
 
     /*  PLAN MODAL  */

@@ -30,10 +30,47 @@ body {
     color: #2c3e50;
 }
 
+.user-info h2 {
+    margin: 0;
+    color: #2c3e50;
+}
+
 .company-info p {
     margin: 3px 0;
     font-size: 13px;
     color: #555;
+}
+
+.user-info p {
+    margin: 3px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.invoice-info {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Delivery Address */
+.delivery-info {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f0f9ff;
+    border-left: 3px solid #0284c7;
+    border-radius: 4px;
+}
+
+.delivery-info h3 {
+    margin: 0 0 8px 0;
+    color: #0369a1;
+    font-size: 14px;
+}
+
+.delivery-info p {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #374151;
 }
 
 /* Status badge */
@@ -46,9 +83,17 @@ body {
     color: #fff;
 }
 
-.paid    { background-color: #27ae60; }
-.partial { background-color: #f39c12; }
-.unpaid  { background-color: #e74c3c; }
+.paid {
+    color: #27ae60;
+}
+
+.partial {
+    color: #f39c12;
+}
+
+.unpaid {
+    color: #e74c3c;
+}
 
 /* Tables */
 table {
@@ -57,7 +102,8 @@ table {
     margin-top: 15px;
 }
 
-th, td {
+th,
+td {
     border: 1px solid #ddd;
     padding: 8px;
     font-size: 13px;
