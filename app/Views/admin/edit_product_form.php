@@ -20,8 +20,10 @@
     </div>
 
     <div class="form-group">
-        <label for="edit_tax_percent">Tax (%)</label>
-        <input type="number" step="0.01" id="edit_tax_percent" name="tax_percent" value="<?= $product['tax_percent'] ?>">
+        <label for="edit_is_tax_free">
+            <input type="checkbox" id="edit_is_tax_free" name="is_tax_free" value="1" <?= !empty($product['is_tax_free']) ? 'checked' : '' ?>>
+            Tax Free (No tax will be applied to this product)
+        </label>
     </div>
 
     <div class="form-group">

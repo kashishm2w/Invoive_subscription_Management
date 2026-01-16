@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Helpers\Session;
 use App\Models\Product;
 use App\Models\Invoice;
+use App\Models\Company;
 use App\Helpers\Pagination;
 
 
@@ -59,6 +60,10 @@ class ProductController
             'total_pages'  => ceil($totalItems / $limit),
         ];
 
+        // Get global tax rate from company settings
+        $companyModel = new Company();
+        $globalTaxRate = $companyModel->getGlobalTaxRate();
+
         $cart = Session::get('cart') ?? [];
         $cartProductIds = array_keys($cart);
         require APP_ROOT . '/app/Views/products/home.php';
@@ -91,6 +96,13 @@ class ProductController
             header("Location: /products");
             exit;
         }
+
+        // Get global tax rate from company settings
+        $companyModel = new Company();
+        $globalTaxRate = $companyModel->getGlobalTaxRate();
+
+        // Calculate tax_percent based on is_tax_free
+        $product['tax_percent'] = !empty($product['is_tax_free']) ? 0 : $globalTaxRate;
 
         // Get cart product IDs to check if product is already in cart
         $cart = Session::get('cart') ?? [];
@@ -125,19 +137,19 @@ class ProductController
     public function addProduct()
     {
         $this->checkAdmin();
-        
+
         // Check if this is an AJAX request
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors = [];
 
             $name        = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
-            $price       = trim($_POST['price'] ?? '');
-            $tax_percent = trim($_POST['tax_percent'] ?? 0);
-            $quantity    = trim($_POST['quantity'] ?? 1);
+            $price       = (float) ($_POST['price'] ?? 0);
+            $is_tax_free = isset($_POST['is_tax_free']) ? 1 : 0;
+            $quantity    = (int) ($_POST['quantity'] ?? 0);
             $poster      = $_FILES['poster'] ?? null;
             // validation
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
@@ -150,12 +162,11 @@ class ProductController
                 $errors[] = "Price must be a valid number with up to 2 decimal places.";
             }
 
-            if (!preg_match('/^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/', $tax_percent)) {
-                $errors[] = "Tax percent must be between 0 and 100.";
-            }
+            // is_tax_free is a checkbox, already validated as 0 or 1
 
-            if (!preg_match('/^(?:[1-9][0-9]?|100)$/', $quantity)) {
-                $errors[] = "Quantity must be between 1 and 100.";
+            // Quantity (ANY integer ≥ 1)
+            if ($quantity < 1) {
+                $errors[] = "Quantity must be a positive integer.";
             }
             // Poster validation
             if ($poster && $poster['error'] === 0) {
@@ -193,11 +204,11 @@ class ProductController
                     'name'        => $name,
                     'description' => $description,
                     'price'       => $price,
-                    'tax_percent' => $tax_percent,
+                    'is_tax_free' => $is_tax_free,
                     'quantity'    => $quantity,
                     'poster'      => $poster_name
                 ]);
-                
+
                 if ($isAjax) {
                     header('Content-Type: application/json');
                     echo json_encode(['success' => true, 'message' => 'Product added successfully!']);
@@ -237,51 +248,51 @@ class ProductController
         }
 
         $product = $this->productModel->getById($id);
-  if (!$product) {
-        header("Location: /dashboard/products");
-        exit;
-    }
-
-    $errors = [];
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Collect form input
-        $name        = trim($_POST['name'] ?? '');
-        $price       = trim($_POST['price'] ?? '');
-        $quantity    = trim($_POST['quantity'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-
-        // Validation
-        if ($name === '' || strlen($name) < 2 || strlen($name) > 50) {
-            $errors[] = "Name must be between 2 and 50 characters.";
-        }
-
-        if (!preg_match('/^\d+(\.\d{1,2})?$/', $price)) {
-            $errors[] = "Price must be a valid number (up to 2 decimal places).";
-        }
-
-        if (!filter_var($quantity, FILTER_VALIDATE_INT) || $quantity < 0) {
-            $errors[] = "Quantity must be a valid integer greater than or equal to 0.";
-        }
-
-        if (!preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n]{10,1000}$/s', $description)) {
-            $errors[] = "Description must be 10-1000 characters and can include letters, numbers, spaces, newlines, and . , : ; ' \" ( )";
-        }
-
-        // If no errors, update product
-        if (empty($errors)) {
-            $this->productModel->update($id, [
-                'name'        => $name,
-                'price'       => $price,
-                'quantity'    => $quantity,
-                'description' => $description
-            ]);
-
-            $_SESSION['success'] = "Product updated successfully!";
+        if (!$product) {
             header("Location: /dashboard/products");
             exit;
         }
-    }
+
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Collect form input
+            $name        = trim($_POST['name'] ?? '');
+            $price       = trim($_POST['price'] ?? '');
+            $quantity    = trim($_POST['quantity'] ?? '');
+            $description = trim($_POST['description'] ?? '');
+
+            // Validation
+            if ($name === '' || strlen($name) < 2 || strlen($name) > 50) {
+                $errors[] = "Name must be between 2 and 50 characters.";
+            }
+
+            if (!preg_match('/^\d+(\.\d{1,2})?$/', $price)) {
+                $errors[] = "Price must be a valid number (up to 2 decimal places).";
+            }
+
+            if (!filter_var($quantity, FILTER_VALIDATE_INT) || $quantity < 0) {
+                $errors[] = "Quantity must be a valid integer greater than or equal to 0.";
+            }
+
+            if (!preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n]{10,1000}$/s', $description)) {
+                $errors[] = "Description must be 10-1000 characters and can include letters, numbers, spaces, newlines, and . , : ; ' \" ( )";
+            }
+
+            // If no errors, update product
+            if (empty($errors)) {
+                $this->productModel->update($id, [
+                    'name'        => $name,
+                    'price'       => $price,
+                    'quantity'    => $quantity,
+                    'description' => $description
+                ]);
+
+                $_SESSION['success'] = "Product updated successfully!";
+                header("Location: /dashboard/products");
+                exit;
+            }
+        }
 
         if (isset($_GET['ajax'])) {
             // Only return the form for modal
@@ -297,11 +308,11 @@ class ProductController
     public function updateProduct()
     {
         $this->checkAdmin();
-        
+
         // Check if this is an AJAX request
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-        
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
             $errors = [];
@@ -321,7 +332,7 @@ class ProductController
             $name        = trim($_POST['name'] ?? '');
             $description = trim($_POST['description'] ?? '');
             $price       = trim($_POST['price'] ?? '');
-            $tax_percent = trim($_POST['tax_percent'] ?? 0);
+            $is_tax_free = isset($_POST['is_tax_free']) ? 1 : 0;
             $quantity    = trim($_POST['quantity'] ?? 1);
             $poster      = $_FILES['poster'] ?? null;
 
@@ -336,9 +347,7 @@ class ProductController
                 $errors[] = "Price must be a valid number with up to 2 decimal places.";
             }
 
-            if (!preg_match('/^(100(\.0{1,2})?|[0-9]{1,2}(\.\d{1,2})?)$/', $tax_percent)) {
-                $errors[] = "Tax percent must be between 0 and 100.";
-            }
+            // is_tax_free is a checkbox, no validation needed
 
             if (!preg_match('/^(?:[1-9][0-9]?|100)$/', $quantity)) {
                 $errors[] = "Quantity must be between 1 and 100.";
@@ -380,14 +389,14 @@ class ProductController
                 'name'        => $name,
                 'description' => $description,
                 'price'       => $price,
-                'tax_percent' => $tax_percent,
+                'is_tax_free' => $is_tax_free,
                 'quantity'    => $quantity,
                 'poster'      => $poster_name,
             ];
 
             try {
                 $this->productModel->update($id, $data);
-                
+
                 if ($isAjax) {
                     header('Content-Type: application/json');
                     echo json_encode(['success' => true, 'message' => 'Product updated successfully!']);
@@ -416,11 +425,11 @@ class ProductController
     public function deleteProduct()
     {
         $this->checkAdmin();
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-        
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         $id = $_GET['id'] ?? null;
-        
+
         if (!$id) {
             if ($isAjax) {
                 header('Content-Type: application/json');
@@ -430,10 +439,10 @@ class ProductController
             header("Location:/products");
             exit;
         }
-        
+
         try {
             $this->productModel->delete($id);
-            
+
             if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => 'Product deleted successfully!']);
@@ -446,7 +455,7 @@ class ProductController
                 exit;
             }
         }
-        
+
         header("Location:/products");
         exit;
     }
@@ -493,6 +502,16 @@ class ProductController
         $totalItems = count($allProducts);
 
         $products = array_slice($allProducts, $offset, $limit);
+
+        // Get global tax rate from company settings
+        $companyModel = new Company();
+        $globalTaxRate = $companyModel->getGlobalTaxRate();
+
+        // Add tax_percent to each product based on is_tax_free
+        foreach ($products as &$product) {
+            $product['tax_percent'] = !empty($product['is_tax_free']) ? 0 : $globalTaxRate;
+        }
+        unset($product); // Break reference
 
         $cart = Session::get('cart') ?? [];
         $cartProductIds = array_keys($cart);

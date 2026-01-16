@@ -58,4 +58,68 @@ class DashboardController
             exit;
         }
     }
+
+    /**
+     * AJAX endpoint: Get chart data for a date range
+     */
+    public function getChartData()
+    {
+        $this->adminOnly();
+
+        header('Content-Type: application/json');
+
+        $startDate = $_GET['start_date'] ?? date('Y-m-01');
+        $endDate = $_GET['end_date'] ?? date('Y-m-t');
+
+        // Validate date format
+        if (!strtotime($startDate) || !strtotime($endDate)) {
+            echo json_encode(['error' => 'Invalid date format']);
+            return;
+        }
+
+        $invoiceModel = new Invoice();
+
+        // Get daily totals by status
+        $dailyTotals = $invoiceModel->getDailyTotalsByStatus($startDate, $endDate);
+
+        // Fill missing dates with 0
+        $period = new \DatePeriod(
+            new \DateTime($startDate),
+            new \DateInterval('P1D'),
+            (new \DateTime($endDate))->modify('+1 day')
+        );
+
+        $salesData = [];
+        $totalAmount = 0;
+        $paidAmount = 0;
+        $unpaidAmount = 0;
+
+        foreach ($period as $date) {
+            $d = $date->format('Y-m-d');
+            $dayTotal = $dailyTotals[$d]['total'] ?? 0;
+            $dayPaid = $dailyTotals[$d]['paid'] ?? 0;
+            $dayUnpaid = $dailyTotals[$d]['unpaid'] ?? 0;
+
+            $salesData[] = [
+                'date'   => $d,
+                'total'  => $dayTotal,
+                'paid'   => $dayPaid,
+                'unpaid' => $dayUnpaid
+            ];
+
+            $totalAmount += $dayTotal;
+            $paidAmount += $dayPaid;
+            $unpaidAmount += $dayUnpaid;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'salesData' => $salesData,
+            'stats' => [
+                'total_amount' => $totalAmount,
+                'total_received' => $paidAmount,
+                'total_outstanding' => $unpaidAmount
+            ]
+        ]);
+    }
 }

@@ -1,22 +1,25 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
 <link rel="stylesheet" href="/assets/css/dashboard.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1>Admin Dashboard</h1>
         <p class="dashboard-subtitle">Overview of your invoice statistics for <?= date('F Y') ?></p>
     </div>
     <!-- Statistics Cards -->
+
     <div class="stats-grid">
         <!-- Total Amount Card -->
         <div class="stat-card total">
             <div class="stat-icon">
-
                 <span style="font-size: 32px; font-weight: bold;">&#36;</span>
             </div>
             <div class="stat-info">
                 <h3>Total Amount</h3>
                 <p class="stat-value">&#36;<?= number_format($stats['total_amount'] ?? 0, 2) ?></p>
-                <span class="stat-count"><?= $stats['total_invoices'] ?? 0 ?> invoices</span>
             </div>
         </div>
         <!-- Paid Card -->
@@ -30,7 +33,6 @@
             <div class="stat-info">
                 <h3>Paid</h3>
                 <p class="stat-value">&#36;<?= number_format($stats['total_received'] ?? 0, 2) ?></p>
-                                <span class="stat-count"><?= $stats['paid_count'] ?? 0 ?> invoices</span>
 
             </div>
         </div>
@@ -46,14 +48,127 @@
             <div class="stat-info">
                 <h3>Unpaid </h3>
                 <p class="stat-value">&#36;<?= number_format($stats['total_outstanding'] ?? 0, 2) ?></p>
-                                <span class="stat-count"><?= $stats['unpaid_count'] ?? 0 ?> invoices</span>
 
-                
+
             </div>
         </div>
-        
 
     </div>
+    <h3>Choose date</h3>
+    <div id="reportrange" class="calendar">
+        <input type="text" name="datefilter" id="datefilter" placeholder="Select date range" />
+        <i class="fa fa-calendar"></i>&nbsp;
+        <span></span> <i class="fa fa-caret-down"></i>
+    </div>
+    <script>
+        $(function() {
+
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+
+            function updateDisplay(start, end) {
+                // Update input
+                $('#datefilter').val(
+                    start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY')
+                );
+
+                // Update visual range
+                $('#reportrange span').html(
+                    start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY')
+                );
+            }
+
+            // Fetch chart data via AJAX and update chart/stats
+            function fetchChartData(startDate, endDate) {
+                const startFormatted = startDate.format('YYYY-MM-DD');
+                const endFormatted = endDate.format('YYYY-MM-DD');
+
+                // Show loading state
+                $('.chart-container').css('opacity', '0.5');
+                $('.stat-value').text('Loading...');
+
+                fetch(`/dashboard/chart-data?start_date=${startFormatted}&end_date=${endFormatted}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update chart
+                            const labels = data.salesData.map(item => item.date);
+                            const totalData = data.salesData.map(item => item.total);
+                            const paidData = data.salesData.map(item => item.paid);
+                            const unpaidData = data.salesData.map(item => item.unpaid);
+
+                            invoiceChart.data.labels = labels;
+                            invoiceChart.data.datasets[0].data = totalData;
+                            invoiceChart.data.datasets[1].data = paidData;
+                            invoiceChart.data.datasets[2].data = unpaidData;
+                            invoiceChart.update();
+
+                            // Update stats cards
+                            $('.stat-card.total .stat-value').text('$' + data.stats.total_amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('.stat-card.paid .stat-value').text('$' + data.stats.total_received.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                            $('.stat-card.unpaid .stat-value').text('$' + data.stats.total_outstanding.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                            // Update pie chart
+                            invoicePieChart.data.datasets[0].data = [
+                                data.stats.total_received,
+                                data.stats.total_outstanding
+                            ];
+                            invoicePieChart.update();
+
+                            // Update chart period text
+                            $('.chart-period').text(startDate.format('MMMM D, YYYY') + ' - ' + endDate.format('MMMM D, YYYY'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chart data:', error);
+                    })
+                    .finally(() => {
+                        $('.chart-container').css('opacity', '1');
+                    });
+            }
+
+            $('#reportrange, #datefilter').daterangepicker({
+                startDate: start,
+                endDate: end,
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear'
+                },
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [
+                        moment().subtract(1, 'month').startOf('month'),
+                        moment().subtract(1, 'month').endOf('month')
+                    ]
+                }
+            }, function(start, end) {
+                updateDisplay(start, end);
+                fetchChartData(start, end);
+            });
+
+            // Apply
+            $('#datefilter').on('apply.daterangepicker', function(ev, picker) {
+                updateDisplay(picker.startDate, picker.endDate);
+                fetchChartData(picker.startDate, picker.endDate);
+            });
+
+            // Clear
+            $('#datefilter').on('cancel.daterangepicker', function() {
+                $(this).val('');
+                $('#reportrange span').html('');
+            });
+
+            // Init
+            updateDisplay(start, end);
+        });
+    </script>
+
+
+
     <!-- Chart Section -->
     <div class="charts-row">
         <div class="chart-section">
@@ -163,7 +278,7 @@
     const invoicePieChart = new Chart(pieCtx, {
         type: 'pie',
         data: {
-            labels: ['Total Received (Paid + Partial)', 'Total Outstanding (Unpaid + Partial)'],
+            labels: ['Total Received (Paid)', 'Total Outstanding (Unpaid)'],
             datasets: [{
                 data: [
                     <?= $stats['total_received'] ?? 0 ?>,

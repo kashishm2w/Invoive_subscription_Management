@@ -19,8 +19,10 @@
     </div>
 
     <div class="form-group">
-        <label for="add_tax_percent">Tax (%)</label>
-        <input type="number" step="0.01" id="add_tax_percent" name="tax_percent" value="0">
+        <label for="add_is_tax_free">
+            <input type="checkbox" id="add_is_tax_free" name="is_tax_free" value="1">
+            Tax Free (No tax will be applied to this product)
+        </label>
     </div>
 
     <div class="form-group">

@@ -90,12 +90,12 @@ class AuthController
                 exit;
             }
 
-            // Normal user → products
+            // Normal user products
             header("Location: /home");
             exit;
         }
 
-        // Not logged in → show login page
+        // Not logged in  show login page
         require APP_ROOT . '/app/Views/auth/login.php';
     }
 
@@ -132,7 +132,7 @@ class AuthController
             Session::set('success', 'Welcome back, ' . $user['name'] . '!');
 
 
-            // Popup login redirect (cart → checkout)
+            // Popup login redirect (cart  checkout)
             if (!empty($_POST['redirect_after_login'])) {
                 header("Location: " . $_POST['redirect_after_login']);
                 exit;

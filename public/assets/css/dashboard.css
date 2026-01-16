@@ -129,6 +129,40 @@
     color: #e67e22;
 }
 
+/* calender */
+
+.calendar {
+    background: #9fcbe9;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #32739e;
+    border-radius: 4px;
+    width: max-content;
+    margin: 15px;
+}
+
+.calendar input {
+    border: none;
+    background: transparent;
+    color: #000000;
+    outline: none;
+    width: 200px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.calendar span {
+    color: #000000;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.calendar i {
+    color: #000000;
+    cursor: pointer;
+}
+
 /* Chart Section */
 .charts-row {
     display: flex;

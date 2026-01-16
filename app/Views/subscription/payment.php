@@ -46,13 +46,7 @@ use App\Helpers\Session;
                 </div>
                 <div class="item-price">&#36;<?= number_format($plan['price'], 2) ?></div>
             </div>
-            
-            <?php if (!empty($plan['description'])): ?>
-                <div class="plan-description">
-                    <?= htmlspecialchars($plan['description']) ?>
-                </div>
-            <?php endif; ?>
-            
+                        
             <div class="order-total">
                 <span>Total Amount</span>
                 <strong>&#36;<?= number_format($plan['price'], 2) ?></strong>

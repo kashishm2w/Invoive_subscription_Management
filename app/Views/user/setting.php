@@ -1,22 +1,59 @@
 <?php require APP_ROOT . '/app/Views/layouts/header.php'; ?>
 <link rel="stylesheet" href="/assets/css/setting.css">
 
-<div class="settings-container">
-    <h1>User Settings</h1>
-    <form id="settingsForm" action="/settings/update" method="POST">
-        <label>Name</label>
-        <input type="text" name="name" id="name"
-            value="<?= htmlspecialchars($user['name'] ?? '') ?>" required>
+<div class="settings-wrapper">
+    <div class="settings-container user-form">
+        <h1>Account Settings</h1>
+        
+        <div class="user-avatar">
+            <div class="avatar-circle">
+                <?= strtoupper(substr($user['name'] ?? 'U', 0, 1)) ?>
+            </div>
+            <p class="user-email"><?= htmlspecialchars($user['email'] ?? '') ?></p>
+        </div>
 
-        <label>Email</label>
-        <input type="email" name="email" id="email"
-            value="<?= htmlspecialchars($user['email'] ?? '') ?>">
+        <form id="settingsForm" action="/settings/update" method="POST">
+            
+            <!-- Name Field -->
+            <div class="form-row full-width">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" name="name" id="name"
+                        value="<?= htmlspecialchars($user['name'] ?? '') ?>" 
+                        placeholder="Enter your full name"
+                        required>
+                </div>
+            </div>
 
-        <label>Password (leave blank to keep current)</label>
-        <input type="password" name="password" id="password">
+            <!-- Email Field -->
+            <div class="form-row full-width">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" name="email" id="email"
+                        value="<?= htmlspecialchars($user['email'] ?? '') ?>"
+                        placeholder="Enter your email address">
+                </div>
+            </div>
 
-        <button type="submit" id="submitBtn">Update Settings</button>
-    </form>
+            <!-- Password Field -->
+            <div class="form-row full-width">
+                <div class="form-group">
+                    <label for="password">New Password</label>
+                    <input type="password" name="password" id="password"
+                        placeholder="Leave blank to keep current password">
+                    <span class="field-hint">Password must be at least 8 characters with uppercase, lowercase, and number</span>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button type="submit" id="submitBtn" class="btn-save">
+                    <span class="btn-icon"></span> Update Settings
+                </button>
+            </div>
+
+        </form>
+    </div>
 </div>
 
 <script>
@@ -29,7 +66,7 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
     
     // Disable button and show loading
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    submitBtn.innerHTML = '<span class="btn-icon">⏳</span> Updating...';
     
     fetch('/settings/update', {
         method: 'POST',
@@ -41,14 +78,14 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Update Settings';
+        submitBtn.innerHTML = '<span class="btn-icon"></span> Update Settings';
         
         if (data.success) {
             Swal.fire({
                 icon: 'success',
                 title: 'Updated Successfully!',
                 text: data.message,
-                confirmButtonColor: '#3085d6',
+                confirmButtonColor: '#4ecdc4',
                 timer: 3000,
                 timerProgressBar: true
             }).then(() => {
@@ -68,19 +105,19 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
                 icon: 'error',
                 title: 'Update Failed',
                 html: errorMessages.join('<br>'),
-                confirmButtonColor: '#d33'
+                confirmButtonColor: '#e74c3c'
             });
         }
     })
     .catch(error => {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Update Settings';
+        submitBtn.innerHTML = '<span class="btn-icon"></span> Update Settings';
         
         Swal.fire({
             icon: 'error',
             title: 'Error',
             text: 'An unexpected error occurred. Please try again.',
-            confirmButtonColor: '#d33'
+            confirmButtonColor: '#e74c3c'
         });
     });
 });

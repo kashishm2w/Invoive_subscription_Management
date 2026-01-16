@@ -29,7 +29,8 @@ use App\Helpers\Session;
                 <?php foreach ($products as $product): ?>
                     <?php
                     $price = (float)$product['price'];
-                    $tax = (float)$product['tax_percent'];
+                    // Calculate tax_percent based on is_tax_free and global tax rate
+                    $tax = !empty($product['is_tax_free']) ? 0 : $globalTaxRate;
                     $total = $price + ($price * $tax / 100);
                     $isInCart = in_array($product['id'], $cartProductIds);
                     ?>

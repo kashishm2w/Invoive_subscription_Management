@@ -8,17 +8,20 @@ class Invoice extends Model
 {
     public function create(array $data): int
     {
+        $addressId = $data['address_id'] ?? null;
+        
         $stmt = $this->db->prepare("
             INSERT INTO invoices 
-            (created_by, client_id, invoice_number, invoice_date, due_date,
+            (created_by, client_id, address_id, invoice_number, invoice_date, due_date,
              subtotal, tax_type, tax_rate, tax_amount, discount, total_amount, status, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $stmt->bind_param(
-            "iisssdsddddss",
+            "iiisssdsddddss",
             $data['created_by'],
             $data['client_id'],
+            $addressId,
             $data['invoice_number'],
             $data['invoice_date'],
             $data['due_date'],
@@ -88,6 +91,8 @@ public function getDailyTotals(string $startDate, string $endDate): array
 
 /**
  * Get daily totals broken down by status (total, paid, unpaid)
+ * Paid = fully paid + partial paid amount
+ * Unpaid = unpaid + partial remaining amount
  */
 public function getDailyTotalsByStatus(string $startDate, string $endDate): array
 {
@@ -95,8 +100,20 @@ public function getDailyTotalsByStatus(string $startDate, string $endDate): arra
         SELECT 
             DATE(invoice_date) AS date,
             SUM(total_amount) AS total,
-            SUM(CASE WHEN status = 'Paid' THEN total_amount ELSE 0 END) AS paid,
-            SUM(CASE WHEN status = 'Unpaid' THEN total_amount ELSE 0 END) AS unpaid
+            SUM(
+                CASE 
+                    WHEN LOWER(status) = 'paid' THEN total_amount 
+                    WHEN LOWER(status) = 'partial' THEN COALESCE(amount_paid, 0)
+                    ELSE 0 
+                END
+            ) AS paid,
+            SUM(
+                CASE 
+                    WHEN LOWER(status) = 'unpaid' OR LOWER(status) = 'overdue' THEN total_amount 
+                    WHEN LOWER(status) = 'partial' THEN (total_amount - COALESCE(amount_paid, 0))
+                    ELSE 0 
+                END
+            ) AS unpaid
         FROM invoices
         WHERE invoice_date BETWEEN ? AND ?
         GROUP BY DATE(invoice_date)

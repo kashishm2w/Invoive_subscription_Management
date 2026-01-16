@@ -117,6 +117,36 @@ class Subscription extends Model
     }
 
     /**
+     * Get user's most recent inactive subscription (cancelled or expired)
+     * to determine which message to show
+     */
+    public function getMostRecentInactiveSubscription(int $userId): ?array
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                s.*,
+                p.plan_name,
+                p.price,
+                p.billing_cycle
+            FROM subscriptions s
+            JOIN subscription_plans p ON p.id = s.plan_id
+            WHERE s.user_id = ?
+              AND s.status IN ('cancelled', 'expired')
+            ORDER BY s.created_at DESC
+            LIMIT 1
+        ");
+
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        return $result->num_rows
+            ? $result->fetch_assoc()
+            : null;
+    }
+
+    /**
      * Get all subscriptions with user details (for admin tracking)
      */
     public function getAllWithUserDetails(): array

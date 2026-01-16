@@ -64,6 +64,7 @@ class SettingController
                 'phone' => $_POST['phone'],
                 'address' => $_POST['address'],
                 'tax_number' => $_POST['tax_number'] ?? '',
+                'tax_percent' => $_POST['tax_percent'] ?? 18,
                 'logo' => $logoName
             ]);
 

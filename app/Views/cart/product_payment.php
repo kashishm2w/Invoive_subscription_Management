@@ -81,6 +81,8 @@ $subtotal = $subtotal ?? 0;
 
         <!-- Card Input -->
         <form action="/cart/payment/process" method="POST" id="payment-form">
+            <!-- Pass address_id for delivery address -->
+            <input type="hidden" name="address_id" value="<?= htmlspecialchars($_GET['address_id'] ?? '') ?>">
             
             <!-- Partial Payment Option -->
             <div class="partial-payment-section">

@@ -28,7 +28,7 @@
             </div>
             <div class="price-row">
                 <span class="price-label">Tax:</span>
-                <span class="price-value"><?= htmlspecialchars($product['tax_percent']) ?>%</span>
+                <span class="price-value"><?= number_format((float)$product['tax_percent'], 2) ?>%</span>
             </div>
         <?php endif; ?>
         <div class="price-row total">
