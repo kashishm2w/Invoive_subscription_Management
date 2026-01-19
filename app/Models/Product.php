@@ -102,6 +102,18 @@ class Product extends Model
     }
 
     /**
+     * Update only the poster field for a product
+     */
+    public function updatePoster(int $id, string $poster): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE products SET poster = ?, updated_at = NOW() WHERE id = ?"
+        );
+        $stmt->bind_param("si", $poster, $id);
+        return $stmt->execute();
+    }
+
+    /**
      * Search products by name
      */
     public function searchByName(string $search = ''): array

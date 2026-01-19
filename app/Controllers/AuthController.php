@@ -23,15 +23,15 @@ class AuthController
         require APP_ROOT . '/app/Views/auth/register.php';
     }
 
-    // POST /register
+    // // POST /register
     public function register()
     {
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $name     = trim($_POST['name'] ?? '');
-            $email    = strtolower(trim($_POST['email'] ?? ''));
+            $name = trim($_POST['name'] ?? '');
+            $email= strtolower(trim($_POST['email'] ?? ''));
             $password = trim($_POST['password'] ?? '');
             $confirm  = trim($_POST['confirm_password'] ?? '');
 
@@ -40,16 +40,12 @@ class AuthController
                 $errors[] = "All fields are required.";
             }
             // Name
-            elseif (!preg_match("/^[a-zA-Z ]+$/", $name)) {
-                $errors[] = "Name can only contain letters and spaces.";
-            } elseif (strlen($name) < 2 || strlen($name) > 100) {
-                $errors[] = "Name should contain 2 to 100 characters.";
+            elseif (!preg_match("/^[a-zA-Z0-9 ]+$/", $name)) {
+                $errors[] = 'Name can contain only letters, numbers, and spaces';
             }
             // Email
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors[] = "Invalid email format.";
-            } elseif (strlen($email) > 100) {
-                $errors[] = "Invalid Emial format.";
             } elseif ($this->user->emailExists($email)) {
                 $errors[] = "Email already registered.";
             }
@@ -170,5 +166,115 @@ class AuthController
         // Redirect to login page
         header("Location: /dashboard");
         exit;
+    }
+
+
+    public function ajaxLogin()
+    {
+        header('Content-Type: application/json');
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'errors' => ['Invalid request method.']]);
+            return;
+        }
+
+        $email = strtolower(trim($_POST['email'] ?? ''));
+        $password = trim($_POST['password'] ?? '');
+
+        // Validation
+        if ($email === '' || $password === '') {
+            $errors[] = "Email and password are required.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format.";
+        } else {
+            $user = $this->user->findByEmail($email);
+            if (!$user || !password_verify($password, $user['password'])) {
+                $errors[] = "Invalid email or password.";
+            }
+        }
+
+        if (!empty($errors)) {
+            echo json_encode(['success' => false, 'errors' => $errors]);
+            return;
+        }
+
+        // LOGIN SUCCESS
+        Session::set('user_id', $user['id']);
+        Session::set('name', $user['name']);
+        Session::set('role', $user['role']);
+        Session::set('email', $user['email']);
+
+        // Determine redirect URL
+        $redirect = '/home';
+        if (!empty($_POST['redirect_after_login'])) {
+            $redirect = $_POST['redirect_after_login'];
+        } elseif (Session::has('redirect_after_login')) {
+            $redirect = Session::get('redirect_after_login');
+            Session::remove('redirect_after_login');
+        } elseif (Session::get('role') === 'admin') {
+            $redirect = '/dashboard';
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Welcome back, ' . $user['name'] . '!',
+            'redirect' => $redirect
+        ]);
+    }
+
+  
+    public function ajaxRegister()
+    {
+        header('Content-Type: application/json');
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'errors' => ['Invalid request method.']]);
+            return;
+        }
+
+        $name     = trim($_POST['name'] ?? '');
+        $email    = strtolower(trim($_POST['email'] ?? ''));
+        $password = trim($_POST['password'] ?? '');
+        $confirm  = trim($_POST['confirm_password'] ?? '');
+
+        // Validation
+        if ($name === '' || $email === '' || $password === '' || $confirm === '') {
+            $errors[] = "All fields are required.";
+        }
+        // Name validation
+        if ($name !== '' && !preg_match("/^[a-zA-Z0-9 ]+$/", $name)) {
+            $errors[] = "Name can only contain letters and spaces.";
+        }
+        // Email validation
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format.";
+        } elseif ($email !== '' && $this->user->emailExists($email)) {
+            $errors[] = "Email already registered.";
+        }
+        // Password validation
+        if ($password !== '' && $password !== $confirm) {
+            $errors[] = "Passwords do not match.";
+        } elseif ($password !== '' && !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $password)) {
+            $errors[] = "Password must have at least 8 characters including uppercase, lowercase, and number.";
+        }
+
+        if (!empty($errors)) {
+            echo json_encode(['success' => false, 'errors' => $errors]);
+            return;
+        }
+
+        // Hash password securely
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        // Save to database
+        $this->user->register($name, $email, $hashed);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Registration successful! Please login.',
+            'redirect' => '/login'
+        ]);
     }
 }

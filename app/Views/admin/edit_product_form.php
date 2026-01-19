@@ -41,8 +41,14 @@
         <label for="edit_poster">Product Poster</label>
         <input type="file" id="edit_poster" name="poster">
         <?php if (!empty($product['poster'])): ?>
-            <p class="current-image-label">Current Image:</p>
-            <img src="/uploads/<?= htmlspecialchars($product['poster']) ?>" class="current-poster-preview" style="width:80px;">
+            <div id="current-poster-container">
+                <p class="current-image-label">Current Image:</p>
+                <img src="/uploads/<?= htmlspecialchars($product['poster']) ?>" class="current-poster-preview" id="current-poster-img" style="width:80px;">
+                <?php if ($product['poster'] !== 'default.png' && $product['poster'] !== 'default.jpg'): ?>
+                    <button type="button" class="btn-delete-poster" onclick="deletePoster(<?= $product['id'] ?>)">Delete Poster</button>
+
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
     </div>
 

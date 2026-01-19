@@ -23,7 +23,7 @@ function addToCartFromHome(productId) {
                     text: 'Product has been added to your cart.',
                     confirmButtonColor: '#3085d6',
                     timer: 2000,
-                    timerProgressBar: true
+                    
                 });
             } else {
                 // Show warning for stock exceeded
@@ -137,7 +137,7 @@ function addToCartFromModal(productId) {
                     text: 'Product has been added to your cart.',
                     confirmButtonColor: '#3085d6',
                     timer: 2000,
-                    timerProgressBar: true
+                    
                 }).then(() => {
                     closeViewProductModal();
                 });

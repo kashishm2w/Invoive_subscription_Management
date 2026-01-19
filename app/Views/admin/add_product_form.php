@@ -38,6 +38,7 @@
         <label for="add_poster">Product Poster</label>
         <input type="file" id="add_poster" name="poster" accept="image/*">
     </div>
+    
 
     <button type="submit" class="form-button">Add Product</button>
 </form>

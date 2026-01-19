@@ -756,3 +756,13 @@
     border-color: #667eea;
     pointer-events: none;
 }
+
+.active {
+    font-weight: bold;
+    color: #fff;
+}
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}

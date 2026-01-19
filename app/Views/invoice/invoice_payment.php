@@ -163,7 +163,7 @@ var style = {
     }
 };
 
-var card = elements.create('card', { style: style });
+var card = elements.create('card', { style: style, hidePostalCode: true });
 card.mount('#card-element');
 
 card.on('change', function(event) {
@@ -191,8 +191,11 @@ var spinner = document.getElementById('spinner');
 form.addEventListener('submit', function(event) {
     event.preventDefault();
     
-    var amount = parseFloat(paymentInput.value) || 0;
-    if (amount <= 0 || amount > remainingAmount) {
+    var amount = parseFloat(paymentInput.value);
+    // Round to 2 decimal places for proper comparison
+    amount = Math.round(amount * 100) / 100;
+    
+    if (isNaN(amount) || amount <= 0 || amount > Math.round(remainingAmount * 100) / 100) {
         document.getElementById('card-errors').textContent = 'Please enter a valid payment amount';
         return;
     }

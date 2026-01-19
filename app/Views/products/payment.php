@@ -58,7 +58,7 @@ var style = {
     }
 };
 
-var card = elements.create('card', {style: style});
+var card = elements.create('card', {style: style, hidePostalCode: true});
 card.mount('#card-element');
 
 // Handle real-time validation errors

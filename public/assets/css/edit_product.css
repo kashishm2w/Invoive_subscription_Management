@@ -11,7 +11,7 @@ form {
     background: #ffffff;
     padding: 28px;
     border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -35,7 +35,7 @@ form input[type="number"] {
 
 form input:focus {
     border-color: #80A1BA;
-    box-shadow: 0 0 0 2px rgba(128,161,186,0.2);
+    box-shadow: 0 0 0 2px rgba(128, 161, 186, 0.2);
 }
 
 form input[type="hidden"] {
@@ -62,14 +62,17 @@ form button:hover {
 form button:active {
     transform: scale(0.98);
 }
+
 .modal {
     display: none;
     position: fixed;
     z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
@@ -91,4 +94,40 @@ form button:active {
         margin: 0 20px 40px;
         padding: 20px;
     }
+}
+
+/* Current poster container */
+#current-poster-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.current-poster-preview {
+    border-radius: 4px;
+    border: 1px solid #cfd8e3;
+}
+
+/* Delete Poster Button */
+.btn-delete-poster {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    background-color: #dc3545;
+    color: #ffffff;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    width: fit-content;
+    margin-top: 5px;
+}
+
+.btn-delete-poster:hover {
+    background-color: #c82333;
+}
+
+.btn-delete-poster:active {
+    transform: scale(0.98);
 }

@@ -54,3 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isValid) form.submit();
     });
 });
+function deletePoster(id) {
+    fetch("/delete-poster", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "product_id=" + id
+    })
+    .then(res => res.json())
+    .then(() => location.reload());
+}

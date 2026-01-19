@@ -130,25 +130,28 @@ elseif ($currentPage === 2):
     <a href="?page=1">1</a>
     <a href="?page=2" class="active">2</a>
 
-    <?php if ($totalPages > 3): ?>
-        <span class="ellipsis">...</span>
+    <?php if ($totalPages > 2): ?>
+        <?php if ($totalPages > 3): ?>
+            <span class="ellipsis">...</span>
+        <?php endif; ?>
+        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
     <?php endif; ?>
-
-    <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
 
 <?php
 /* PAGE 3 */
 elseif ($currentPage === 3):
 ?>
-    <span class="ellipsis">...</span>
+    <a href="?page=1">1</a>
+    <a href="?page=2">2</a>
     <a href="?page=3" class="active">3</a>
 
     <?php if ($totalPages >= 4): ?>
         <a href="?page=4">4</a>
     <?php endif; ?>
 
-    <?php if ($totalPages >= 5): ?>
-        <a href="?page=5">5</a>
+    <?php if ($totalPages > 4): ?>
+        <span class="ellipsis">...</span>
+        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
     <?php endif; ?>
 
 <?php

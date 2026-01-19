@@ -168,6 +168,9 @@ body {
 
 .header_account span {
     color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .top-bar_username {

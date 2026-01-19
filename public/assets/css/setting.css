@@ -274,6 +274,8 @@ background: linear-gradient(135deg, #303e51 0%, #10182b 100%);
     color: #b8d4e3;
     font-size: 14px;
     margin: 0;
+     word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* User Form Labels */

@@ -71,7 +71,7 @@
                 <div class="form-group">
                     <label for="tax_percent">Default Tax Rate</label>
                     <select name="tax_percent" id="tax_percent">
-                        <option value="0" <?= ($company['tax_percent'] ?? 18) == 0 ? 'selected' : '' ?>>0% (Tax Free)</option>
+                        <option value="0" <?= ($company['tax_percent'] ?? 18) == 0 ? 'selected' : '' ?>>Tax Free(0%)</option>
                         <option value="5" <?= ($company['tax_percent'] ?? 18) == 5 ? 'selected' : '' ?>>5%</option>
                         <option value="12" <?= ($company['tax_percent'] ?? 18) == 12 ? 'selected' : '' ?>>12%</option>
                         <option value="18" <?= ($company['tax_percent'] ?? 18) == 18 ? 'selected' : '' ?>>18%</option>

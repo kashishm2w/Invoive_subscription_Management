@@ -60,6 +60,10 @@ $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
 
+// AJAX Auth Routes
+$router->post('/ajax/login', [AuthController::class, 'ajaxLogin']);
+$router->post('/ajax/register', [AuthController::class, 'ajaxRegister']);
+
 // user
 // $router->post('/user/update-profile',[UserController::class ,'updateProfile']);
 
@@ -73,6 +77,7 @@ $router->post('/add-product', [ProductController::class, 'addProduct']);
 $router->get('/dashboard/products/edit', [ProductController::class, 'editProductForm']);
 $router->post('/dashboard/products/edit', [ProductController::class, 'updateProduct']);
 $router->get('/dashboard/products/delete', [ProductController::class, 'deleteProduct']);
+$router->post('/dashboard/products/delete-poster', [ProductController::class, 'deletePoster']);
 // $router->get('/dashboard/invoices', [ProductController::class, 'trackInvoices']);
 // cart
 $router->get('/cart', [CartController::class, 'showCart']);

@@ -173,6 +173,71 @@ function closeEditProductModal() {
     document.getElementById('editFormContainer').innerHTML = '';
 }
 
+// Delete Product Poster
+function deletePoster(productId) {
+    Swal.fire({
+        title: 'Delete Poster?',
+        text: 'Are you sure you want to delete this poster? The product will use the default image.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/dashboard/products/delete-poster', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `id=${productId}`
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: data.message || 'Poster has been deleted.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Update the UI to show default image
+                        const posterImg = document.getElementById('current-poster-img');
+                        if (posterImg) {
+                            posterImg.src = '/uploads/default.png';
+                        }
+
+                        // Hide the delete button
+                        const deleteBtn = document.querySelector('.btn-delete-poster');
+                        if (deleteBtn) {
+                            deleteBtn.style.display = 'none';
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error || 'Failed to delete poster',
+                            confirmButtonColor: '#d33'
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to delete poster. Please try again.',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+        }
+    });
+}
+
 // Handle Edit Form Submit via AJAX
 function handleEditFormSubmit(e) {
     e.preventDefault();
@@ -443,7 +508,7 @@ function updateProductTable(products, cartProductIds) {
 
         let row = `<tr>
             <td>
-                ${product.poster && product.poster !== 'default.png'
+                ${product.poster && product.poster !== 'default.jpg'
                 ? `<img src="/uploads/${product.poster}" alt="${product.name}" class="product-poster" style="width:60px; height:auto;">`
                 : '<span>No Image</span>'}
             </td>
