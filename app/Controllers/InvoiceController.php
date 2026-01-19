@@ -554,9 +554,13 @@ class InvoiceController
             exit;
         }
 
-        // Check if already paid
-        if (strtolower($invoice['status']) === 'paid') {
-            Session::set('error', 'This invoice is already paid');
+        // Check if already fully paid (verify actual amounts, not just status)
+        $amountPaid = (float)($invoice['amount_paid'] ?? 0);
+        $totalAmount = (float)$invoice['total_amount'];
+        $remainingAmount = $totalAmount - $amountPaid;
+        
+        if ($remainingAmount <= 0) {
+            Session::set('error', 'This invoice is already fully paid');
             header('Location: /my_invoices');
             exit;
         }

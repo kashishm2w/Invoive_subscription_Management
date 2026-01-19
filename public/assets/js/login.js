@@ -1,3 +1,4 @@
+// Get form and inputs
 const form = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
@@ -23,6 +24,55 @@ function clearError(input) {
     }
 }
 
+// Clear existing error list if present
+function clearServerErrors() {
+    const errorList = document.querySelector('.error-list');
+    if (errorList) {
+        errorList.remove();
+    }
+}
+
+// Show server-side errors in error list format
+function showServerErrors(errors) {
+    clearServerErrors();
+
+    const errorList = document.createElement('ul');
+    errorList.className = 'error-list';
+
+    errors.forEach(error => {
+        const li = document.createElement('li');
+        li.textContent = error;
+        errorList.appendChild(li);
+    });
+
+    // Insert after title but before form
+    const formContainer = form.closest('.form-container') || form.parentElement;
+    const formTitle = formContainer.querySelector('.form-title');
+    if (formTitle) {
+        formTitle.insertAdjacentElement('afterend', errorList);
+    } else {
+        formContainer.insertBefore(errorList, form);
+    }
+}
+
+// Show success message
+function showSuccessMessage(message) {
+    clearServerErrors();
+
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.style.cssText = 'background-color: #d1fae5; border-left: 4px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;';
+    successDiv.textContent = message;
+
+    const formContainer = form.closest('.form-container') || form.parentElement;
+    const formTitle = formContainer.querySelector('.form-title');
+    if (formTitle) {
+        formTitle.insertAdjacentElement('afterend', successDiv);
+    } else {
+        formContainer.insertBefore(successDiv, form);
+    }
+}
+
 // Real-time validation
 emailInput.addEventListener("input", () => {
     if (!emailRegex.test(emailInput.value.trim())) {
@@ -40,12 +90,55 @@ passwordInput.addEventListener("input", () => {
     }
 });
 
-// Submit check
-form.addEventListener("submit", (e) => {
+// AJAX Form submission
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Client-side validation
     let hasError = false;
 
-    if (!emailRegex.test(emailInput.value.trim())) hasError = true;
-    if (passwordInput.value.length < 6) hasError = true;
+    if (!emailRegex.test(emailInput.value.trim())) {
+        showError(emailInput, "Invalid email format");
+        hasError = true;
+    }
+    if (passwordInput.value.length < 6) {
+        showError(passwordInput, "Password must be at least 6 characters");
+        hasError = true;
+    }
 
-    if (hasError) e.preventDefault();
+    if (hasError) return;
+
+    // Get submit button and show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Logging in...';
+
+    try {
+        const formData = new FormData(form);
+
+        const response = await fetch('/ajax/login', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccessMessage(data.message);
+            // Redirect after short delay
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1000);
+        } else {
+            showServerErrors(data.errors);
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showServerErrors(['An unexpected error occurred. Please try again.']);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
 });

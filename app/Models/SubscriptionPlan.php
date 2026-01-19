@@ -59,12 +59,7 @@ class SubscriptionPlan extends Model
         return $result['count'] > 0;
     }
 
-    /**
-     * Check if a plan with the given name already exists
-     * @param string $name Plan name to check
-     * @param int|null $excludeId Optional ID to exclude (for updates)
-     * @return bool True if a plan with this name exists
-     */
+   
     public function existsByName(string $name, ?int $excludeId = null): bool
     {
         $name = strtolower(trim($name));

@@ -192,7 +192,7 @@ class ProductController
             }
 
             // Handle poster upload
-            $poster_name = 'default.png';
+            $poster_name = 'default.jpg';
             if ($poster && $poster['error'] === 0) {
                 $poster_name = time() . '_' . basename($poster['name']);
                 move_uploaded_file($poster['tmp_name'], APP_ROOT . '/public/uploads/' . $poster_name);
@@ -379,7 +379,7 @@ class ProductController
             }
 
             // Handle poster upload
-            $poster_name = $currentProduct['poster'] ?? 'default.png';
+            $poster_name = $currentProduct['poster'] ?? 'default.jpg';
             if ($poster && $poster['error'] === 0 && $poster['size'] > 0) {
                 $poster_name = time() . '_' . basename($poster['name']);
                 move_uploaded_file($poster['tmp_name'], APP_ROOT . '/public/uploads/' . $poster_name);
@@ -531,5 +531,86 @@ class ProductController
             'cartProductIds' => $cartProductIds,
             'isAdmin' => $isAdmin
         ]);
+    }
+
+    public function deletePoster()
+    {
+        $this->checkAdmin();
+        
+        // Check if this is an AJAX request
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                http_response_code(405);
+                echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+                exit;
+            }
+            header("Location: /products");
+            exit;
+        }
+
+        $id = $_POST['id'] ?? null;
+
+        if (!$id) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Product ID is required']);
+                exit;
+            }
+            header("Location: /products");
+            exit;
+        }
+
+        // Get the current product
+        $product = $this->productModel->getById($id);
+
+        if (!$product) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                http_response_code(404);
+                echo json_encode(['success' => false, 'error' => 'Product not found']);
+                exit;
+            }
+            header("Location: /products");
+            exit;
+        }
+
+        // Delete the old poster file if it exists and is not default
+        $oldPoster = $product['poster'] ?? '';
+        if ($oldPoster && $oldPoster !== 'default.png' && $oldPoster !== 'default.jpg') {
+            $oldPath = APP_ROOT . '/public/uploads/' . $oldPoster;
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
+        // Update the product to use default.png
+        try {
+            $this->productModel->updatePoster($id, 'default.png');
+
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Poster deleted successfully!',
+                    'poster' => 'default.png'
+                ]);
+                exit;
+            }
+        } catch (\Exception $e) {
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Failed to delete poster. Please try again.']);
+                exit;
+            }
+        }
+
+        header("Location: /products");
+        exit;
     }
 }

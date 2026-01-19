@@ -26,47 +26,95 @@ function clearError(input) {
     }
 }
 
+// Clear existing error list if present
+function clearServerErrors() {
+    const errorList = document.querySelector('.error-list');
+    if (errorList) {
+        errorList.remove();
+    }
+    const successMsg = document.querySelector('.success-message');
+    if (successMsg) {
+        successMsg.remove();
+    }
+}
+
+// Show server-side errors in error list format
+function showServerErrors(errors) {
+    clearServerErrors();
+
+    const errorList = document.createElement('ul');
+    errorList.className = 'error-list';
+
+    errors.forEach(error => {
+        const li = document.createElement('li');
+        li.textContent = error;
+        errorList.appendChild(li);
+    });
+
+    // Insert after title but before form
+    const formContainer = form.closest('.form-container') || form.parentElement;
+    const formTitle = formContainer.querySelector('.form-title');
+    if (formTitle) {
+        formTitle.insertAdjacentElement('afterend', errorList);
+    } else {
+        formContainer.insertBefore(errorList, form);
+    }
+}
+
+// Show success message
+function showSuccessMessage(message) {
+    clearServerErrors();
+
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.style.cssText = 'background-color: #d1fae5; border-left: 4px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;';
+    successDiv.textContent = message;
+
+    const formContainer = form.closest('.form-container') || form.parentElement;
+    const formTitle = formContainer.querySelector('.form-title');
+    if (formTitle) {
+        formTitle.insertAdjacentElement('afterend', successDiv);
+    } else {
+        formContainer.insertBefore(successDiv, form);
+    }
+}
 // Regex patterns
-const nameRegex = /^[a-zA-Z ]+$/;
+const nameRegex = /^[a-zA-Z0-9 ]+$/;
 const emailRegex = /^[a-z0-9._]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 // Real-time validation
 nameInput.addEventListener("input", () => {
     const value = nameInput.value.trim();
-    if (!nameRegex.test(value)) {
+    if (value && !nameRegex.test(value)) {
         showError(nameInput, "Name can only contain letters and spaces");
-    } else if (value.length < 2 || value.length > 30) {
-        showError(nameInput, "Name should contain 2 to 30 characters");
     } else {
-        clearError(nameInput); //  error disappears if valid
+        clearError(nameInput);
     }
 });
 
 emailInput.addEventListener("input", () => {
     const value = emailInput.value.trim();
-    if (!emailRegex.test(value)) {
+    if (value && !emailRegex.test(value)) {
         showError(emailInput, "Invalid email format");
-    } else if (value.length > 25) {
-        showError(emailInput, "Email must not exceed 25 characters");
     } else {
-        clearError(emailInput); //  error disappears if valid
+        clearError(emailInput);
     }
 });
 
 passwordInput.addEventListener("input", () => {
     const value = passwordInput.value;
-    if (!passwordRegex.test(value)) {
+    if (value && !passwordRegex.test(value)) {
         showError(passwordInput, "Password must have at least 8 characters including uppercase, lowercase, and number");
     } else {
-        clearError(passwordInput); //  error disappears if valid
+        clearError(passwordInput);
     }
 
     // Check confirm password if user typed in password field
     if (confirmInput.value && confirmInput.value !== value) {
         showError(confirmInput, "Passwords do not match");
-    } else {
-        clearError(confirmInput); //  error disappears if matches
+    } else if (confirmInput.value) {
+        clearError(confirmInput);
     }
 });
 
@@ -74,12 +122,15 @@ confirmInput.addEventListener("input", () => {
     if (confirmInput.value !== passwordInput.value) {
         showError(confirmInput, "Passwords do not match");
     } else {
-        clearError(confirmInput); 
+        clearError(confirmInput);
     }
 });
 
-// Final check on submit
-form.addEventListener("submit", (e) => {
+// AJAX Form submission
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Client-side validation
     let hasError = false;
 
     const nameValue = nameInput.value.trim();
@@ -87,13 +138,12 @@ form.addEventListener("submit", (e) => {
     const passwordValue = passwordInput.value;
     const confirmValue = confirmInput.value;
 
-    // Validation
-    if (!nameRegex.test(nameValue) || nameValue.length < 2 || nameValue.length > 30) {
-        showError(nameInput, "Name can only contain letters and spaces, 2–30 characters");
+    if (!nameValue || !nameRegex.test(nameValue)) {
+        showError(nameInput, "Name can only contain letters and spaces");
         hasError = true;
     }
-    if (!emailRegex.test(emailValue) || emailValue.length > 25) {
-        showError(emailInput, "Invalid email or too long");
+    if (!emailValue || !emailRegex.test(emailValue)) {
+        showError(emailInput, "Invalid email format");
         hasError = true;
     }
     if (!passwordRegex.test(passwordValue)) {
@@ -105,5 +155,41 @@ form.addEventListener("submit", (e) => {
         hasError = true;
     }
 
-    if (hasError) e.preventDefault(); 
+    if (hasError) return;
+
+    // Get submit button and show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Registering...';
+
+    try {
+        const formData = new FormData(form);
+
+        const response = await fetch('/ajax/register', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccessMessage(data.message);
+            // Clear form
+            form.reset();
+            // Redirect after short delay
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1500);
+        } else {
+            showServerErrors(data.errors);
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        showServerErrors(['An unexpected error occurred. Please try again.']);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
 });

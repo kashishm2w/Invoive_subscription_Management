@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Helpers\Session;
@@ -45,16 +44,6 @@ class SettingController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $logoName = null;
-
-            if (!empty($_FILES['logo']['name'])) {
-                $logoName = time() . '_' . $_FILES['logo']['name'];
-                move_uploaded_file(
-                    $_FILES['logo']['tmp_name'],
-                    APP_ROOT . "/public/uploads/logos/" . $logoName
-                );
-            }
-
             $companyModel = new Company();
 
             $companyModel->save([
@@ -65,7 +54,7 @@ class SettingController
                 'address' => $_POST['address'],
                 'tax_number' => $_POST['tax_number'] ?? '',
                 'tax_percent' => $_POST['tax_percent'] ?? 18,
-                'logo' => $logoName
+      
             ]);
 
             Session::set('success', 'Company details saved');
@@ -87,16 +76,14 @@ class SettingController
 
         if ($name === '') {
             $errors['name'] = 'Name is required';
-        } elseif (strlen($name) > 50) {
-            $errors['name'] = 'Name must not exceed 50 characters';
-        } elseif (!preg_match('/^[a-zA-Z\s]+$/', $name)) {
-            $errors['name'] = 'Name can contain only letters and spaces';
+        } elseif (!preg_match('/^[a-zA-Z0-9\s]+$/', $name)) {
+            $errors['name'] = 'Name can contain only letters, numbers, and spaces';
         }
 
         if ($email === '') {
             $errors['email'] = 'Email is required';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors['email'] = 'Invalid email address';
+        } elseif (!preg_match('/^[a-z0-9._]+@[a-z0-9.-]+\.[a-z]{2,}$/', $email)) {
+            $errors['email'] = 'Invalid Email';
         }
 
         // Only validate password if it's provided

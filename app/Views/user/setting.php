@@ -66,7 +66,7 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
     
     // Disable button and show loading
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="btn-icon">⏳</span> Updating...';
+    submitBtn.innerHTML = '<span class="btn-icon"></span> Updating...';
     
     fetch('/settings/update', {
         method: 'POST',
@@ -87,7 +87,7 @@ document.getElementById('settingsForm').addEventListener('submit', function(e) {
                 text: data.message,
                 confirmButtonColor: '#4ecdc4',
                 timer: 3000,
-                timerProgressBar: true
+                
             }).then(() => {
                 // Clear password field after successful update
                 document.getElementById('password').value = '';
