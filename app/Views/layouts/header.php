@@ -35,7 +35,7 @@ use App\Helpers\Session;
         <!-- Right: Account -->
         <div class="header_account">
             <?php if (Session::has('user_id')): ?>
-                <span class="welcome-text">Welcome, <strong class="top-bar_username"><?= htmlspecialchars(Session::get('name')) ?></strong></span>
+                <span class="welcome-text">Welcome</span>
                 
                 <!-- Modern Hamburger Menu Button -->
                 <button class="account_btn" aria-label="Menu">

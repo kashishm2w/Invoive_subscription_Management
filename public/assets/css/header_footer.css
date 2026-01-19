@@ -157,13 +157,15 @@ body {
 
 /* Right Account Section */
 .header_account {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    white-space: nowrap;
-    color: #e2e8f0;
-    font-size: 14px;
+    flex-shrink: 0;          
+display: flex;         
+align-items: center;    
+gap: 12px;              
+white-space: nowrap;  
+color: #e2e8f0;        
+font-size: 14px;        
+word-break: break-word;  
+overflow-wrap: break-word;
 }
 
 .header_account span {
