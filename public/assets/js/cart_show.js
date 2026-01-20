@@ -118,10 +118,16 @@ function recalculateGrandTotal() {
 
     // Also update the modal totals
     const modalSubtotal = document.querySelector('.payment-summary .summary-row:first-child span:last-child');
+    const modalDiscountAmount = document.querySelector('.payment-summary .summary-row.discount .discount-value');
     const modalFinalTotal = document.querySelector('.payment-summary .summary-row.total span:last-child strong');
 
     if (modalSubtotal) {
         modalSubtotal.innerHTML = '&#36;' + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Update discount amount in modal
+    if (modalDiscountAmount) {
+        modalDiscountAmount.innerHTML = '-&#36;' + discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     if (modalFinalTotal) {
@@ -404,6 +410,10 @@ function proceedToPayment(method) {
         // Submit COD form
         document.getElementById('codAddressId').value = selectedAddress.id;
         document.getElementById('codForm').submit();
+    } else if (method === 'free') {
+        // Submit Free checkout form (100% discount)
+        document.getElementById('freeAddressId').value = selectedAddress.id;
+        document.getElementById('freeCheckoutForm').submit();
     }
 }
 

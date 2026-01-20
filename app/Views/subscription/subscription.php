@@ -148,9 +148,6 @@ $expiredSubscription = $expiredSubscription ?? null;
                         <div class="expired-plan-message">Your plan is expired!</div>
                         <form method="POST" action="/subscribe" onclick="event.stopPropagation();">
                             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-                            <label>
-                                <input type="checkbox" name="auto_renew"> Auto renew
-                            </label>
                             <button type="submit" class="btn-reactivate">Reactivate</button>
                         </form>
 
@@ -158,9 +155,6 @@ $expiredSubscription = $expiredSubscription ?? null;
                         <!-- Has expired subscription but this is a different plan: Show Buy Now -->
                         <form method="POST" action="/subscribe" onclick="event.stopPropagation();">
                             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-                            <label>
-                                <input type="checkbox" name="auto_renew"> Auto renew
-                            </label>
                             <button type="submit">Buy Now</button>
                         </form>
 
@@ -168,9 +162,6 @@ $expiredSubscription = $expiredSubscription ?? null;
                         <!-- No subscription: Show Buy Now -->
                         <form method="POST" action="/subscribe" onclick="event.stopPropagation();">
                             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-                            <label>
-                                <input type="checkbox" name="auto_renew"> Auto renew
-                            </label>
                             <button type="submit">Buy Now</button>
                         </form>
                     <?php endif; ?>
@@ -189,7 +180,7 @@ $expiredSubscription = $expiredSubscription ?? null;
         <?php endforeach; ?>
     </div>
 
-    <!-- = VIEW PLAN DETAILS MODAL = -->
+    <!-- VIEW PLAN DETAILS MODAL -->
     <div id="viewPlanModal" class="modal">
         <div class="modal-content view-plan-modal-content">
             <span class="close" onclick="closeViewPlanModal()">&times;</span>
@@ -288,25 +279,19 @@ $expiredSubscription = $expiredSubscription ?? null;
                     </div>
                 `;
             } else if (plan.isExpiredPlan) {
-                // Expired plan: Show Reactivate with auto-renew
+                // Expired plan: Show Reactivate
                 actionsContainer.innerHTML = `
                     <div class="expired-plan-message">Your plan is expired!</div>
                     <form method="POST" action="/subscribe" class="modal-subscribe-form">
                         <input type="hidden" name="plan_id" value="${plan.id}">
-                        <label class="auto-renew-checkbox">
-                            <input type="checkbox" name="auto_renew"> Auto renew
-                        </label>
                         <button type="submit" class="btn-reactivate">Reactivate</button>
                     </form>
                 `;
             } else {
-                // No subscription or different plan: Show Buy Now with auto-renew
+                // No subscription or different plan: Show Buy Now
                 actionsContainer.innerHTML = `
                     <form method="POST" action="/subscribe" class="modal-subscribe-form">
                         <input type="hidden" name="plan_id" value="${plan.id}">
-                        <label class="auto-renew-checkbox">
-                            <input type="checkbox" name="auto_renew"> Auto renew
-                        </label>
                         <button type="submit" class="btn-buy-now">Buy Now</button>
                     </form>
                 `;

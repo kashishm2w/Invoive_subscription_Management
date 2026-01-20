@@ -62,7 +62,6 @@ public function subscribe()
 
     $userId = Session::get('user_id');
     $planId = $_POST['plan_id'] ?? null;
-    $autoRenew = isset($_POST['auto_renew']) ? 1 : 0;
 
     if (!$planId) {
         Session::set('error', 'Please select a plan');
@@ -84,7 +83,7 @@ public function subscribe()
     }
 
     // Redirect to payment page
-    header('Location: /payment?plan_id=' . $planId . '&auto_renew=' . $autoRenew);
+    header('Location: /payment?plan_id=' . $planId);
     exit;
 }
 

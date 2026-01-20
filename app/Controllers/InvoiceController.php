@@ -113,33 +113,53 @@ class InvoiceController
             $taxAmount += $lineTax;
         }
 
-        $totalAmount = $subtotal + $taxAmount;
+        $grandTotal = $subtotal + $taxAmount;
         $taxRate = $subtotal > 0 ? ($taxAmount / $subtotal) * 100 : 0;
 
-        $allowedStatus = ['pending', 'unpaid', 'paid', 'overdue'];
-        $status = 'unpaid';
-        if (!in_array($status, $allowedStatus)) {
-            $status = 'pending';
+        // Get subscription discount if user has active subscription
+        $discountAmount = 0;
+        $discountPercent = 0;
+        $userId = Session::get('user_id');
+        
+        $subscriptionModel = new \App\Models\Subscription();
+        $activeSubscription = $subscriptionModel->getActiveSubscription($userId);
+        
+        if ($activeSubscription && isset($activeSubscription['discount_percent'])) {
+            $discountPercent = (float)$activeSubscription['discount_percent'];
+            $discountAmount = $grandTotal * ($discountPercent / 100);
+        }
+
+        $totalAmount = $grandTotal - $discountAmount;
+
+        // Get payment method - 'cod', 'free', or 'online'
+        $paymentMethod = $_POST['payment_method'] ?? 'cod';
+        
+        // Determine status based on payment method and total
+        if ($paymentMethod === 'free' || $totalAmount <= 0) {
+            $status = 'Paid';
+            $totalAmount = max(0, $totalAmount); // Ensure non-negative
+        } else {
+            $status = 'unpaid';
         }
 
         // Get address_id for delivery address
         $addressId = (int)($_POST['address_id'] ?? 0) ?: null;
 
         $invoiceId = $this->invoiceModel->create([
-            'created_by'=> Session::get('user_id'),
-            'client_id' => Session::get('user_id'),
+            'created_by'=> $userId,
+            'client_id' => $userId,
             'address_id' => $addressId,
             'invoice_number'=> 'INV-' . date('Ymd-His'),
             'invoice_date'=> date('Y-m-d'),
             'due_date'=> date('Y-m-d', strtotime('+7 days')),
-            'subtotal'=> $subtotal,
+            'subtotal'=> $subtotal + $taxAmount, // grandTotal before discount
             'tax_type'=> 'GST',
             'tax_rate'=> round($taxRate, 2),
             'tax_amount'=> $taxAmount,
-            'discount'=> 0,
+            'discount'=> $discountAmount,
             'total_amount'=> $totalAmount,
             'status'=> $status,
-            'notes' => 'Generated from cart'
+            'notes' => $discountPercent > 0 ? 'Subscription Discount: ' . (int)$discountPercent . '%' : 'Generated from cart'
         ]);
 
 
@@ -152,20 +172,38 @@ class InvoiceController
             ]);
         }
 
-        // Record COD payment in payments table (pending status)
+        // Record payment based on method
         $paymentModel = new \App\Models\Payment();
-        $paymentModel->create([
-            'invoice_id' => $invoiceId,
-            'user_id' => Session::get('user_id'),
-            'amount' => $totalAmount,
-            'payment_method' => 'cod',
-            'transaction_id' => null,
-            'status' => 'pending',
-            'notes' => 'Cash on Delivery - Payment pending'
-        ]);
+        
+        if ($paymentMethod === 'free' || $totalAmount <= 0) {
+            // Free checkout - already paid (discount covered everything)
+            $paymentModel->create([
+                'invoice_id' => $invoiceId,
+                'user_id' => $userId,
+                'amount' => 0,
+                'payment_method' => 'stripe', // Using stripe since 'free' is not in ENUM
+                'transaction_id' => null,
+                'status' => 'completed',
+                'notes' => 'Free checkout - 100% subscription discount applied'
+            ]);
+            
+            // Update invoice to set amount_paid = 0 and due_amount = 0 (fully paid with discount)
+            $this->invoiceModel->updatePaymentStatus($invoiceId, $totalAmount, 'Paid');
+        } else {
+            // COD payment
+            $paymentModel->create([
+                'invoice_id' => $invoiceId,
+                'user_id' => $userId,
+                'amount' => $totalAmount,
+                'payment_method' => 'cod',
+                'transaction_id' => null,
+                'status' => 'pending',
+                'notes' => 'Cash on Delivery - Payment pending'
+            ]);
+        }
 
-        // Send invoice email to user for COD orders
-        \App\Helpers\Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
+        // Send invoice email to user
+        \App\Helpers\Mailer::sendInvoiceEmail($userId, $invoiceId);
 
         Session::remove('cart');
         Session::set('success', 'Order placed successfully! Invoice has been sent to your email.');

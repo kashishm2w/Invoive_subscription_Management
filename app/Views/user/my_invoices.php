@@ -82,93 +82,38 @@
                 <?php
                 $currentPage = (int)$pagination['current_page'];
                 $totalPages  = (int)$pagination['total_pages'];
+                $range = 1; // Number of pages to show around current page
                 ?>
 
-                <!-- Previous -->
+                <!-- Previous Button -->
                 <?php if ($currentPage > 1): ?>
                     <a href="?page=<?= $currentPage - 1 ?>" class="nav-btn">&laquo; Previous</a>
                 <?php endif; ?>
 
-                <?php
-                /* PAGE 1 */
-                if ($currentPage === 1):
-                ?>
-                    <a href="?page=1" class="active">1</a>
+                <!-- First page -->
+                <a href="?page=1" <?= $currentPage === 1 ? 'class="active"' : '' ?>>1</a>
 
-                    <?php if ($totalPages >= 2): ?>
-                        <a href="?page=2">2</a>
-                    <?php endif; ?>
-
-                    <?php if ($totalPages > 3): ?>
-                        <span class="ellipsis">...</span>
-                    <?php endif; ?>
-
-                    <?php if ($totalPages > 2): ?>
-                        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-                    <?php endif; ?>
-
-                <?php
-                /* PAGE 2 */
-                elseif ($currentPage === 2):
-                ?>
-                    <a href="?page=1">1</a>
-                    <a href="?page=2" class="active">2</a>
-
-                    <?php if ($totalPages > 2): ?>
-                        <?php if ($totalPages > 3): ?>
-                            <span class="ellipsis">...</span>
-                        <?php endif; ?>
-                        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-                    <?php endif; ?>
-
-                <?php
-                /* PAGE 3 */
-                elseif ($currentPage === 3):
-                ?>
-                    <a href="?page=1">1</a>
-                    <a href="?page=2">2</a>
-                    <a href="?page=3" class="active">3</a>
-
-                    <?php if ($totalPages >= 4): ?>
-                        <a href="?page=4">4</a>
-                    <?php endif; ?>
-
-                    <?php if ($totalPages > 4): ?>
-                        <span class="ellipsis">...</span>
-                        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-                    <?php endif; ?>
-
-                <?php
-                /* PAGE ≥ 4 */
-                else:
-                ?>
-                    <a href="?page=1">1</a>
+                <!-- Ellipsis after first page -->
+                <?php if ($currentPage > $range + 2): ?>
                     <span class="ellipsis">...</span>
-
-                    <a href="?page=<?= $currentPage - 1 ?>">
-                        <?= $currentPage - 1 ?>
-                    </a>
-
-                    <a href="?page=<?= $currentPage ?>" class="active">
-                        <?= $currentPage ?>
-                    </a>
-
-                    <?php if ($currentPage + 1 <= $totalPages): ?>
-                        <a href="?page=<?= $currentPage + 1 ?>">
-                            <?= $currentPage + 1 ?>
-                        </a>
-                    <?php endif; ?>
-
-                    <?php if ($currentPage + 1 < $totalPages): ?>
-                        <span class="ellipsis">...</span>
-                        <a href="?page=<?= $totalPages ?>">
-                            <?= $totalPages ?>
-                        </a>
-                    <?php endif; ?>
-
                 <?php endif; ?>
 
-                <!-- Next -->
+                <!-- Pages around current page -->
+                <?php for ($i = max(2, $currentPage - $range); $i <= min($totalPages - 1, $currentPage + $range); $i++): ?>
+                    <a href="?page=<?= $i ?>" <?= $i === $currentPage ? 'class="active"' : '' ?>><?= $i ?></a>
+                <?php endfor; ?>
+
+                <!-- Ellipsis before last page -->
+                <?php if ($currentPage < $totalPages - $range - 1): ?>
+                    <span class="ellipsis">...</span>
+                <?php endif; ?>
+
+                <!-- Last page (if more than 1 page) -->
+                <?php if ($totalPages > 1): ?>
+                    <a href="?page=<?= $totalPages ?>" <?= $currentPage === $totalPages ? 'class="active"' : '' ?>><?= $totalPages ?></a>
+                <?php endif; ?>
+
+                <!-- Next Button -->
                 <?php if ($currentPage < $totalPages): ?>
                     <a href="?page=<?= $currentPage + 1 ?>" class="nav-btn">Next &raquo;</a>
                 <?php endif; ?>
@@ -277,6 +222,7 @@
 
         const currentPage = pagination.current_page;
         const totalPages = pagination.total_pages;
+        const range = 1; // Number of pages to show around current page
 
         if (totalPages <= 1) {
             paginationContainer.innerHTML = '';
@@ -290,56 +236,27 @@
             html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})" class="nav-btn">&laquo; Previous</a>`;
         }
 
-        // Page 1 logic
-        if (currentPage === 1) {
-            html += `<a href="javascript:void(0)" onclick="loadPage(1)" class="active">1</a>`;
-            if (totalPages >= 2) {
-                html += `<a href="javascript:void(0)" onclick="loadPage(2)">2</a>`;
-            }
-            if (totalPages > 3) {
-                html += `<span class="ellipsis">...</span>`;
-            }
-            if (totalPages > 2) {
-                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
-            }
-        }
-        // Page 2 logic
-        else if (currentPage === 2) {
-            html += `<a href="javascript:void(0)" onclick="loadPage(1)">1</a>`;
-            html += `<a href="javascript:void(0)" onclick="loadPage(2)" class="active">2</a>`;
-            if (totalPages > 2) {
-                if (totalPages > 3) {
-                    html += `<span class="ellipsis">...</span>`;
-                }
-                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
-            }
-        }
-        // Page 3 logic
-        else if (currentPage === 3) {
-            html += `<a href="javascript:void(0)" onclick="loadPage(1)">1</a>`;
-            html += `<a href="javascript:void(0)" onclick="loadPage(2)">2</a>`;
-            html += `<a href="javascript:void(0)" onclick="loadPage(3)" class="active">3</a>`;
-            if (totalPages >= 4) {
-                html += `<a href="javascript:void(0)" onclick="loadPage(4)">4</a>`;
-            }
-            if (totalPages > 4) {
-                html += `<span class="ellipsis">...</span>`;
-                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
-            }
-        }
-        // Page >= 4 logic
-        else {
-            html += `<a href="javascript:void(0)" onclick="loadPage(1)">1</a>`;
+        // First page
+        html += `<a href="javascript:void(0)" onclick="loadPage(1)" ${currentPage === 1 ? 'class="active"' : ''}>1</a>`;
+
+        // Ellipsis after first page
+        if (currentPage > range + 2) {
             html += `<span class="ellipsis">...</span>`;
-            html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})">${currentPage - 1}</a>`;
-            html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage})" class="active">${currentPage}</a>`;
-            if (currentPage + 1 <= totalPages) {
-                html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage + 1})">${currentPage + 1}</a>`;
-            }
-            if (currentPage + 1 < totalPages) {
-                html += `<span class="ellipsis">...</span>`;
-                html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})">${totalPages}</a>`;
-            }
+        }
+
+        // Pages around current page
+        for (let i = Math.max(2, currentPage - range); i <= Math.min(totalPages - 1, currentPage + range); i++) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</a>`;
+        }
+
+        // Ellipsis before last page
+        if (currentPage < totalPages - range - 1) {
+            html += `<span class="ellipsis">...</span>`;
+        }
+
+        // Last page (if more than 1 page)
+        if (totalPages > 1) {
+            html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})" ${currentPage === totalPages ? 'class="active"' : ''}>${totalPages}</a>`;
         }
 
         // Next button

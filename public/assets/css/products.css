@@ -45,6 +45,9 @@ tbody td {
     border: 1px solid #e0e0e0;
     vertical-align: middle;
     font-size: 14px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 tbody tr:nth-child(even) {
@@ -62,7 +65,11 @@ tbody td:nth-child(2) {
     font-weight: 600;
     max-width: 150px;
     color: #333;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
+
 
 tbody td:nth-child(3),
 tbody td:nth-child(6) {
@@ -427,6 +434,8 @@ p {
     border-bottom: 2px solid #eee;
     color: #2c3e50;
     font-size: 22px;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .modal-content .close {
@@ -865,7 +874,7 @@ p {
 
 .payment-option-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+
 }
 
 .pay-now-btn:hover {
@@ -1299,4 +1308,42 @@ p {
     .product-table input[type="number"] {
         width: 45px;
     }
+}
+
+/* Free Checkout Styles for 100% Discount */
+.free-checkout-message {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.free-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+    color: #ffffff;
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.free-checkout-message p {
+    color: #555;
+    font-size: 14px;
+    margin: 0;
+}
+
+.buy-now-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #10b981 100%) !important;
+}
+
+.buy-now-btn:hover {
+    background: linear-gradient(135deg, #16a34a 0%, #059669 100%) !important;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4) !important;
 }

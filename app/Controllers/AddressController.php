@@ -16,7 +16,7 @@ class AddressController
     }
 
     /**
-     * Get all addresses for the logged-in user (AJAX)
+     * Get all addresses for the logged-in user
      */
     public function getAddresses()
     {
@@ -38,7 +38,7 @@ class AddressController
     }
 
     /**
-     * Add a new address (AJAX POST)
+     * Add a new address
      */
     public function addAddress()
     {

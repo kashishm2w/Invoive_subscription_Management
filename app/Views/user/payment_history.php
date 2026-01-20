@@ -51,12 +51,37 @@
 
         <!-- Pagination -->
         <?php if ($pagination['total_pages'] > 1): ?>
+            <?php
+            $currentPage = (int)$pagination['current_page'];
+            $totalPages  = (int)$pagination['total_pages'];
+            $range = 1;
+            ?>
             <div class="pagination" id="pagination-container">
-                <?php for ($i = 1; $i <= $pagination['total_pages']; $i++): ?>
-                    <a href="javascript:void(0)" onclick="loadPage(<?= $i ?>)" <?= $i === $pagination['current_page'] ? 'class="active"' : '' ?>>
-                        <?= $i ?>
-                    </a>
+                <?php if ($currentPage > 1): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $currentPage - 1 ?>)" class="nav-btn">&laquo; Previous</a>
+                <?php endif; ?>
+
+                <a href="javascript:void(0)" onclick="loadPage(1)" <?= $currentPage === 1 ? 'class="active"' : '' ?>>1</a>
+
+                <?php if ($currentPage > $range + 2): ?>
+                    <span class="ellipsis">...</span>
+                <?php endif; ?>
+
+                <?php for ($i = max(2, $currentPage - $range); $i <= min($totalPages - 1, $currentPage + $range); $i++): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $i ?>)" <?= $i === $currentPage ? 'class="active"' : '' ?>><?= $i ?></a>
                 <?php endfor; ?>
+
+                <?php if ($currentPage < $totalPages - $range - 1): ?>
+                    <span class="ellipsis">...</span>
+                <?php endif; ?>
+
+                <?php if ($totalPages > 1): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $totalPages ?>)" <?= $currentPage === $totalPages ? 'class="active"' : '' ?>><?= $totalPages ?></a>
+                <?php endif; ?>
+
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $currentPage + 1 ?>)" class="nav-btn">Next &raquo;</a>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     <?php else: ?>
@@ -128,26 +153,42 @@ function fetchPayments() {
 function renderPagination(pagination) {
     if (!paginationContainer || pagination.total_pages <= 1) return;
 
+    const currentPage = pagination.current_page;
+    const totalPages = pagination.total_pages;
+    const range = 1;
     let html = '';
 
     // Previous button
-    if (pagination.current_page > 1) {
-        html += `<a href="javascript:void(0)" onclick="loadPage(${pagination.current_page - 1})">Previous</a>`;
-    } else {
-        html += `<span class="disabled">Previous</span>`;
+    if (currentPage > 1) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})" class="nav-btn">&laquo; Previous</a>`;
     }
 
-    // Page numbers
-    for (let i = 1; i <= pagination.total_pages; i++) {
-        const activeClass = i === pagination.current_page ? 'class="active"' : '';
-        html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${activeClass}>${i}</a>`;
+    // First page
+    html += `<a href="javascript:void(0)" onclick="loadPage(1)" ${currentPage === 1 ? 'class="active"' : ''}>1</a>`;
+
+    // Ellipsis after first page
+    if (currentPage > range + 2) {
+        html += `<span class="ellipsis">...</span>`;
+    }
+
+    // Pages around current page
+    for (let i = Math.max(2, currentPage - range); i <= Math.min(totalPages - 1, currentPage + range); i++) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</a>`;
+    }
+
+    // Ellipsis before last page
+    if (currentPage < totalPages - range - 1) {
+        html += `<span class="ellipsis">...</span>`;
+    }
+
+    // Last page (if more than 1 page)
+    if (totalPages > 1) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})" ${currentPage === totalPages ? 'class="active"' : ''}>${totalPages}</a>`;
     }
 
     // Next button
-    if (pagination.current_page < pagination.total_pages) {
-        html += `<a href="javascript:void(0)" onclick="loadPage(${pagination.current_page + 1})">Next</a>`;
-    } else {
-        html += `<span class="disabled">Next</span>`;
+    if (currentPage < totalPages) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage + 1})" class="nav-btn">Next &raquo;</a>`;
     }
 
     paginationContainer.innerHTML = html;

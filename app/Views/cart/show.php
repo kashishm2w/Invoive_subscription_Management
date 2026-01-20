@@ -156,7 +156,7 @@ if ($discountPercent > 0) {
                 <span><strong>&#36;<?= number_format($finalTotal, 2) ?></strong></span>
             </div>
         </div>
-        
+        <?php if($finalTotal>0):?>
         <div class="payment-options">
             <a href="javascript:void(0)" onclick="proceedToPayment('online')" class="payment-option-btn pay-now-btn" id="payNowBtn">
                 <span class="payment-icon">
@@ -182,6 +182,22 @@ if ($discountPercent > 0) {
                 </button>
             </form>
         </div>
+        <?php else:?>
+             <form id="freeCheckoutForm" action="/invoice/create" method="POST" style="width: 100%;">
+                <input type="hidden" name="payment_method" value="free">
+                <input type="hidden" name="address_id" id="freeAddressId" value="">
+                <div class="free-checkout-message">
+                    <div class="free-badge">100% Discount Applied!</div>
+                    <p>Your order is completely free!</p>
+                </div>
+                <button type="button" onclick="proceedToPayment('free')" class="payment-option-btn buy-now-btn" id="freeBtn">
+                    <span class="payment-text">
+                        <strong>Buy Now - Free</strong>
+                        <small>No payment required</small>
+                    </span>
+                </button>
+            </form>
+             <?php endif; ?>
     </div>
 </div>
 

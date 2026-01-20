@@ -708,9 +708,8 @@ table tr:nth-child(even) {
     color: #555;
     font-size: 14px;
     line-height: 1.6;
-    text-align: left;
-    padding: 15px;
-    max-width: 400px;
+    padding: 10px 15px;
+    max-width: 370px;
     background: #f8f9fa;
     border-radius: 8px;
     height: auto;
@@ -719,7 +718,6 @@ table tr:nth-child(even) {
     overflow-wrap: break-word;
     word-wrap: break-word;
     overflow: hidden;
-
 }
 
 /* Plan Card Updates */

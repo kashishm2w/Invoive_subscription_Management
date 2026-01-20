@@ -153,7 +153,7 @@ class ProductController
             $poster      = $_FILES['poster'] ?? null;
             // validation
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
-                $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
+                $errors[] = "Invalid name (name must be 3-100 characters and also conatin -,_)";
             }
             if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
                 $errors[] = "Description must be 10-1000 characters ";
@@ -338,7 +338,7 @@ class ProductController
 
             // Validation - same as addProduct
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
-                $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
+                $errors[] = "Invalid name (name must be 3-100 characters and also conatin -,_)";
             }
             if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,3000}$/s', $description)) {
                 $errors[] = "Description must be 10-3000 characters";
@@ -588,16 +588,16 @@ class ProductController
             }
         }
 
-        // Update the product to use default.png
+        // Update the product to use default.jpg
         try {
-            $this->productModel->updatePoster($id, 'default.png');
+            $this->productModel->updatePoster($id, 'default.jpg');
 
             if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
                     'message' => 'Poster deleted successfully!',
-                    'poster' => 'default.png'
+                    'poster' => 'default.jpg'
                 ]);
                 exit;
             }

@@ -208,7 +208,7 @@ function deletePoster(productId) {
                         // Update the UI to show default image
                         const posterImg = document.getElementById('current-poster-img');
                         if (posterImg) {
-                            posterImg.src = '/uploads/default.png';
+                            posterImg.src = '/uploads/default.jpg';
                         }
 
                         // Hide the delete button
@@ -245,6 +245,35 @@ function handleEditFormSubmit(e) {
     const form = e.target;
     const formData = new FormData(form);
     const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Validate poster file size (max 2MB)
+    const posterInput = form.querySelector('input[name="poster"]');
+    if (posterInput && posterInput.files.length > 0) {
+        const posterFile = posterInput.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
+        if (posterFile.size > maxSize) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'Poster image size must be less than 2MB. Your file is ' + (posterFile.size / (1024 * 1024)).toFixed(2) + 'MB.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(posterFile.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Poster must be a JPG, PNG, or GIF image.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+    }
 
     // Disable button and show loading state
     submitBtn.disabled = true;
@@ -361,6 +390,35 @@ function handleAddFormSubmit(e) {
     const form = e.target;
     const formData = new FormData(form);
     const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Validate poster file size (max 2MB)
+    const posterInput = form.querySelector('input[name="poster"]');
+    if (posterInput && posterInput.files.length > 0) {
+        const posterFile = posterInput.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
+        if (posterFile.size > maxSize) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'Poster image size must be less than 2MB. Your file is ' + (posterFile.size / (1024 * 1024)).toFixed(2) + 'MB.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(posterFile.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Poster must be a JPG, PNG, or GIF image.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+    }
 
     // Disable button and show loading state
     submitBtn.disabled = true;

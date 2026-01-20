@@ -106,6 +106,7 @@ $router->post('/subscription/cancel', [SubscriptionController::class, 'cancelSub
 // Payment (Stripe)
 $router->get('/payment', [PaymentController::class, 'showPaymentPage']);
 $router->post('/payment/process', [PaymentController::class, 'processPayment']);
+$router->post('/payment/process-free', [PaymentController::class, 'processFreeSubscription']);
 
 // Admin: Track Subscriptions
 $router->get('/track_subscriptions', [SubscriptionController::class, 'trackSubscriptions']);

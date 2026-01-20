@@ -26,17 +26,16 @@ class Subscription extends Model
     public function subscribe(array $data): bool
     {
         $stmt = $this->db->prepare("
-            INSERT INTO subscriptions (user_id, plan_id, start_date, end_date, status, auto_renew)
-            VALUES (?, ?, ?, ?, 'active', ?)
+            INSERT INTO subscriptions (user_id, plan_id, start_date, end_date, status)
+            VALUES (?, ?, ?, ?, 'active')
         ");
 
         $stmt->bind_param(
-            "iissi",
+            "iiss",
             $data['user_id'],
             $data['plan_id'],
             $data['start_date'],
-            $data['end_date'],
-            $data['auto_renew']
+            $data['end_date']
         );
 
         return $stmt->execute();
