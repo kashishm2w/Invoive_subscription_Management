@@ -2,11 +2,12 @@
 require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
 
-// Calculate discount values if not already set
-$discountPercent = (float)($plan['discount_percent'] ?? 0);
-$discountAmount = isset($discountAmount) ? $discountAmount : ($plan['price'] * ($discountPercent / 100));
-$finalAmount = isset($finalAmount) ? $finalAmount : ($plan['price'] - $discountAmount);
-$isFreeCheckout = isset($isFreeCheckout) ? $isFreeCheckout : ($finalAmount <= 0);
+// Subscription discount only applies to products, not the subscription fee
+// These values are always 0 for subscription payments
+$discountPercent = 0;
+$discountAmount = 0;
+$finalAmount = $plan['price'];
+$isFreeCheckout = false;
 ?>
 
 <link rel="stylesheet" href="/assets/css/payment.css">

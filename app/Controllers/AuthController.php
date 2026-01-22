@@ -14,16 +14,13 @@ class AuthController
         $this->user = new User();
         Session::start(); // start session at the top
     }
-    /*  REGISTER  */
 
-    // GET /register
+    /*  REGISTER  */
     public function showRegister()
     {
         $errors = [];
         require APP_ROOT . '/app/Views/auth/register.php';
     }
-
-    // // POST /register
     public function register()
     {
         $errors = [];
@@ -73,14 +70,12 @@ class AuthController
         }
     }
     /*  LOGIN  */
-
-    // GET /login
     public function showLogin()
     {
         // If already logged in
         if (Session::has('user_id')) {
 
-            // Admin → dashboard
+            // Admin dashboard
             if (Session::get('role') === 'admin') {
                 header("Location: /dashboard");
                 exit;
@@ -94,8 +89,6 @@ class AuthController
         // Not logged in  show login page
         require APP_ROOT . '/app/Views/auth/login.php';
     }
-
-    // POST /login
     public function login()
     {
         $errors = [];

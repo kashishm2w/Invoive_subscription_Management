@@ -98,7 +98,7 @@ $subtotal = $subtotal ?? 0;
                 </div>
                 
                 <div class="partial-amount-input" id="partialAmountDiv" style="display: none;">
-                    <label for="payment_amount">Payment Amount (₹)</label>
+                    <label for="payment_amount">Payment Amount (&#36;)</label>
                     <input type="number" 
                            name="payment_amount" 
                            id="payment_amount"
@@ -107,7 +107,7 @@ $subtotal = $subtotal ?? 0;
                            max="<?= $finalTotal ?>" 
                            step="0.01"
                            class="payment-amount-input">
-                    <small class="help-text">Min ₹1, Max ₹<?= number_format($finalTotal, 2) ?>. Remaining will be due on invoice.</small>
+                    <small class="help-text">Min &#36;1, Max &#36;<?= number_format($finalTotal, 2) ?>. Remaining will be due on invoice.</small>
                 </div>
             </div>
             
@@ -176,7 +176,7 @@ function togglePaymentType() {
     } else {
         partialDiv.style.display = 'none';
         paymentInput.value = totalAmount;
-        btnText.textContent = 'Pay ₹' + totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        btnText.textContent = 'Pay'+ totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 3});
     }
 }
 
@@ -190,7 +190,7 @@ function updateButtonText() {
         paymentInput.value = totalAmount;
         amount = totalAmount;
     }
-    btnText.textContent = 'Pay ₹' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    btnText.textContent = 'Pay'+amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 3});
 }
 
 paymentInput.addEventListener('input', updateButtonText);
@@ -208,7 +208,12 @@ form.addEventListener('submit', function(event) {
     amount = Math.round(amount * 100) / 100;
     
     if (isNaN(amount) || amount <= 0 || amount > Math.round(totalAmount * 100) / 100) {
-        document.getElementById('card-errors').textContent = 'Please enter a valid payment amount';
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Payment',
+            text: 'Please enter a valid payment amount',
+            confirmButtonColor: '#6366f1'
+        });
         return;
     }
     

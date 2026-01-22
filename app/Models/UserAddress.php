@@ -6,8 +6,7 @@ use App\Core\Model;
 
 class UserAddress extends Model
 {
-    /**
-     * Get all addresses for a user
+    /* Get all addresses for a user
      */
     public function getByUserId(int $userId): array
     {
@@ -27,8 +26,7 @@ class UserAddress extends Model
         return $addresses;
     }
 
-    /**
-     * Get address by ID
+    /* Get address by ID
      */
     public function getById(int $id): ?array
     {
@@ -39,8 +37,7 @@ class UserAddress extends Model
         return $result->num_rows ? $result->fetch_assoc() : null;
     }
 
-    /**
-     * Get default address for a user
+    /* Get default address for a user
      */
     public function getDefaultByUserId(int $userId): ?array
     {
@@ -55,8 +52,7 @@ class UserAddress extends Model
         return $result->num_rows ? $result->fetch_assoc() : null;
     }
 
-    /**
-     * Create a new address
+    /* Create a new address
      */
     public function create(array $data): int
     {
@@ -90,8 +86,7 @@ class UserAddress extends Model
         return $this->db->insert_id;
     }
 
-    /**
-     * Set an address as default
+    /* Set an address as default
      */
     public function setDefault(int $id, int $userId): bool
     {
@@ -108,8 +103,7 @@ class UserAddress extends Model
         return $stmt->execute();
     }
 
-    /**
-     * Unset all default addresses for a user
+    /* Unset all default addresses for a user
      */
     private function unsetAllDefaults(int $userId): void
     {
@@ -122,8 +116,7 @@ class UserAddress extends Model
         $stmt->execute();
     }
 
-    /**
-     * Delete an address
+    /* Delete an address
      */
     public function delete(int $id): bool
     {

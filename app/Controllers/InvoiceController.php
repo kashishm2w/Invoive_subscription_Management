@@ -152,7 +152,7 @@ class InvoiceController
             'invoice_number'=> 'INV-' . date('Ymd-His'),
             'invoice_date'=> date('Y-m-d'),
             'due_date'=> date('Y-m-d', strtotime('+7 days')),
-            'subtotal'=> $subtotal + $taxAmount, // grandTotal before discount
+            'subtotal'=> $subtotal + $taxAmount, 
             'tax_type'=> 'GST',
             'tax_rate'=> round($taxRate, 2),
             'tax_amount'=> $taxAmount,
@@ -176,12 +176,12 @@ class InvoiceController
         $paymentModel = new \App\Models\Payment();
         
         if ($paymentMethod === 'free' || $totalAmount <= 0) {
-            // Free checkout - already paid (discount covered everything)
+         
             $paymentModel->create([
                 'invoice_id' => $invoiceId,
                 'user_id' => $userId,
                 'amount' => 0,
-                'payment_method' => 'stripe', // Using stripe since 'free' is not in ENUM
+                'payment_method' => 'stripe',
                 'transaction_id' => null,
                 'status' => 'completed',
                 'notes' => 'Free checkout - 100% subscription discount applied'
@@ -277,7 +277,7 @@ class InvoiceController
             } elseif ($status === 'partial' && $invoiceStatus === 'partial') {
                 $filtered[] = $invoice;
             } elseif ($status === '') {
-                $filtered[] = $invoice; // all
+                $filtered[] = $invoice; 
             }
         }
 
@@ -408,7 +408,7 @@ class InvoiceController
         $mpdf = new Mpdf([
             'format' => 'A4',
             'margin_top' => 15,
-            'margin_bottom' => 20,
+            'margin_bottom' => 15,
         ]);
 
         // Write CSS first, then HTML content
@@ -700,7 +700,7 @@ class InvoiceController
                 Session::set('success', 'Payment successful! Invoice has been marked as paid.');
             } else {
                 $remaining = $totalAmount - $newAmountPaid;
-                Session::set('success', 'Partial payment of ₹' . number_format($paymentAmount, 2) . ' received. Remaining: ₹' . number_format($remaining, 2));
+                Session::set('success', 'Partial payment of ' . number_format($paymentAmount, 2) . ' received. Remaining: ' . number_format($remaining, 2));
             }
             header('Location: /my_invoices');
             exit;

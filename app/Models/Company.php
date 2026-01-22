@@ -43,7 +43,7 @@ public function save(array $data): bool
         );
 
         $stmt->bind_param(
-            "ssssidi",
+            "sssssdi",
             $data['company_name'],
             $data['email'],
             $data['phone'],
@@ -76,9 +76,6 @@ public function save(array $data): bool
     return $companySaved;
 }
 
-/**
- * Get the global tax rate from company settings
- */
 public function getGlobalTaxRate(): float
 {
     $company = $this->getFirst();

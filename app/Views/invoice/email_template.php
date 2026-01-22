@@ -41,12 +41,12 @@
 
         <?php if (!empty($deliveryAddress)): ?>
         <!-- Delivery Address -->
-        <div class="delivery-info" style="margin-top: 15px; padding: 10px; background: #f9f9f9; border-left: 3px solid #007bff;">
-            <h4 style="margin: 0 0 10px 0; color: #333;">Deliver To:</h4>
-            <p style="margin: 5px 0;"><strong><?= htmlspecialchars($deliveryAddress['full_name']) ?></strong></p>
-            <p style="margin: 5px 0;"><?= htmlspecialchars($deliveryAddress['address']) ?></p>
-            <p style="margin: 5px 0;"><?= htmlspecialchars($deliveryAddress['city']) ?>, <?= htmlspecialchars($deliveryAddress['state']) ?> - <?= htmlspecialchars($deliveryAddress['pincode']) ?></p>
-            <p style="margin: 5px 0;">Phone: <?= htmlspecialchars($deliveryAddress['phone']) ?></p>
+        <div class="delivery-info">
+            <h4>Deliver To:</h4>
+            <p><strong><?= htmlspecialchars($deliveryAddress['full_name']) ?></strong></p>
+            <p><?= htmlspecialchars($deliveryAddress['address']) ?></p>
+            <p><?= htmlspecialchars($deliveryAddress['city']) ?>, <?= htmlspecialchars($deliveryAddress['state']) ?> - <?= htmlspecialchars($deliveryAddress['pincode']) ?></p>
+            <p>Phone: <?= htmlspecialchars($deliveryAddress['phone']) ?></p>
         </div>
         <?php endif; ?>
 
@@ -77,32 +77,32 @@
         <!-- Summary Table -->
         <table class="summary-table">
             <tr>
-                <td>Subtotal:</td>
-                <td class="right">&#36;<?= number_format($invoice['subtotal'], 2) ?></td>
-            </tr>
-            <?php if (!empty($invoice['discount'])): ?>
-                <tr>
-                    <td>Discount:</td>
-                    <td class="right" style="color:green;">-&#36;<?= number_format($invoice['discount'], 2) ?></td>
-                </tr>
-            <?php endif; ?>
-            <tr>
                 <td>Tax Amount :</td>
                 <td class="right">&#36;<?= number_format($invoice['tax_amount'], 2) ?></td>
 
             </tr>
             <tr>
-                <td class="total">Total Amount:</td>
-                <td class="right total">&#36;<?= number_format($invoice['total_amount'], 2) ?></td>
-            </tr>
-            <tr>
-                <td>Amount Paid:</td>
-                <td class="right" style="color:green;">&#36;<?= number_format($amountPaid, 2) ?></td>
-            </tr>
-            <tr>
-                <td>Balance Due:</td>
-                <td class="right" style="color:<?= $balanceDue > 0 ? 'red' : 'green' ?>;">&#36;<?= number_format($balanceDue, 2) ?></td>
-            </tr>
+                    <td>Total</td>
+                    <td class="right">&#36;<?= number_format($invoice['subtotal'], 2) ?></td>
+                </tr>
+                <?php if (!empty($invoice['discount'])): ?>
+                    <tr>
+                        <td>Discount</td>
+                        <td class="right" style="color: green;">-&#36;<?= number_format($invoice['discount'], 2) ?></td>
+                    </tr>
+                <?php endif; ?>
+                <tr>
+                    <td class="total">Total Amount to be Paid</td>
+                    <td class="right total">&#36;<?= number_format($invoice['total_amount'], 2) ?></td>
+                </tr>
+                <tr>
+                    <td>Paid Amount</td>
+                    <td class="right" style="color:green;">&#36;<?= number_format($amountPaid, 2) ?></td>
+                </tr>
+                <tr>
+                    <td><strong>Balance Due</strong></td>
+                    <td class="right" style="color:<?= $balanceDue > 0 ? 'red' : 'green' ?>;">&#36;<?= number_format($balanceDue, 2) ?></td>
+                </tr>
         </table>
 
         <!-- Notes -->

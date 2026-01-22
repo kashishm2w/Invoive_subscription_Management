@@ -28,15 +28,17 @@ $grandTotal = 0;
         <?php $grandTotal = 0; ?>
         <?php foreach ($cart as $item): ?>
             <?php
+                $taxPercent = $item['tax_percent'] ?? 0;
+                $availableStock = $item['available_stock'] ?? 0;
                 $itemTotal =
                     $item['price'] * $item['quantity']
-                    + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
+                    + ($item['price'] * $taxPercent / 100) * $item['quantity'];
 
                 $grandTotal += $itemTotal;
             ?>
             <tr data-product-id="<?= $item['id'] ?>" 
                 data-price="<?= $item['price'] ?>" 
-                data-tax="<?= $item['tax_percent'] ?>">
+                data-tax="<?= $taxPercent ?>">
                 <td>
                     <?php if (!empty($item['poster'])): ?>
                         <img src="/uploads/<?= htmlspecialchars($item['poster']) ?>" style="width:60px;">
@@ -47,15 +49,15 @@ $grandTotal = 0;
 
                 <td>&#36;<?= number_format($item['price'], 2) ?></td>
 
-                <td><?= $item['tax_percent'] ?>%</td>
+                <td><?= $taxPercent ?>%</td>
 
                 <td class="quantity-cell">
                     <input type="number"
                            class="qty-input"
                            min="1"
-                           max="<?= $item['available_stock'] ?>"
+                           max="<?= $availableStock ?>"
                            value="<?= $item['quantity'] ?>"
-                           data-stock="<?= $item['available_stock'] ?>"
+                           data-stock="<?= $availableStock ?>"
                            data-product-id="<?= $item['id'] ?>"
                            onchange="updateQty(<?= $item['id'] ?>, this.value, this)">
                     <span class="stock-error" id="error-<?= $item['id'] ?>"></span>

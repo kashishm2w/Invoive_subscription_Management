@@ -87,11 +87,11 @@
 
                 <!-- Previous Button -->
                 <?php if ($currentPage > 1): ?>
-                    <a href="?page=<?= $currentPage - 1 ?>" class="nav-btn">&laquo; Previous</a>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $currentPage - 1 ?>)" class="nav-btn">&laquo; Previous</a>
                 <?php endif; ?>
 
                 <!-- First page -->
-                <a href="?page=1" <?= $currentPage === 1 ? 'class="active"' : '' ?>>1</a>
+                <a href="javascript:void(0)" onclick="loadPage(1)" <?= $currentPage === 1 ? 'class="active"' : '' ?>>1</a>
 
                 <!-- Ellipsis after first page -->
                 <?php if ($currentPage > $range + 2): ?>
@@ -100,7 +100,7 @@
 
                 <!-- Pages around current page -->
                 <?php for ($i = max(2, $currentPage - $range); $i <= min($totalPages - 1, $currentPage + $range); $i++): ?>
-                    <a href="?page=<?= $i ?>" <?= $i === $currentPage ? 'class="active"' : '' ?>><?= $i ?></a>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $i ?>)" <?= $i === $currentPage ? 'class="active"' : '' ?>><?= $i ?></a>
                 <?php endfor; ?>
 
                 <!-- Ellipsis before last page -->
@@ -110,12 +110,12 @@
 
                 <!-- Last page (if more than 1 page) -->
                 <?php if ($totalPages > 1): ?>
-                    <a href="?page=<?= $totalPages ?>" <?= $currentPage === $totalPages ? 'class="active"' : '' ?>><?= $totalPages ?></a>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $totalPages ?>)" <?= $currentPage === $totalPages ? 'class="active"' : '' ?>><?= $totalPages ?></a>
                 <?php endif; ?>
 
                 <!-- Next Button -->
                 <?php if ($currentPage < $totalPages): ?>
-                    <a href="?page=<?= $currentPage + 1 ?>" class="nav-btn">Next &raquo;</a>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $currentPage + 1 ?>)" class="nav-btn">Next &raquo;</a>
                 <?php endif; ?>
 
             <?php endif; ?>

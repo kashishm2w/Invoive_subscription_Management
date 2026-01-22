@@ -59,8 +59,7 @@ class DashboardController
         }
     }
 
-    /**
-     * AJAX endpoint: Get chart data for a date range
+    /* AJAX endpoint: Get chart data for a date range
      */
     public function getChartData()
     {

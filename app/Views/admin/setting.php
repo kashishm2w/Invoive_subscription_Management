@@ -7,7 +7,7 @@
 
         <form method="POST" action="/settings/company" enctype="multipart/form-data">
             
-            <!-- Row 1: Company Name & Email -->
+            <!--Company Name & Email -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="company_name">Company Name</label>
@@ -31,7 +31,7 @@
                 </div>
             </div>
 
-            <!-- Row 2: Phone & Tax Number -->
+            <!--Phone & Tax Number -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="phone">Phone Number</label>
@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <!-- Row 3: Address (Full Width) -->
+            <!--Address (Full Width) -->
             <div class="form-row full-width">
                 <div class="form-group">
                     <label for="address">Company Address</label>
@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <!-- Row 4: Default Tax Rate -->
+            <!--Default Tax Rate -->
             <div class="form-row">
                 <div class="form-group">
                     <label for="tax_percent">Default Tax Rate</label>

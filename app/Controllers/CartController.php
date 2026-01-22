@@ -4,8 +4,13 @@ namespace App\Controllers;
 
 use App\Helpers\Session;
 use App\Models\Product;
+use \App\Models\Invoice;
+use \App\Models\InvoiceItem;
 use App\Models\Company;
-
+use \App\Models\Subscription;
+use \App\Helpers\StripeConfig;
+use \App\Models\Payment;
+use \App\Helpers\Mailer;
 class CartController
 {
     private Product $productModel;
@@ -45,7 +50,7 @@ class CartController
         $finalTotal = $totalAmount;
 
         if (Session::has('user_id')) {
-            $subscriptionModel = new \App\Models\Subscription();
+            $subscriptionModel = new Subscription();
             $subscription = $subscriptionModel->getActiveSubscription(Session::get('user_id'));
 
             if ($subscription && isset($subscription['discount_percent']) && $subscription['discount_percent'] > 0) {
@@ -212,7 +217,7 @@ class CartController
         $discountAmount = 0;
         $finalTotal = $subtotal;
 
-        $subscriptionModel = new \App\Models\Subscription();
+        $subscriptionModel = new Subscription();
         $subscription = $subscriptionModel->getActiveSubscription(Session::get('user_id'));
 
         if ($subscription && isset($subscription['discount_percent']) && $subscription['discount_percent'] > 0) {
@@ -221,7 +226,7 @@ class CartController
             $finalTotal = $subtotal - $discountAmount;
         }
 
-        $stripePublishableKey = \App\Helpers\StripeConfig::getPublishableKey();
+        $stripePublishableKey = StripeConfig::getPublishableKey();
 
         require APP_ROOT . '/app/Views/cart/product_payment.php';
     }
@@ -274,7 +279,7 @@ class CartController
         $discountAmount = 0;
         $totalAmount = $totalBeforeDiscount;
 
-        $subscriptionModel = new \App\Models\Subscription();
+        $subscriptionModel = new Subscription();
         $subscription = $subscriptionModel->getActiveSubscription(Session::get('user_id'));
 
         if ($subscription && isset($subscription['discount_percent']) && $subscription['discount_percent'] > 0) {
@@ -295,12 +300,12 @@ class CartController
         $isPartialPayment = $paymentAmount < $totalAmount;
 
         // Initialize Stripe
-        \App\Helpers\StripeConfig::init();
+        StripeConfig::init();
 
         try {
             // Create Stripe charge with the payment amount
             $charge = \Stripe\Charge::create([
-                'amount' => (int)($paymentAmount * 100), // Convert to paise
+                'amount' => (int)($paymentAmount * 100), 
                 'currency' => 'usd',
                 'description' => 'Product Purchase' . ($isPartialPayment ? ' (Partial Payment)' : '') . ($discountPercent > 0 ? ' (Subscription Discount: ' . $discountPercent . '%)' : ''),
                 'source' => $token,
@@ -314,8 +319,8 @@ class CartController
             ]);
 
             // Payment successful - create invoice
-            $invoiceModel = new \App\Models\Invoice();
-            $itemModel = new \App\Models\InvoiceItem();
+            $invoiceModel = new Invoice();
+            $itemModel = new InvoiceItem();
 
             // Determine invoice status
             $invoiceStatus = $isPartialPayment ? 'Partial' : 'Paid';
@@ -352,7 +357,7 @@ class CartController
             }
 
             // Record payment in payments table
-            $paymentModel = new \App\Models\Payment();
+            $paymentModel = new Payment();
             $paymentModel->create([
                 'invoice_id' => $invoiceId,
                 'user_id' => Session::get('user_id'),
@@ -367,14 +372,14 @@ class CartController
             $invoiceModel->updateAmountPaid($invoiceId, $paymentAmount);
 
             // Send invoice email to user
-            \App\Helpers\Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
+            Mailer::sendInvoiceEmail(Session::get('user_id'), $invoiceId);
 
             // Clear cart
             Session::remove('cart');
 
             if ($isPartialPayment) {
                 $remainingAmount = $totalAmount - $paymentAmount;
-                Session::set('success', 'Partial payment of ₹' . number_format($paymentAmount, 2) . ' successful! Remaining ₹' . number_format($remainingAmount, 2) . ' is due on the invoice.');
+                Session::set('success', 'Partial payment of ' . number_format($paymentAmount, 2) . ' successful! Remaining ' . number_format($remainingAmount, 2) . ' is due on the invoice.');
             } else {
                 Session::set('success', 'Payment successful! Your order has been placed.');
             }
