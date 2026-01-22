@@ -15,8 +15,7 @@ class AddressController
         $this->addressModel = new UserAddress();
     }
 
-    /* Get all addresses for the logged-in user
-     */
+    /* Get all addresses for the logged-in user */
     public function getAddresses()
     {
         header('Content-Type: application/json');
@@ -36,8 +35,7 @@ class AddressController
         exit;
     }
 
-    /* Add a new address
-     */
+    /* Add a new address */
     public function addAddress()
     {
         header('Content-Type: application/json');

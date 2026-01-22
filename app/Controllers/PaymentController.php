@@ -22,8 +22,7 @@ class PaymentController
         $this->planModel = new SubscriptionPlan();
     }
 
-    /* Show payment page with Stripe Elements
-     */
+    /* Show payment page with Stripe Elements */
     public function showPaymentPage()
     {
         if (!Session::has('user_id')) {
@@ -67,8 +66,7 @@ class PaymentController
         require APP_ROOT . '/app/Views/subscription/payment.php';
     }
 
-    /* Process Stripe payment and activate subscription
-     */
+    /* Process Stripe payment and activate subscription*/
     public function processPayment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

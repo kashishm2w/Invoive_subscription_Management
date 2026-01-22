@@ -50,7 +50,7 @@
                         id="tax_number"
                         name="tax_number"
                         value="<?= htmlspecialchars($company['tax_number'] ?? '') ?>"
-                        placeholder="e.g., 22AAAAA0000A1Z5">
+                        placeholder="e.g., 2*******Yz******5">
                 </div>
             </div>
 

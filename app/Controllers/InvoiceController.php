@@ -516,9 +516,7 @@ class InvoiceController
         exit;
     }
 
-    /**
-     * AJAX: Fetch filtered invoices for admin
-     */
+    /* AJAX: Fetch filtered invoices for admin*/
     public function fetchFilteredInvoicesAdmin()
     {
         if (!Session::has('user_id') || Session::get('role') !== 'admin') {
@@ -559,9 +557,7 @@ class InvoiceController
         ]);
     }
 
-    /**
-     * Show payment page for invoice
-     */
+    /* Show payment page for invoice*/
     public function showPaymentPage()
     {
         if (!Session::has('user_id')) {

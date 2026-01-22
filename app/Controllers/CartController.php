@@ -41,7 +41,7 @@ class CartController
             $item['tax_percent'] = $taxRate;
             $totalAmount += $item['price'] * $item['quantity'] + ($item['price'] * $taxRate / 100) * $item['quantity'];
         }
-        unset($item); // Break reference
+        unset($item);
 
         // Check for subscription discount
         $subscription = null;
