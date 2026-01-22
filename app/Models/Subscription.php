@@ -26,17 +26,16 @@ class Subscription extends Model
     public function subscribe(array $data): bool
     {
         $stmt = $this->db->prepare("
-            INSERT INTO subscriptions (user_id, plan_id, start_date, end_date, status, auto_renew)
-            VALUES (?, ?, ?, ?, 'active', ?)
+            INSERT INTO subscriptions (user_id, plan_id, start_date, end_date, status)
+            VALUES (?, ?, ?, ?, 'active')
         ");
 
         $stmt->bind_param(
-            "iissi",
+            "iiss",
             $data['user_id'],
             $data['plan_id'],
             $data['start_date'],
-            $data['end_date'],
-            $data['auto_renew']
+            $data['end_date']
         );
 
         return $stmt->execute();
@@ -87,8 +86,7 @@ class Subscription extends Model
             : null;
     }
 
-    /**
-     * Get user's most recent cancelled subscription
+    /* Get user's most recent cancelled subscription
      */
     public function getCancelledSubscription(int $userId): ?array
     {
@@ -116,10 +114,7 @@ class Subscription extends Model
             : null;
     }
 
-    /**
-     * Get user's most recent inactive subscription (cancelled or expired)
-     * to determine which message to show
-     */
+
     public function getMostRecentInactiveSubscription(int $userId): ?array
     {
         $stmt = $this->db->prepare("
@@ -146,9 +141,7 @@ class Subscription extends Model
             : null;
     }
 
-    /**
-     * Get all subscriptions with user details (for admin tracking)
-     */
+    /* Get all subscriptions with user details (for admin tracking)*/
     public function getAllWithUserDetails(): array
     {
         $result = $this->db->query("
@@ -189,9 +182,7 @@ class Subscription extends Model
         return $stmt->execute();
     }
 
-    /**
-     * Update subscriptions to 'expired' status when end_date has passed
-     */
+    /* Update subscriptions to expired status when end_date has passed*/
     public function updateExpiredSubscriptions(): void
     {
         $this->db->query("
@@ -202,9 +193,7 @@ class Subscription extends Model
         ");
     }
 
-    /**
-     * Get user's most recent expired subscription
-     */
+    /* Get users most recent expired subscription*/
     public function getExpiredSubscription(int $userId): ?array
     {
         $stmt = $this->db->prepare("
@@ -231,9 +220,7 @@ class Subscription extends Model
             : null;
     }
 
-    /**
-     * Get filtered subscriptions for admin with pagination support
-     */
+    /* Get filtered subscriptions for admin with pagination support*/
     public function getFilteredSubscriptions(array $filters = []): array
     {
         $sql = "

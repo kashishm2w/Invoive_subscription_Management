@@ -14,7 +14,7 @@
         <div class="footer__block">
             <h4>Contact</h4>
             <p>
-            (123) 456-7890<br>
+            78456-78890<br>
             info@invoicesystem.com
             </p>
         </div>
@@ -32,7 +32,7 @@
 
     <div class="footer__bottom">
         <p>
-            © 2025 Invoice & Subscription Management System. All Rights Reserved.<br>
+            2025 Invoice & Subscription Management System. All Rights Reserved.<br>
             <span>POWERED BY: Invoice & Subscription Management System</span>
         </p>
     </div>

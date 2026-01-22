@@ -11,13 +11,11 @@ class AddressController
 
     public function __construct()
     {
-        $this->addressModel = new UserAddress();
         Session::start();
+        $this->addressModel = new UserAddress();
     }
 
-    /**
-     * Get all addresses for the logged-in user (AJAX)
-     */
+    /* Get all addresses for the logged-in user */
     public function getAddresses()
     {
         header('Content-Type: application/json');
@@ -37,9 +35,7 @@ class AddressController
         exit;
     }
 
-    /**
-     * Add a new address (AJAX POST)
-     */
+    /* Add a new address */
     public function addAddress()
     {
         header('Content-Type: application/json');
@@ -76,10 +72,10 @@ class AddressController
         if (!empty($_POST['phone']) && !preg_match('/^[0-9]{10}$/', $_POST['phone'])) {
             $errors['phone'] = 'Phone must be 10 digits';
         }
-        if (!empty($_POST['city']) && !preg_match('/^[a-zA-Z]{2,100}$/', $_POST['city'])) {
+        if (!empty($_POST['city']) && !preg_match('/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/', $_POST['city'])) {
             $errors['city'] = 'Invalid city';
         }
-        if (!empty($_POST['state']) && !preg_match('/^[a-zA-Z]{2,100}$/', $_POST['state'])) {
+        if (!empty($_POST['state']) && !preg_match('/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/', $_POST['state'])) {
             $errors['state'] = 'Invalid state';
         }
 
@@ -93,27 +89,31 @@ class AddressController
             exit;
         }
 
-        // Create address
-        $addressId = $this->addressModel->create([
-            'user_id' => $userId,
-            'full_name' => trim($_POST['full_name']),
-            'phone' => trim($_POST['phone']),
-            'address' => trim($_POST['address']),
-            'city' => trim($_POST['city']),
-            'state' => trim($_POST['state']),
-            'pincode' => trim($_POST['pincode']),
-            'is_default' => !empty($_POST['is_default']) ? 1 : 0
-        ]);
-
-        if ($addressId) {
-            $address = $this->addressModel->getById($addressId);
-            echo json_encode([
-                'success' => true,
-                'message' => 'Address added successfully',
-                'address' => $address
+        try {
+            // Create address
+            $addressId = $this->addressModel->create([
+                'user_id' => $userId,
+                'full_name' => trim($_POST['full_name']),
+                'phone' => trim($_POST['phone']),
+                'address' => trim($_POST['address']),
+                'city' => trim($_POST['city']),
+                'state' => trim($_POST['state']),
+                'pincode' => trim($_POST['pincode']),
+                'is_default' => !empty($_POST['is_default']) ? 1 : 0
             ]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to add address']);
+
+            if ($addressId) {
+                $address = $this->addressModel->getById($addressId);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Address added successfully',
+                    'address' => $address
+                ]);
+            } else {
+                echo json_encode(['success' => false, 'error' => 'Failed to add address. Please try again.']);
+            }
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
         }
         exit;
     }

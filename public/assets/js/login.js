@@ -83,8 +83,8 @@ emailInput.addEventListener("input", () => {
 });
 
 passwordInput.addEventListener("input", () => {
-    if (passwordInput.value.length < 6) {
-        showError(passwordInput, "Password must be at least 6 characters");
+    if (passwordInput.value.length < 8) {
+        showError(passwordInput, "Invalid Password");
     } else {
         clearError(passwordInput);
     }
@@ -101,8 +101,8 @@ form.addEventListener("submit", async (e) => {
         showError(emailInput, "Invalid email format");
         hasError = true;
     }
-    if (passwordInput.value.length < 6) {
-        showError(passwordInput, "Password must be at least 6 characters");
+    if (passwordInput.value.length < 8) {
+        showError(passwordInput, "Invalid Password");
         hasError = true;
     }
 

@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use App\Core\Model;
 
 class Company extends Model
@@ -18,7 +20,7 @@ class Company extends Model
         return $res->num_rows ? $res->fetch_assoc() : null;
     }
 
- 
+
     public function getFirst(): ?array
     {
         $stmt = $this->db->prepare(
@@ -30,59 +32,55 @@ class Company extends Model
         return $res->num_rows ? $res->fetch_assoc() : null;
     }
 
-public function save(array $data): bool
-{
-    $existing = $this->getByUserId($data['user_id']);
-    $taxPercent = (float)($data['tax_percent'] ?? 18.00);
+    public function save(array $data): bool
+    {
+        $existing = $this->getByUserId($data['user_id']);
+        $taxPercent = (float)($data['tax_percent'] ?? 18.00);
 
-    if ($existing) {
-        $stmt = $this->db->prepare(
-            "UPDATE company SET
+        if ($existing) {
+            $stmt = $this->db->prepare(
+                "UPDATE company SET
                 company_name = ?, email = ?, phone = ?, address = ?, tax_number = ?, tax_percent = ?
              WHERE user_id = ?"
-        );
+            );
 
-        $stmt->bind_param(
-            "ssssidi",
-            $data['company_name'],
-            $data['email'],
-            $data['phone'],
-            $data['address'],
-            $data['tax_number'],
-            $taxPercent,
-            $data['user_id']
-        );
-    } else {
-        $stmt = $this->db->prepare(
-            "INSERT INTO company
+            $stmt->bind_param(
+                "sssssdi",
+                $data['company_name'],
+                $data['email'],
+                $data['phone'],
+                $data['address'],
+                $data['tax_number'],
+                $taxPercent,
+                $data['user_id']
+            );
+        } else {
+            $stmt = $this->db->prepare(
+                "INSERT INTO company
             (user_id, company_name, email, phone, address, tax_number, tax_percent)
             VALUES (?, ?, ?, ?, ?, ?, ?)"
-        );
+            );
 
-        $stmt->bind_param(
-            "isssssd",
-            $data['user_id'],
-            $data['company_name'],
-            $data['email'],
-            $data['phone'],
-            $data['address'],
-            $data['tax_number'],
-            $taxPercent
-        );
+            $stmt->bind_param(
+                "isssssd",
+                $data['user_id'],
+                $data['company_name'],
+                $data['email'],
+                $data['phone'],
+                $data['address'],
+                $data['tax_number'],
+                $taxPercent
+            );
+        }
+
+        $companySaved = $stmt->execute();
+
+        return $companySaved;
     }
 
-   $companySaved = $stmt->execute();
-
-    return $companySaved;
-}
-
-/**
- * Get the global tax rate from company settings
- */
-public function getGlobalTaxRate(): float
-{
-    $company = $this->getFirst();
-    return (float)($company['tax_percent'] ?? 18.00);
-}
-
+    public function getGlobalTaxRate(): float
+    {
+        $company = $this->getFirst();
+        return (float)($company['tax_percent'] ?? 18.00);
+    }
 }

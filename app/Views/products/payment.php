@@ -17,7 +17,7 @@ use App\Helpers\Session;
 
     <form action="/payment/process" method="POST" id="payment-form">
         <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-        <input type="hidden" name="auto_renew" value="<?= $autoRenew ?>">
+
         
         <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #34495e;">
             Card Details

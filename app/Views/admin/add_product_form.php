@@ -1,5 +1,5 @@
 <span class="close" onclick="closeAddProductModal()">&times;</span>
-<h2>Add New Product</h2>
+<h2>+Add New Product</h2>
 
 <form id="addProductForm" method="POST" action="/add-product" enctype="multipart/form-data" class="product-form">
 

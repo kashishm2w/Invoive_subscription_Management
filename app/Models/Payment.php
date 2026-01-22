@@ -6,9 +6,7 @@ use App\Core\Model;
 
 class Payment extends Model
 {
-    /**
-     * Create a new payment record
-     */
+    
     public function create(array $data): int
     {
         $stmt = $this->db->prepare("
@@ -32,9 +30,7 @@ class Payment extends Model
         return $this->db->insert_id;
     }
 
-    /**
-     * Get payment by ID
-     */
+   
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM payments WHERE id = ?");
@@ -44,9 +40,6 @@ class Payment extends Model
         return $result->num_rows ? $result->fetch_assoc() : null;
     }
 
-    /**
-     * Get all payments for an invoice
-     */
     public function getByInvoice(int $invoiceId): array
     {
         $stmt = $this->db->prepare("
@@ -61,9 +54,7 @@ class Payment extends Model
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Get all payments for a user
-     */
+ 
     public function getByUser(int $userId): array
     {
         $stmt = $this->db->prepare("
@@ -78,9 +69,7 @@ class Payment extends Model
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Get paginated payments for a user
-     */
+
     public function getPaginatedByUser(int $userId, int $limit, int $offset): array
     {
         $stmt = $this->db->prepare("
@@ -96,9 +85,7 @@ class Payment extends Model
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Count payments for a user
-     */
+    
     public function countByUser(int $userId): int
     {
         $stmt = $this->db->prepare("SELECT COUNT(*) AS total FROM payments WHERE user_id = ?");
@@ -107,9 +94,7 @@ class Payment extends Model
         return (int)$stmt->get_result()->fetch_assoc()['total'];
     }
 
-    /**
-     * Get total amount paid for an invoice
-     */
+  
     public function getTotalPaidForInvoice(int $invoiceId): float
     {
         $stmt = $this->db->prepare("
@@ -122,9 +107,7 @@ class Payment extends Model
         return (float)$stmt->get_result()->fetch_assoc()['total_paid'];
     }
 
-    /**
-     * Get all payments (admin)
-     */
+    
     public function getAll(): array
     {
         $result = $this->db->query("
@@ -141,9 +124,7 @@ class Payment extends Model
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Get paginated payments (admin)
-     */
+ 
     public function getPaginated(int $limit, int $offset): array
     {
         $stmt = $this->db->prepare("
@@ -163,18 +144,14 @@ class Payment extends Model
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
-    /**
-     * Count all payments
-     */
+  
     public function countAll(): int
     {
         $result = $this->db->query("SELECT COUNT(*) AS total FROM payments");
         return (int)$result->fetch_assoc()['total'];
     }
 
-    /**
-     * Update payment status
-     */
+ 
     public function updateStatus(int $id, string $status): bool
     {
         $stmt = $this->db->prepare("UPDATE payments SET status = ? WHERE id = ?");

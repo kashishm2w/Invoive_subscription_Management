@@ -1,3 +1,8 @@
+// loadPage function for pagination - called by onclick handlers in PHP
+function loadPage(page) {
+    filterInvoices(page);
+}
+
 let filterTimeout;
 const filterInputs = ['filter_invoice_number', 'filter_email'];
 const filterSelect = document.getElementById('filter_status');
@@ -76,95 +81,51 @@ function updateTable(invoices) {
 function updatePagination(pagination) {
     if (!paginationContainer) return;
 
-    const currentPage = pagination.current_page;
-    const totalPages = pagination.total_pages;
-
+    // Clear pagination first
     paginationContainer.innerHTML = '';
 
-    if (totalPages <= 1) return;
+    // Don't show pagination for 1 or fewer pages
+    if (pagination.total_pages <= 1) return;
 
-    // Helper to create page link
-    const createLink = (page, text, isActive = false, isNav = false) => {
-        const link = document.createElement('a');
-        link.href = '#';
-        link.textContent = text || page;
-        link.className = isActive ? 'active' : (isNav ? 'nav-btn' : '');
-        link.onclick = (e) => {
-            e.preventDefault();
-            filterInvoices(page);
-        };
-        return link;
-    };
-
-    // Helper to create ellipsis span
-    const createEllipsis = () => {
-        const span = document.createElement('span');
-        span.className = 'ellipsis';
-        span.textContent = '...';
-        return span;
-    };
+    const currentPage = pagination.current_page;
+    const totalPages = pagination.total_pages;
+    const range = 1;
+    let html = '';
 
     // Previous button
     if (currentPage > 1) {
-        paginationContainer.appendChild(createLink(currentPage - 1, '« Previous', false, true));
+        html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})" class="nav-btn">&laquo; Previous</a>`;
     }
 
-    // Page 1 logic
-    if (currentPage === 1) {
-        paginationContainer.appendChild(createLink(1, '1', true));
-        if (totalPages >= 2) {
-            paginationContainer.appendChild(createLink(2, '2'));
-        }
-        if (totalPages > 3) {
-            paginationContainer.appendChild(createEllipsis());
-        }
-        if (totalPages > 2) {
-            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
-        }
+    // First page
+    html += `<a href="javascript:void(0)" onclick="loadPage(1)" ${currentPage === 1 ? 'class="active"' : ''}>1</a>`;
+
+    // Ellipsis after first page
+    if (currentPage > range + 2) {
+        html += `<span class="ellipsis">...</span>`;
     }
-    // Page 2 logic
-    else if (currentPage === 2) {
-        paginationContainer.appendChild(createLink(1, '1'));
-        paginationContainer.appendChild(createLink(2, '2', true));
-        if (totalPages > 2) {
-            if (totalPages > 3) {
-                paginationContainer.appendChild(createEllipsis());
-            }
-            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
-        }
+
+    // Pages around current page
+    for (let i = Math.max(2, currentPage - range); i <= Math.min(totalPages - 1, currentPage + range); i++) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</a>`;
     }
-    // Page 3 logic
-    else if (currentPage === 3) {
-        paginationContainer.appendChild(createLink(1, '1'));
-        paginationContainer.appendChild(createLink(2, '2'));
-        paginationContainer.appendChild(createLink(3, '3', true));
-        if (totalPages >= 4) {
-            paginationContainer.appendChild(createLink(4, '4'));
-        }
-        if (totalPages > 4) {
-            paginationContainer.appendChild(createEllipsis());
-            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
-        }
+
+    // Ellipsis before last page
+    if (currentPage < totalPages - range - 1) {
+        html += `<span class="ellipsis">...</span>`;
     }
-    // Page >= 4 logic
-    else {
-        paginationContainer.appendChild(createLink(1, '1'));
-        paginationContainer.appendChild(createEllipsis());
-        paginationContainer.appendChild(createLink(currentPage - 1, (currentPage - 1).toString()));
-        paginationContainer.appendChild(createLink(currentPage, currentPage.toString(), true));
-        if (currentPage + 1 <= totalPages) {
-            paginationContainer.appendChild(createLink(currentPage + 1, (currentPage + 1).toString()));
-        }
-        if (currentPage + 1 < totalPages) {
-            paginationContainer.appendChild(createEllipsis());
-            paginationContainer.appendChild(createLink(totalPages, totalPages.toString()));
-        }
+
+    // Last page (if more than 1 page)
+    if (totalPages > 1) {
+        html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})" ${currentPage === totalPages ? 'class="active"' : ''}>${totalPages}</a>`;
     }
 
     // Next button
     if (currentPage < totalPages) {
-        paginationContainer.appendChild(createLink(currentPage + 1, 'Next »', false, true));
+        html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage + 1})" class="nav-btn">Next &raquo;</a>`;
     }
+
+    paginationContainer.innerHTML = html;
 }
 
 function escapeHtml(text) {

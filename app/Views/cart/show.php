@@ -28,15 +28,17 @@ $grandTotal = 0;
         <?php $grandTotal = 0; ?>
         <?php foreach ($cart as $item): ?>
             <?php
+                $taxPercent = $item['tax_percent'] ?? 0;
+                $availableStock = $item['available_stock'] ?? 0;
                 $itemTotal =
                     $item['price'] * $item['quantity']
-                    + ($item['price'] * $item['tax_percent'] / 100) * $item['quantity'];
+                    + ($item['price'] * $taxPercent / 100) * $item['quantity'];
 
                 $grandTotal += $itemTotal;
             ?>
             <tr data-product-id="<?= $item['id'] ?>" 
                 data-price="<?= $item['price'] ?>" 
-                data-tax="<?= $item['tax_percent'] ?>">
+                data-tax="<?= $taxPercent ?>">
                 <td>
                     <?php if (!empty($item['poster'])): ?>
                         <img src="/uploads/<?= htmlspecialchars($item['poster']) ?>" style="width:60px;">
@@ -47,15 +49,15 @@ $grandTotal = 0;
 
                 <td>&#36;<?= number_format($item['price'], 2) ?></td>
 
-                <td><?= $item['tax_percent'] ?>%</td>
+                <td><?= $taxPercent ?>%</td>
 
                 <td class="quantity-cell">
                     <input type="number"
                            class="qty-input"
                            min="1"
-                           max="<?= $item['available_stock'] ?>"
+                           max="<?= $availableStock ?>"
                            value="<?= $item['quantity'] ?>"
-                           data-stock="<?= $item['available_stock'] ?>"
+                           data-stock="<?= $availableStock ?>"
                            data-product-id="<?= $item['id'] ?>"
                            onchange="updateQty(<?= $item['id'] ?>, this.value, this)">
                     <span class="stock-error" id="error-<?= $item['id'] ?>"></span>
@@ -156,7 +158,7 @@ if ($discountPercent > 0) {
                 <span><strong>&#36;<?= number_format($finalTotal, 2) ?></strong></span>
             </div>
         </div>
-        
+        <?php if($finalTotal>0):?>
         <div class="payment-options">
             <a href="javascript:void(0)" onclick="proceedToPayment('online')" class="payment-option-btn pay-now-btn" id="payNowBtn">
                 <span class="payment-icon">
@@ -182,6 +184,22 @@ if ($discountPercent > 0) {
                 </button>
             </form>
         </div>
+        <?php else:?>
+             <form id="freeCheckoutForm" action="/invoice/create" method="POST" style="width: 100%;">
+                <input type="hidden" name="payment_method" value="free">
+                <input type="hidden" name="address_id" id="freeAddressId" value="">
+                <div class="free-checkout-message">
+                    <div class="free-badge">100% Discount Applied!</div>
+                    <p>Your order is completely free!</p>
+                </div>
+                <button type="button" onclick="proceedToPayment('free')" class="payment-option-btn buy-now-btn" id="freeBtn">
+                    <span class="payment-text">
+                        <strong>Buy Now - Free</strong>
+                        <small>No payment required</small>
+                    </span>
+                </button>
+            </form>
+             <?php endif; ?>
     </div>
 </div>
 

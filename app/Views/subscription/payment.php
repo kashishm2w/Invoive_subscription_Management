@@ -1,6 +1,13 @@
 <?php 
 require APP_ROOT . '/app/Views/layouts/header.php';
 use App\Helpers\Session;
+
+// Subscription discount only applies to products, not the subscription fee
+// These values are always 0 for subscription payments
+$discountPercent = 0;
+$discountAmount = 0;
+$finalAmount = $plan['price'];
+$isFreeCheckout = false;
 ?>
 
 <link rel="stylesheet" href="/assets/css/payment.css">
@@ -10,9 +17,10 @@ use App\Helpers\Session;
         <a href="/subscriptions" class="back-link">Back to Plans</a>
         
         <div class="payment-header">
-            <h2>Subscribe Now</h2>
+            <h2><?= $isFreeCheckout ? 'Activate Free Subscription' : 'Subscribe Now' ?></h2>
         </div>
 
+        <?php if (!$isFreeCheckout): ?>
         <!-- Credit Card Display -->
         <div class="card-display">
             <div class="card-number">.... .... .... ....</div>
@@ -31,6 +39,7 @@ use App\Helpers\Session;
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Plan Summary -->
         <div class="order-summary">
@@ -46,17 +55,40 @@ use App\Helpers\Session;
                 </div>
                 <div class="item-price">&#36;<?= number_format($plan['price'], 2) ?></div>
             </div>
+
+            <?php if ($discountAmount > 0): ?>
+            <div class="order-discount">
+                <span>Subscription Discount (<?= (int)$discountPercent ?>%)</span>
+                <strong class="discount-value">-&#36;<?= number_format($discountAmount, 2) ?></strong>
+            </div>
+            <?php endif; ?>
                         
             <div class="order-total">
                 <span>Total Amount</span>
-                <strong>&#36;<?= number_format($plan['price'], 2) ?></strong>
+                <strong>&#36;<?= number_format($finalAmount, 2) ?></strong>
             </div>
         </div>
 
+        <?php if ($isFreeCheckout): ?>
+        <!-- Free Checkout - Buy Now Button -->
+        <form action="/payment/process-free" method="POST" id="free-checkout-form">
+            <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
+            
+            <div class="free-checkout-message">
+                <div class="free-badge">100% Discount Applied!</div>
+                <p>This subscription is completely free. Click below to activate.</p>
+            </div>
+            
+            <button type="submit" class="pay-btn buy-now-btn" id="submit-btn">
+                <span class="loading-spinner" id="spinner"></span>
+                <span id="btn-text">Buy Now - Free</span>
+            </button>
+        </form>
+        <?php else: ?>
         <!-- Card Input -->
         <form action="/payment/process" method="POST" id="payment-form">
             <input type="hidden" name="plan_id" value="<?= $plan['id'] ?>">
-            <input type="hidden" name="auto_renew" value="<?= $autoRenew ?>">
+
             
             <div class="card-input-section">
                 <label>Card Details</label>
@@ -66,16 +98,18 @@ use App\Helpers\Session;
             
             <button type="submit" class="pay-btn" id="submit-btn">
                 <span class="loading-spinner" id="spinner"></span>
-                <span id="btn-text">Pay &#36;<?= number_format($plan['price'], 2) ?></span>
+                <span id="btn-text">Pay &#36;<?= number_format($finalAmount, 2) ?></span>
             </button>
         </form>
+        <?php endif; ?>
         
         <div class="security-badge">
-            Secured by Stripe
+            <?= $isFreeCheckout ? 'No payment required' : 'Secured by Stripe' ?>
         </div>
     </div>
 </div>
 
+<?php if (!$isFreeCheckout): ?>
 <script src="https://js.stripe.com/v3/"></script>
 <script>
 var stripe = Stripe("<?= $stripePublishableKey ?>");
@@ -119,7 +153,7 @@ form.addEventListener('submit', function(event) {
             document.getElementById('card-errors').textContent = result.error.message;
             submitBtn.disabled = false;
             spinner.style.display = 'none';
-            btnText.textContent = 'Pay &#36;<?= number_format($plan['price'], 2) ?>';
+            btnText.textContent = 'Pay &#36;<?= number_format($finalAmount, 2) ?>';
         } else {
             var hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';
@@ -131,5 +165,21 @@ form.addEventListener('submit', function(event) {
     });
 });
 </script>
+<?php else: ?>
+<script>
+// Free checkout form handling
+var form = document.getElementById('free-checkout-form');
+var submitBtn = document.getElementById('submit-btn');
+var spinner = document.getElementById('spinner');
+var btnText = document.getElementById('btn-text');
+
+form.addEventListener('submit', function() {
+    submitBtn.disabled = true;
+    spinner.style.display = 'inline-block';
+    btnText.textContent = 'Activating...';
+});
+</script>
+<?php endif; ?>
 
 <?php require APP_ROOT . '/app/Views/layouts/footer.php'; ?>
+

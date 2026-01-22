@@ -22,9 +22,7 @@ class PaymentController
         $this->planModel = new SubscriptionPlan();
     }
 
-    /**
-     * Show payment page with Stripe Elements
-     */
+    /* Show payment page with Stripe Elements */
     public function showPaymentPage()
     {
         if (!Session::has('user_id')) {
@@ -33,7 +31,6 @@ class PaymentController
         }
 
         $planId = $_GET['plan_id'] ?? null;
-        $autoRenew = $_GET['auto_renew'] ?? 0;
 
         if (!$planId) {
             Session::set('error', 'Plan not selected');
@@ -59,12 +56,17 @@ class PaymentController
 
         $stripePublishableKey = StripeConfig::getPublishableKey();
 
+        // Subscription discount only applies to PRODUCTS, not to the subscription fee itself
+        // The full subscription price is always charged
+        $discountPercent = 0;
+        $discountAmount = 0;
+        $finalAmount = $plan['price'];
+        $isFreeCheckout = false; // Subscriptions always require full payment
+
         require APP_ROOT . '/app/Views/subscription/payment.php';
     }
 
-    /**
-     * Process Stripe payment and activate subscription
-     */
+    /* Process Stripe payment and activate subscription*/
     public function processPayment()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -79,7 +81,6 @@ class PaymentController
 
         $token = $_POST['stripeToken'] ?? null;
         $planId = $_POST['plan_id'] ?? null;
-        $autoRenew = isset($_POST['auto_renew']) ? 1 : 0;
 
         if (!$token || !$planId) {
             Session::set('error', 'Payment failed. Please try again.');
@@ -132,7 +133,6 @@ class PaymentController
                 'plan_id' => $planId,
                 'start_date' => $start,
                 'end_date' => $end,
-                'auto_renew' => $autoRenew
             ]);
 
             if (!$subscriptionResult) {
@@ -176,14 +176,68 @@ class PaymentController
         }
     }
 
-    /*   Create invoice for subscription payment */
+
+    public function processFreeSubscription()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /subscriptions');
+            exit;
+        }
+
+        $planId = $_POST['plan_id'] ?? null;
+        Session::set('error', 'Subscription requires payment. The subscription discount only applies to product purchases.');
+        header('Location: /payment?plan_id=' . $planId);
+        exit;
+    }
+
+ 
+    private function createFreeSubscriptionInvoice($userId, $plan, $discountAmount)
+    {
+        $invoiceModel = new Invoice();
+        $itemModel = new InvoiceItem();
+
+        $subtotal = $plan['price'];
+        $taxRate = 0;
+        $taxAmount = 0;
+        $totalAmount = 0; 
+
+        $invoiceId = $invoiceModel->create([
+            'created_by' => $userId,
+            'client_id' => $userId,
+            'invoice_number' => 'SUB-' . date('Ymd-His'),
+            'invoice_date' => date('Y-m-d'),
+            'due_date' => date('Y-m-d'),
+            'subtotal' => $subtotal,
+            'tax_type' => 'NONE',
+            'tax_rate' => $taxRate,
+            'tax_amount' => $taxAmount,
+            'discount' => $discountAmount,
+            'total_amount' => $totalAmount,
+            'status' => 'Paid',
+            'notes' => 'Free Subscription (' . (int)$plan['discount_percent'] . '% discount) - ' . $plan['plan_name']
+        ]);
+
+        $invoiceModel->updatePaymentStatus($invoiceId, 0, 'Paid');
+
+        $itemModel->addItem($invoiceId, [
+            'name' => 'Subscription: ' . $plan['plan_name'] . ' (' . ucfirst($plan['billing_cycle']) . ')',
+            'quantity' => 1,
+            'price' => $plan['price'],
+            'total' => $plan['price']
+        ]);
+
+        \App\Helpers\Mailer::sendInvoiceEmail($userId, $invoiceId);
+
+        return $invoiceId;
+    }
+
     private function createSubscriptionInvoice($userId, $plan, $transactionId)
     {
         $invoiceModel = new Invoice();
         $itemModel = new InvoiceItem();
 
         $subtotal = $plan['price'];
-        $taxRate = 0; // No tax on subscriptions
+        $taxRate = 0; 
         $taxAmount = 0;
         $totalAmount = $subtotal;
 
@@ -203,10 +257,8 @@ class PaymentController
             'notes' => 'Subscription Payment - ' . $plan['plan_name'] . ' | Transaction ID: ' . $transactionId
         ]);
 
-        // Set amount_paid and due_amount for fully paid subscription
         $invoiceModel->updatePaymentStatus($invoiceId, $totalAmount, 'Paid');
 
-        // Add invoice item
         $itemModel->addItem($invoiceId, [
             'name' => 'Subscription: ' . $plan['plan_name'] . ' (' . ucfirst($plan['billing_cycle']) . ')',
             'quantity' => 1,
@@ -214,7 +266,6 @@ class PaymentController
             'total' => $plan['price']
         ]);
 
-        // Send invoice email to user
         \App\Helpers\Mailer::sendInvoiceEmail($userId, $invoiceId);
 
         return $invoiceId;

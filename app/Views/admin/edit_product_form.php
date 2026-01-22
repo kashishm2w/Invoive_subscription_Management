@@ -45,7 +45,7 @@
                 <p class="current-image-label">Current Image:</p>
                 <img src="/uploads/<?= htmlspecialchars($product['poster']) ?>" class="current-poster-preview" id="current-poster-img" style="width:80px;">
                 <?php if ($product['poster'] !== 'default.png' && $product['poster'] !== 'default.jpg'): ?>
-                    <button type="button" class="btn-delete-poster" onclick="deletePoster(<?= $product['id'] ?>)">Delete Poster</button>
+                    <button type="button" class="btn-delete-poster" onclick="deletePoster(<?= $product['id'] ?>)">&#128465; Delete</button>
 
                 <?php endif; ?>
             </div>

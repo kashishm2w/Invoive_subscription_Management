@@ -1,34 +1,28 @@
 function updateQty(productId, qty, inputElement) {
-    const maxStock = parseInt(inputElement.dataset.stock);
+    const maxStock = parseInt(inputElement.dataset.stock) || 0;
     const errorSpan = document.getElementById('error-' + productId);
+
     let quantity = parseInt(qty);
 
-    // Clear any existing error
+    // Clear error
     errorSpan.textContent = '';
     errorSpan.classList.remove('show');
 
-    // Check if quantity exceeds stock
+    if (isNaN(quantity) || quantity < 1) {
+        quantity = 1;
+        inputElement.value = 1;
+    }
+
+    // Stock limit
     if (quantity > maxStock) {
-        // Cap at max stock
         quantity = maxStock;
         inputElement.value = maxStock;
 
-        // Show inline error message
         errorSpan.textContent = 'Only ' + maxStock + ' items available';
         errorSpan.classList.add('show');
 
-        // Hide message after 3 seconds
-        setTimeout(() => {
-            errorSpan.classList.remove('show');
-        }, 1500);
-
-        // Don't proceed if trying to exceed
+        setTimeout(() => errorSpan.classList.remove('show'), 1500);
         return;
-    }
-
-    if (quantity < 1) {
-        quantity = 1;
-        inputElement.value = 1;
     }
 
     fetch('/cart/update', {
@@ -36,44 +30,40 @@ function updateQty(productId, qty, inputElement) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `product_id=${productId}&quantity=${quantity}`
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update totals dynamically without page reload
-                const row = document.querySelector(`tr[data-product-id="${productId}"]`);
-                const price = parseFloat(row.dataset.price);
-                const taxPercent = parseFloat(row.dataset.tax);
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const row = document.querySelector(`tr[data-product-id="${productId}"]`);
 
-                // Calculate new item total
-                const itemTotal = (price * quantity) + (price * taxPercent / 100) * quantity;
+            const price = parseFloat(row.dataset.price) || 0;
+            const taxPercent = parseFloat(row.dataset.tax) || 0;
 
-                // Update item total display
-                const itemTotalCell = document.getElementById('item-total-' + productId);
-                itemTotalCell.innerHTML = '&#36;' + itemTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            // Safe calculation
+            const itemTotal =
+                (price * quantity) +
+                ((price * taxPercent) / 100) * quantity;
 
-                // Recalculate and update grand total
-                recalculateGrandTotal();
+            document.getElementById('item-total-' + productId).innerHTML =
+                '&#36;' + itemTotal.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
 
-                // Show success feedback (optional subtle effect)
-                inputElement.style.backgroundColor = '#d4edda';
-                setTimeout(() => {
-                    inputElement.style.backgroundColor = '';
-                }, 1500);
-            } else {
-                // Show inline error message
-                errorSpan.textContent = data.error;
-                errorSpan.classList.add('show');
-                inputElement.value = data.available_stock || inputElement.defaultValue;
+            recalculateGrandTotal();
 
-                setTimeout(() => {
-                    errorSpan.classList.remove('show');
-                }, 1500);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            inputElement.value = inputElement.defaultValue;
-        });
+            inputElement.style.backgroundColor = '#d4edda';
+            setTimeout(() => inputElement.style.backgroundColor = '', 1500);
+        } else {
+            errorSpan.textContent = data.error;
+            errorSpan.classList.add('show');
+            inputElement.value = data.available_stock || 1;
+
+            setTimeout(() => errorSpan.classList.remove('show'), 1500);
+        }
+    })
+    .catch(() => {
+        inputElement.value = 1;
+    });
 }
 
 function recalculateGrandTotal() {
@@ -118,10 +108,16 @@ function recalculateGrandTotal() {
 
     // Also update the modal totals
     const modalSubtotal = document.querySelector('.payment-summary .summary-row:first-child span:last-child');
+    const modalDiscountAmount = document.querySelector('.payment-summary .summary-row.discount .discount-value');
     const modalFinalTotal = document.querySelector('.payment-summary .summary-row.total span:last-child strong');
 
     if (modalSubtotal) {
         modalSubtotal.innerHTML = '&#36;' + subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Update discount amount in modal
+    if (modalDiscountAmount) {
+        modalDiscountAmount.innerHTML = '-&#36;' + discountAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     if (modalFinalTotal) {
@@ -291,8 +287,16 @@ function selectAddress(address) {
     section.style.display = 'block';
     document.getElementById('noAddressWarning').style.display = 'none';
 
-    // Update COD form hidden field
-    document.getElementById('codAddressId').value = address.id;
+    // Update hidden address fields (check if elements exist)
+    const codAddressId = document.getElementById('codAddressId');
+    if (codAddressId) {
+        codAddressId.value = address.id;
+    }
+
+    const freeAddressId = document.getElementById('freeAddressId');
+    if (freeAddressId) {
+        freeAddressId.value = address.id;
+    }
 }
 
 // Load addresses for selection modal
@@ -346,17 +350,34 @@ document.getElementById('addAddressForm').addEventListener('submit', function (e
         method: 'POST',
         body: new URLSearchParams(formData)
     })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('JSON Parse Error:', text);
+                throw new Error('Invalid server response');
+            }
+        })
         .then(data => {
             if (data.success) {
-                // Add to local array
                 userAddresses.unshift(data.address);
-                // Select the new address
                 selectAddress(data.address);
                 closeAddAddressModal();
 
-                // Show success
-                showToast('Address added successfully!', 'success');
+                // Show success with SweetAlert
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Address added successfully!',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
             } else if (data.errors) {
                 // Show validation errors
                 Object.keys(data.errors).forEach(field => {
@@ -367,12 +388,20 @@ document.getElementById('addAddressForm').addEventListener('submit', function (e
                     }
                 });
             } else {
-                showToast(data.error || 'Failed to add address', 'error');
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.error || 'Failed to add address',
+                    icon: 'error'
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Something went wrong', 'error');
+            Swal.fire({
+                title: 'Error!',
+                text: 'Something went wrong: ' + error.message,
+                icon: 'error'
+            });
         });
 });
 
@@ -404,6 +433,10 @@ function proceedToPayment(method) {
         // Submit COD form
         document.getElementById('codAddressId').value = selectedAddress.id;
         document.getElementById('codForm').submit();
+    } else if (method === 'free') {
+        // Submit Free checkout form (100% discount)
+        document.getElementById('freeAddressId').value = selectedAddress.id;
+        document.getElementById('freeCheckoutForm').submit();
     }
 }
 

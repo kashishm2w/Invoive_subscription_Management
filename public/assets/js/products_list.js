@@ -208,7 +208,7 @@ function deletePoster(productId) {
                         // Update the UI to show default image
                         const posterImg = document.getElementById('current-poster-img');
                         if (posterImg) {
-                            posterImg.src = '/uploads/default.png';
+                            posterImg.src = '/uploads/default.jpg';
                         }
 
                         // Hide the delete button
@@ -245,6 +245,35 @@ function handleEditFormSubmit(e) {
     const form = e.target;
     const formData = new FormData(form);
     const submitBtn = form.querySelector('button[type="submit"]');
+
+    // Validate poster file size (max 2MB)
+    const posterInput = form.querySelector('input[name="poster"]');
+    if (posterInput && posterInput.files.length > 0) {
+        const posterFile = posterInput.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
+        if (posterFile.size > maxSize) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'Poster image size must be less than 2MB. Your file is ' + (posterFile.size / (1024 * 1024)).toFixed(2) + 'MB.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(posterFile.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Poster must be a JPG, PNG, or GIF image.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+    }
 
     // Disable button and show loading state
     submitBtn.disabled = true;
@@ -362,6 +391,35 @@ function handleAddFormSubmit(e) {
     const formData = new FormData(form);
     const submitBtn = form.querySelector('button[type="submit"]');
 
+    // Validate poster file size (max 2MB)
+    const posterInput = form.querySelector('input[name="poster"]');
+    if (posterInput && posterInput.files.length > 0) {
+        const posterFile = posterInput.files[0];
+        const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+
+        if (posterFile.size > maxSize) {
+            Swal.fire({
+                icon: 'error',
+                title: 'File Too Large',
+                text: 'Poster image size must be less than 2MB. Your file is ' + (posterFile.size / (1024 * 1024)).toFixed(2) + 'MB.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(posterFile.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Poster must be a JPG, PNG, or GIF image.',
+                confirmButtonColor: '#d33'
+            });
+            return;
+        }
+    }
+
     // Disable button and show loading state
     submitBtn.disabled = true;
     submitBtn.textContent = 'Adding...';
@@ -463,15 +521,22 @@ document.addEventListener('keydown', function (event) {
 
 // Product Search AJAX
 let searchTimeout;
+let currentSearchTerm = ''; // Store current search term for pagination
 const searchInput = document.getElementById('product_search');
 const productTableBody = document.querySelector('.product-table tbody');
 const paginationContainer = document.querySelector('.pagination');
 const isAdmin = window.IS_ADMIN;
 
+// loadPage function for pagination
+function loadPage(page) {
+    searchProducts(currentSearchTerm, page);
+}
+
 if (searchInput) {
     searchInput.addEventListener('input', function () {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
+            currentSearchTerm = this.value;
             searchProducts(this.value, 1);
         }, 300); // Debounce 300ms
     });
@@ -484,7 +549,7 @@ function searchProducts(search, page = 1) {
         .then(res => res.json())
         .then(data => {
             updateProductTable(data.products, data.cartProductIds);
-            updatePagination(data.pagination, search);
+            updatePagination(data.pagination);
         })
         .catch(err => {
             console.error('Search error:', err);
@@ -508,9 +573,9 @@ function updateProductTable(products, cartProductIds) {
 
         let row = `<tr>
             <td>
-                ${product.poster && product.poster !== 'default.jpg'
+                ${product.poster && product.poster.trim() !== ''
                 ? `<img src="/uploads/${product.poster}" alt="${product.name}" class="product-poster" style="width:60px; height:auto;">`
-                : '<span>No Image</span>'}
+                : '<img src="/uploads/default.jpg" alt="Default" class="product-poster" style="width:60px; height:auto;">'}
             </td>
             <td>${escapeHtml(product.name)}</td>`;
 
@@ -537,73 +602,55 @@ function updateProductTable(products, cartProductIds) {
         productTableBody.innerHTML += row;
     });
 }
-
-function updatePagination(pagination, search) {
+function updatePagination(pagination) {
     if (!paginationContainer) return;
 
+    // Clear pagination first
     paginationContainer.innerHTML = '';
 
+    // Don't show pagination for 1 or fewer pages
     if (pagination.total_pages <= 1) return;
 
     const currentPage = pagination.current_page;
     const totalPages = pagination.total_pages;
-    const range = 2; // Pages to show around current page
-
-    // Helper to create page link
-    const createLink = (page, text, isActive = false, isNav = false) => {
-        const link = document.createElement('a');
-        link.href = '#';
-        link.textContent = text || page;
-        link.className = isActive ? 'active' : (isNav ? 'nav-btn' : '');
-        link.onclick = (e) => {
-            e.preventDefault();
-            searchProducts(search, page);
-        };
-        return link;
-    };
-
-    // Helper to create ellipsis span
-    const createEllipsis = () => {
-        const span = document.createElement('span');
-        span.className = 'ellipsis';
-        span.textContent = '...';
-        return span;
-    };
+    const range = 1;
+    let html = '';
 
     // Previous button
     if (currentPage > 1) {
-        paginationContainer.appendChild(createLink(currentPage - 1, '« Previous', false, true));
+        html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage - 1})" class="nav-btn">&laquo; Previous</a>`;
     }
 
     // First page
-    paginationContainer.appendChild(createLink(1, '1', currentPage === 1));
+    html += `<a href="javascript:void(0)" onclick="loadPage(1)" ${currentPage === 1 ? 'class="active"' : ''}>1</a>`;
 
-    // Ellipsis after first page if needed
+    // Ellipsis after first page
     if (currentPage > range + 2) {
-        paginationContainer.appendChild(createEllipsis());
+        html += `<span class="ellipsis">...</span>`;
     }
 
     // Pages around current page
     for (let i = Math.max(2, currentPage - range); i <= Math.min(totalPages - 1, currentPage + range); i++) {
-        paginationContainer.appendChild(createLink(i, i.toString(), i === currentPage));
+        html += `<a href="javascript:void(0)" onclick="loadPage(${i})" ${i === currentPage ? 'class="active"' : ''}>${i}</a>`;
     }
 
-    // Ellipsis before last page if needed
+    // Ellipsis before last page
     if (currentPage < totalPages - range - 1) {
-        paginationContainer.appendChild(createEllipsis());
+        html += `<span class="ellipsis">...</span>`;
     }
 
     // Last page (if more than 1 page)
     if (totalPages > 1) {
-        paginationContainer.appendChild(createLink(totalPages, totalPages.toString(), currentPage === totalPages));
+        html += `<a href="javascript:void(0)" onclick="loadPage(${totalPages})" ${currentPage === totalPages ? 'class="active"' : ''}>${totalPages}</a>`;
     }
 
     // Next button
     if (currentPage < totalPages) {
-        paginationContainer.appendChild(createLink(currentPage + 1, 'Next »', false, true));
+        html += `<a href="javascript:void(0)" onclick="loadPage(${currentPage + 1})" class="nav-btn">Next &raquo;</a>`;
     }
-}
 
+    paginationContainer.innerHTML = html;
+}
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;

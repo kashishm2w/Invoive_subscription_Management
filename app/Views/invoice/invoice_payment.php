@@ -124,7 +124,7 @@ $previousPayments = $paymentModel->getByInvoice($invoice['id']);
                        max="<?= $remainingAmount ?>" 
                        step="0.01"
                        class="payment-amount-input">
-                <small class="help-text">Enter amount to pay (min ₹1, max ₹<?= number_format($remainingAmount, 2) ?>)</small>
+                <small class="help-text">Enter amount to pay (min 1, max <?= number_format($remainingAmount, 2) ?>)</small>
             </div>
             
             <div class="card-input-section">
@@ -181,7 +181,7 @@ paymentInput.addEventListener('input', function() {
         this.value = remainingAmount;
         amount = remainingAmount;
     }
-    btnText.textContent = 'Pay ₹' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    btnText.textContent = 'Pay ' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 });
 
 var form = document.getElementById('payment-form');
@@ -196,7 +196,12 @@ form.addEventListener('submit', function(event) {
     amount = Math.round(amount * 100) / 100;
     
     if (isNaN(amount) || amount <= 0 || amount > Math.round(remainingAmount * 100) / 100) {
-        document.getElementById('card-errors').textContent = 'Please enter a valid payment amount';
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Payment',
+            text: 'Please enter a valid payment amount',
+            confirmButtonColor: '#6366f1'
+        });
         return;
     }
 
@@ -209,7 +214,7 @@ form.addEventListener('submit', function(event) {
             document.getElementById('card-errors').textContent = result.error.message;
             submitBtn.disabled = false;
             spinner.style.display = 'none';
-            btnText.textContent = 'Pay ₹' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            btnText.textContent = 'Pay ' + amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         } else {
             var hiddenInput = document.createElement('input');
             hiddenInput.type = 'hidden';

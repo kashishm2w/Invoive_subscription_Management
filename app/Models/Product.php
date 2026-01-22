@@ -101,9 +101,8 @@ class Product extends Model
         return $stmt->execute();
     }
 
-    /**
-     * Update only the poster field for a product
-     */
+    /*
+      Update only the poster field for a product*/
     public function updatePoster(int $id, string $poster): bool
     {
         $stmt = $this->db->prepare(
@@ -113,9 +112,7 @@ class Product extends Model
         return $stmt->execute();
     }
 
-    /**
-     * Search products by name
-     */
+    /* Search products by name*/
     public function searchByName(string $search = ''): array
     {
         if (empty($search)) {

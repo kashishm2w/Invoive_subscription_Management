@@ -30,11 +30,10 @@ require_once APP_ROOT . '/app/Controllers/SubscriptionController.php';
 require_once APP_ROOT . '/app/Controllers/SettingController.php';
 require_once APP_ROOT . '/app/Controllers/PaymentController.php';
 require_once APP_ROOT . '/app/Controllers/AddressController.php';
+require_once APP_ROOT . '/app/Controllers/PaymentHistoryController.php';
 
 use App\Core\Router;
 use App\Controllers\AuthController;
-use App\Controllers\UserController;
-
 use App\Controllers\DashboardController;
 use App\Controllers\ProductController;
 use App\Controllers\CartController;
@@ -42,12 +41,12 @@ use App\Controllers\InvoiceController;
 use App\Controllers\SubscriptionController;
 use App\Controllers\SubscriptionPlanController;
 use App\Controllers\PaymentController;
-
+use App\Controllers\PaymentHistoryController;
 use App\Controllers\SettingController;
 use App\Controllers\AddressController;
 
 $router = new Router();
-//Dashboard/*  */
+//Dashboard
 $router->get('/', [DashboardController::class, 'index']);
 $router->get('/dashboard', [DashboardController::class, 'index']);
 $router->get('/dashboard/chart-data', [DashboardController::class, 'getChartData']);
@@ -59,13 +58,8 @@ $router->post('/register', [AuthController::class, 'register']);
 $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
-
-// AJAX Auth Routes
 $router->post('/ajax/login', [AuthController::class, 'ajaxLogin']);
 $router->post('/ajax/register', [AuthController::class, 'ajaxRegister']);
-
-// user
-// $router->post('/user/update-profile',[UserController::class ,'updateProfile']);
 
 // Products
 $router->get('/home', [ProductController::class, 'home']);
@@ -78,7 +72,6 @@ $router->get('/dashboard/products/edit', [ProductController::class, 'editProduct
 $router->post('/dashboard/products/edit', [ProductController::class, 'updateProduct']);
 $router->get('/dashboard/products/delete', [ProductController::class, 'deleteProduct']);
 $router->post('/dashboard/products/delete-poster', [ProductController::class, 'deletePoster']);
-// $router->get('/dashboard/invoices', [ProductController::class, 'trackInvoices']);
 // cart
 $router->get('/cart', [CartController::class, 'showCart']);
 $router->post('/cart/add', [CartController::class, 'addItem']);
@@ -106,6 +99,7 @@ $router->post('/subscription/cancel', [SubscriptionController::class, 'cancelSub
 // Payment (Stripe)
 $router->get('/payment', [PaymentController::class, 'showPaymentPage']);
 $router->post('/payment/process', [PaymentController::class, 'processPayment']);
+$router->post('/payment/process-free', [PaymentController::class, 'processFreeSubscription']);
 
 // Admin: Track Subscriptions
 $router->get('/track_subscriptions', [SubscriptionController::class, 'trackSubscriptions']);
@@ -142,8 +136,6 @@ $router->get('/invoice/pay', [InvoiceController::class, 'showPaymentPage']);
 $router->post('/invoice/pay/process', [InvoiceController::class, 'processPayment']);
 
 // Payment History
-require_once APP_ROOT . '/app/Controllers/PaymentHistoryController.php';
-use App\Controllers\PaymentHistoryController;
 $router->get('/payment-history', [PaymentHistoryController::class, 'index']);
 $router->get('/admin/payments', [PaymentHistoryController::class, 'adminIndex']);
 $router->get('/payment-history/ajax', [PaymentHistoryController::class, 'fetchPaymentsAjax']);

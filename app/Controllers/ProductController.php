@@ -66,6 +66,34 @@ class ProductController
 
         $cart = Session::get('cart') ?? [];
         $cartProductIds = array_keys($cart);
+
+        // Check if this is an AJAX request
+        if (isset($_GET['ajax'])) {
+            // Add tax and total to each product for JSON response
+            foreach ($products as &$product) {
+                $price = (float)$product['price'];
+                $tax = !empty($product['is_tax_free']) ? 0 : $globalTaxRate;
+                $product['tax'] = $tax;
+                $product['total'] = $price + ($price * $tax / 100);
+                $product['in_cart'] = in_array($product['id'], $cartProductIds);
+            }
+            unset($product);
+
+            $isAdmin = Session::get('role') === 'admin';
+            $isLoggedIn = Session::has('user_id');
+
+            header('Content-Type: application/json');
+            echo json_encode([
+                'products' => $products,
+                'pagination' => $pagination,
+                'cartProductIds' => $cartProductIds,
+                'isAdmin' => $isAdmin,
+                'isLoggedIn' => $isLoggedIn,
+                'globalTaxRate' => $globalTaxRate
+            ]);
+            exit;
+        }
+
         require APP_ROOT . '/app/Views/products/home.php';
     }
 
@@ -153,7 +181,7 @@ class ProductController
             $poster      = $_FILES['poster'] ?? null;
             // validation
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
-                $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
+                $errors[] = "Invalid name (name must be 3-100 characters and also conatin -,_)";
             }
             if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,1000}$/s', $description)) {
                 $errors[] = "Description must be 10-1000 characters ";
@@ -338,7 +366,7 @@ class ProductController
 
             // Validation - same as addProduct
             if ($name === '' || !preg_match('/^[a-zA-Z0-9 _-]{3,100}$/', $name)) {
-                $errors[] = "Product name must be 3-100 characters and contain only letters, numbers, space, - or _";
+                $errors[] = "Invalid name (name must be 3-100 characters and also conatin -,_)";
             }
             if ($description !== '' && !preg_match('/^[a-zA-Z0-9\s\.\,\:\;\'\"\(\)\n\-\!\?]{10,3000}$/s', $description)) {
                 $errors[] = "Description must be 10-3000 characters";
@@ -488,9 +516,7 @@ class ProductController
         require APP_ROOT . '/app/Views/admin/track_invoices.php';
     }
 
-    /**
-     * AJAX: Search products by name
-     */
+
     public function searchProducts()
     {
         $search = $_GET['search'] ?? '';
@@ -503,15 +529,13 @@ class ProductController
 
         $products = array_slice($allProducts, $offset, $limit);
 
-        // Get global tax rate from company settings
         $companyModel = new Company();
         $globalTaxRate = $companyModel->getGlobalTaxRate();
 
-        // Add tax_percent to each product based on is_tax_free
         foreach ($products as &$product) {
             $product['tax_percent'] = !empty($product['is_tax_free']) ? 0 : $globalTaxRate;
         }
-        unset($product); // Break reference
+        unset($product); 
 
         $cart = Session::get('cart') ?? [];
         $cartProductIds = array_keys($cart);
@@ -588,16 +612,16 @@ class ProductController
             }
         }
 
-        // Update the product to use default.png
+        // Update the product to use default.jpg
         try {
-            $this->productModel->updatePoster($id, 'default.png');
+            $this->productModel->updatePoster($id, 'default.jpg');
 
             if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
                     'message' => 'Poster deleted successfully!',
-                    'poster' => 'default.png'
+                    'poster' => 'default.jpg'
                 ]);
                 exit;
             }

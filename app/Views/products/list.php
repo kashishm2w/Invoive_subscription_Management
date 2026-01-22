@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 use \App\Helpers\Session;
 use \App\Models\Company;
 
@@ -7,7 +8,7 @@ $companyModel = new Company();
 $companyTaxRate = $companyModel->getGlobalTaxRate();
 
 require APP_ROOT . '/app/Views/layouts/header.php';
- ?>
+?>
 <link rel="stylesheet" href="/assets/css/products.css">
 
 <main class="main-content">
@@ -93,104 +94,49 @@ require APP_ROOT . '/app/Views/layouts/header.php';
             </tbody>
         </table>
 
-      <div class="pagination">
-<?php if ($pagination['total_pages'] > 1): ?>
-<?php
-    $currentPage = (int)$pagination['current_page'];
-    $totalPages  = (int)$pagination['total_pages'];
-?>
+        <div class="pagination" id="pagination-container">
+            <?php if ($pagination['total_pages'] > 1): ?>
+                <?php
+                $currentPage = (int)$pagination['current_page'];
+                $totalPages  = (int)$pagination['total_pages'];
+                $range = 1; // Number of pages to show around current page
+                ?>
+                <!-- Previous Button -->
+                <?php if ($currentPage > 1): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $currentPage - 1 ?>)" class="nav-btn">&laquo; Previous</a>
+                <?php endif; ?>
 
-<!-- Previous -->
-<?php if ($currentPage > 1): ?>
-    <a href="?page=<?= $currentPage - 1 ?>" class="nav-btn">&laquo; Previous</a>
-<?php endif; ?>
+                <!-- First page -->
+                <a href="javascript:void(0)" onclick="loadPage(1)" <?= $currentPage === 1 ? 'class="active"' : '' ?>>1</a>
 
-<?php
-/* PAGE 1 */
-if ($currentPage === 1):
-?>
-    <a href="?page=1" class="active">1</a>
+                <!-- Ellipsis after first page -->
+                <?php if ($currentPage > $range + 2): ?>
+                    <span class="ellipsis">...</span>
+                <?php endif; ?>
 
-    <?php if ($totalPages >= 2): ?>
-        <a href="?page=2">2</a>
-    <?php endif; ?>
+                <!-- Pages around current page -->
+                <?php for ($i = max(2, $currentPage - $range); $i <= min($totalPages - 1, $currentPage + $range); $i++): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $i ?>)" <?= $i === $currentPage ? 'class="active"' : '' ?>><?= $i ?></a>
+                <?php endfor; ?>
 
-    <?php if ($totalPages > 3): ?>
-        <span class="ellipsis">...</span>
-    <?php endif; ?>
+                <!-- Ellipsis before last page -->
+                <?php if ($currentPage < $totalPages - $range - 1): ?>
+                    <span class="ellipsis">...</span>
+                <?php endif; ?>
 
-    <?php if ($totalPages > 2): ?>
-        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-    <?php endif; ?>
+                <!-- Last page (if more than 1 page) -->
+                <?php if ($totalPages > 1): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $totalPages ?>)" <?= $currentPage === $totalPages ? 'class="active"' : '' ?>><?= $totalPages ?></a>
+                <?php endif; ?>
 
-<?php
-/* PAGE 2 */
-elseif ($currentPage === 2):
-?>
-    <a href="?page=1">1</a>
-    <a href="?page=2" class="active">2</a>
+                <!-- Next Button -->
+                <?php if ($currentPage < $totalPages): ?>
+                    <a href="javascript:void(0)" onclick="loadPage(<?= $currentPage + 1 ?>)" class="nav-btn">Next &raquo;</a>
+                <?php endif; ?>
 
-    <?php if ($totalPages > 2): ?>
-        <?php if ($totalPages > 3): ?>
-            <span class="ellipsis">...</span>
-        <?php endif; ?>
-        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-    <?php endif; ?>
-
-<?php
-/* PAGE 3 */
-elseif ($currentPage === 3):
-?>
-    <a href="?page=1">1</a>
-    <a href="?page=2">2</a>
-    <a href="?page=3" class="active">3</a>
-
-    <?php if ($totalPages >= 4): ?>
-        <a href="?page=4">4</a>
-    <?php endif; ?>
-
-    <?php if ($totalPages > 4): ?>
-        <span class="ellipsis">...</span>
-        <a href="?page=<?= $totalPages ?>"><?= $totalPages ?></a>
-    <?php endif; ?>
-
-<?php
-/* PAGE ≥ 4 */
-else:
-?>
-    <a href="?page=1">1</a>
-    <span class="ellipsis">...</span>
-
-    <a href="?page=<?= $currentPage - 1 ?>">
-        <?= $currentPage - 1 ?>
-    </a>
-
-    <a href="?page=<?= $currentPage ?>" class="active">
-        <?= $currentPage ?>
-    </a>
-
-    <?php if ($currentPage + 1 <= $totalPages): ?>
-        <a href="?page=<?= $currentPage + 1 ?>">
-            <?= $currentPage + 1 ?>
-        </a>
-    <?php endif; ?>
-
-    <?php if ($currentPage + 1 < $totalPages): ?>
-        <span class="ellipsis">...</span>
-        <a href="?page=<?= $totalPages ?>">
-            <?= $totalPages ?>
-        </a>
-    <?php endif; ?>
-
-<?php endif; ?>
-
-<!-- Next -->
-<?php if ($currentPage < $totalPages): ?>
-    <a href="?page=<?= $currentPage + 1 ?>" class="nav-btn">Next &raquo;</a>
-<?php endif; ?>
-
-<?php endif; ?>
-</div>
+            <?php endif; ?>
+        </div>
+        </div>
 
     <?php else: ?>
         <p>No products found.</p>
@@ -229,3 +175,4 @@ else:
     window.IS_ADMIN = <?= Session::get('role') === 'admin' ? 'true' : 'false' ?>;
 </script>
 <script src="/assets/js/products_list.js"></script>
+<script src="/assets/js/pagination.js"></script>
